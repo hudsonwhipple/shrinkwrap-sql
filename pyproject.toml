@@ -5,6 +5,8 @@ description = "Post-training and quantizing small LLMs for text-to-SQL on Apple 
 requires-python = ">=3.11"
 dependencies = [
     "mlx-lm>=0.32",
+    "numpy",
+    "pyyaml",
     "tqdm",
 ]
 
