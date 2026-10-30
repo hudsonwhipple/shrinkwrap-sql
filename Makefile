@@ -3,7 +3,7 @@ MODEL ?= Qwen/Qwen3-1.7B
 ADAPTER ?= adapters/sft_r16
 LIMIT ?= 200
 
-.PHONY: setup data test gold-check baseline sft-data train eval-sft compare sweep
+.PHONY: setup data test exercises gold-check baseline sft-data train eval-sft compare sweep
 
 setup:
 	python3.13 -m venv .venv
@@ -14,6 +14,9 @@ data:
 
 test:
 	$(PY) -m pytest -q
+
+exercises:
+	$(PY) -m pytest tests/exercises -v -rs
 
 gold-check:
 	$(PY) -m shrinkwrap.evaluate --gold-check --out results/gold_check_dev

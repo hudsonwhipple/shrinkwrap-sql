@@ -25,15 +25,35 @@ Every evaluation writes `results/<name>.jsonl` (one row per example, with the mo
 extracted SQL and errors, for error analysis) and `results/<name>.json` (summary with a 95% CI,
 throughput and peak memory). `LIMIT=1034` evaluates the full dev set.
 
+## Implementing the techniques yourself
+
+LoRA, the SFT loss, RTN quantization, GPTQ and GRPO are exercises: stubs with tests, plus scripts
+that run them on the real model. **[IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)** says what
+to implement, how, and how to run and test each piece.
+
 ## Layout
 
 ```
-src/shrinkwrap/spider.py    Spider loading, seeded subsets, schema serialization
-src/shrinkwrap/prompts.py   one prompt format shared by training and eval; SQL extraction
-src/shrinkwrap/sqlexec.py   sandboxed read-only execution; result matching
-src/shrinkwrap/evaluate.py  batched MLX generation -> execution accuracy
-src/shrinkwrap/compare.py   paired bootstrap comparison of two runs
-src/shrinkwrap/reward.py    verifiable reward for GRPO (same checks as eval)
+src/shrinkwrap/spider.py     Spider loading, seeded subsets, schema serialization
+src/shrinkwrap/prompts.py    one prompt format shared by training and eval; SQL extraction
+src/shrinkwrap/sqlexec.py    sandboxed read-only execution; result matching
+src/shrinkwrap/evaluate.py   batched MLX generation -> execution accuracy
+src/shrinkwrap/compare.py    paired bootstrap comparison of two runs
+src/shrinkwrap/reward.py     verifiable reward for GRPO (same checks as eval)
+src/shrinkwrap/modules.py    finding and swapping a model's linear layers
+src/shrinkwrap/calibrate.py  model-level fake quantization and sequential GPTQ calibration
+
+src/shrinkwrap/lora.py       exercise 1: LoRA layer
+src/shrinkwrap/losses.py     exercise 2: masked SFT loss
+src/shrinkwrap/quant.py      exercise 3: group-wise RTN quantization
+src/shrinkwrap/gptq.py       exercise 4: GPTQ
+src/shrinkwrap/grpo.py       exercise 5: GRPO
+
+scripts/train_sft.py         LoRA SFT with your LoRA + loss (or mlx_lm's, for comparison)
+scripts/quantize_model.py    fake-quantize with your RTN / GPTQ, save for evaluation
+scripts/train_grpo.py        GRPO with your LoRA + GRPO math
+scripts/quant_sweep.py       real MLX quantization sweep across pipelines and bit widths
+tests/exercises/             exercise tests (skipped until implemented)
 ```
 
 ## Design decisions
