@@ -1,0 +1,22 @@
+[project]
+name = "shrinkwrap"
+version = "0.1.0"
+description = "Post-training and quantizing small LLMs for text-to-SQL on Apple Silicon"
+requires-python = ">=3.11"
+dependencies = [
+    "mlx-lm>=0.32",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "matplotlib"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
