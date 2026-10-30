@@ -1,0 +1,37 @@
+# LoRA SFT on Spider train.
+#   python scripts/prepare_sft.py
+#   python -m mlx_lm lora --config configs/sft_lora.yaml
+# Copy this file per ablation (rank, num_layers, learning rate) and change adapter_path.
+# For QLoRA, set model to a quantized directory made by `mlx_lm convert -q` (see scripts/quant_sweep.py).
+
+model: Qwen/Qwen3-1.7B
+train: true
+data: data/sft
+fine_tune_type: lora
+mask_prompt: true            # loss on the SQL answer only, not the schema and question
+num_layers: -1               # adapt every transformer block (all linear layers in each)
+lora_parameters:
+  rank: 16
+  scale: 2.0                 # output multiplier, i.e. alpha / rank (alpha = 32)
+  dropout: 0.0
+
+optimizer: adamw
+learning_rate: 2.0e-4        # LoRA wants a roughly 10x higher LR than full fine-tuning
+lr_schedule:
+  name: cosine_decay
+  warmup: 50
+  warmup_init: 1.0e-7
+  arguments: [2.0e-4, 800, 2.0e-6]
+
+batch_size: 4
+grad_accumulation_steps: 2   # effective batch of 8; 800 iters is about one epoch
+iters: 800
+max_seq_length: 2560         # longest Spider train example is ~2.3K tokens; truncation would cut off the answer
+grad_checkpoint: true        # trades compute for memory; needed for 3-4B models on 24 GB
+
+steps_per_report: 10
+steps_per_eval: 100
+val_batches: 25
+save_every: 200
+adapter_path: adapters/sft_r16
+seed: 0
