@@ -49,6 +49,7 @@ class LoRALinear(nn.Module):
         layer = LoRALinear(input_dims, output_dims, rank, scale, dropout)
         layer.linear = linear
         layer.freeze()
+        # layer.unfreeze(keys=["lora_a", "lora_b"])
         return layer
 
     def __call__(self, x: mx.array) -> mx.array:
@@ -64,11 +65,17 @@ class LoRALinear(nn.Module):
         # return a plain nn.Linear with weight W + scale * (lora_a @ lora_b).T, in W's dtype.
         # Mind the transpose: nn.Linear computes x @ W.T. Keep the bias if the base layer has one.
         # (1e: for an nn.QuantizedLinear base, mx.dequantize its weight first.)
-        if isinstance(self.linear, nn.QuantizedLinear):
-            weight = mx.dequantize(self.linear.weight)
+        linear = self.linear
+        if isinstance(linear, nn.QuantizedLinear):
+            weight = mx.dequantize(linear.weight, linear.scales, linear.biases, group_size = linear.group_size, bits=linear.bits)
         else:
-            weight = self.linear.weight
-        return nn.Linear(self.linear.weight[1], self.linear.weight[0], bias=self.linear.bias is not None)
+            weight = linear.weight
+        weight = weight + self.scale * (self.lora_a @ self.lora_b).T
+        out = nn.Linear(weight.shape[1], weight.shape[0], bias=linear.bias is not None)
+        out.weight = weight.astype(weight.dtype)
+        if linear.bias is not None:
+            out.bias = linear.bias
+        return out
 
 
 def apply_lora(model: nn.Module, num_layers: int = -1, rank: int = 8, scale: float = 2.0, dropout: float = 0.0) -> int:
@@ -79,6 +86,6 @@ def apply_lora(model: nn.Module, num_layers: int = -1, rank: int = 8, scale: flo
     model.freeze()
     wrapped = 0
     for block, name, linear in block_linears(model, num_layers):
-        set_module(model, name, LoRALinear.from_base(linear, rank=rank, scale=scale, dropout=dropout))
+        set_module(block, name, LoRALinear.from_base(linear, rank=rank, scale=scale, dropout=dropout))
         wrapped += 1
     return wrapped
