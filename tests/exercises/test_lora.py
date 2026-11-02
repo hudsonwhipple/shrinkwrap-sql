@@ -65,6 +65,14 @@ def test_fuse_matches_unfused(bias):
     assert rel_err(fused(x), layer(x)) < 5e-3
 
 
+def test_fuse_keeps_weight_dtype():
+    """The adapter is float32, so adding it to bf16 weights promotes them unless you cast the update."""
+    base, layer = make_lora()
+    base.set_dtype(mx.bfloat16)
+    randomize_adapter(layer)
+    assert layer.fuse().weight.dtype == mx.bfloat16
+
+
 def test_only_adapter_weights_change_when_training():
     base, layer = make_lora()
     w_before = mx.array(base.weight)
