@@ -25,9 +25,12 @@ def sft_loss(model: nn.Module, batch: mx.array, lengths: mx.array) -> tuple[mx.a
     The logits at position t predict the token at position t + 1. Count a target token at
     position p only when answer_start <= p < length.
     """
-    logits = model(batch)
-    targets = batch[:, 1:]
-    losses = nn.cross_entropy(logits.reshape(-1, logits.shape[-1]), targets.reshape(-1), reduction="none")
-    losses = losses.reshape(batch.shape[0], -1)
-    losses = losses[lengths[:, 0] < lengths[:, 1]]
-    return losses.mean(), losses.numel()
+    inputs, targets = batch[:, :-1], batch[:, 1:]
+    logits = model(inputs)
+    # targets[:, j] is the token at position j + 1, so positions start at 1.
+    positions = mx.arange(1, batch.shape[1])[None, :]
+    mask = (positions >= lengths[:, 0:1]) & (positions < lengths[:, 1:2])
+    ce = nn.losses.cross_entropy(logits, targets) * mask
+    ntoks = mask.sum()
+    # The real model runs in bf16, which has too little precision to sum per-token losses accurately.
+    return ce.astype(mx.float32).sum() / ntoks, ntoks
