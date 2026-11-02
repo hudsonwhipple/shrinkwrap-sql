@@ -31,8 +31,9 @@ class LoRALinear(nn.Module):
         self.linear = nn.Linear(input_dims, output_dims, bias=False)
         self.dropout = nn.Dropout(p = dropout)
         self.scale = scale
-        self.lora_a = nn.Parameter(mx.random.uniform(low = -1/math.sqrt(input_dims), high = 1/math.sqrt(input_dims), shape = (input_dims, rank)))
-        self.lora_b = nn.Parameter(mx.zeros(shape = (rank, output_dims)))
+        bound = 1/math.sqrt(input_dims)
+        self.lora_a = mx.random.uniform(low = -bound, high = bound, shape = (input_dims, rank))
+        self.lora_b = mx.zeros(shape = (rank, output_dims))
 
     @staticmethod
     def from_base(linear: nn.Module, rank: int = 8, scale: float = 2.0, dropout: float = 0.0) -> "LoRALinear":
@@ -45,10 +46,10 @@ class LoRALinear(nn.Module):
         if isinstance(linear, nn.QuantizedLinear):
             input_dims = packed_in * 32 // linear.bits
         else:
-            input_dims = packed_in[1]
+            input_dims = packed_in
         layer = LoRALinear(input_dims, output_dims, rank, scale, dropout)
-        layer.linear = linear
         layer.freeze()
+        layer.linear = linear
         # layer.unfreeze(keys=["lora_a", "lora_b"])
         return layer
 
@@ -67,13 +68,13 @@ class LoRALinear(nn.Module):
         # (1e: for an nn.QuantizedLinear base, mx.dequantize its weight first.)
         linear = self.linear
         if isinstance(linear, nn.QuantizedLinear):
-            weight = mx.dequantize(linear.weight, linear.scales, linear.biases, group_size = linear.group_size, bits=linear.bits)
+            weight = mx.dequantize(linear.weight, linear.scales, linear.biases, group_size = linear.group_size, bits=linear.bits, mode=linear.mode)
         else:
             weight = linear.weight
-        weight = weight + self.scale * (self.lora_a @ self.lora_b).T
-        out = nn.Linear(weight.shape[1], weight.shape[0], bias=linear.bias is not None)
-        out.weight = weight.astype(weight.dtype)
-        if linear.bias is not None:
+        weight = weight + (self.scale * (self.lora_a @ self.lora_b).T).astype(weight.dtype)
+        out = nn.Linear(weight.shape[1], weight.shape[0], bias="bias" in linear)
+        out.weight = weight
+        if "bias" in linear:
             out.bias = linear.bias
         return out
 
