@@ -10,6 +10,7 @@ Check your work:  pytest tests/exercises/test_lora.py
 from __future__ import annotations
 
 import math
+from struct import pack
 
 import mlx.core as mx
 import mlx.nn as nn
@@ -29,7 +30,7 @@ class LoRALinear(nn.Module):
         #   self.lora_b   (rank, output_dims), zeros, so the adapter starts as an exact no-op
         self.linear = nn.Linear(input_dims, output_dims, bias=False)
         self.dropout = nn.Dropout(p = dropout)
-        self.scale = scale / rank
+        self.scale = scale
         self.lora_a = nn.Parameter(mx.random.uniform(low = -1/math.sqrt(input_dims), high = 1/math.sqrt(input_dims), shape = (input_dims, rank)))
         self.lora_b = nn.Parameter(mx.zeros(shape = (rank, output_dims)))
 
@@ -40,12 +41,15 @@ class LoRALinear(nn.Module):
         # lora_b should show up in .trainable_parameters()).
         # if `linear` is an nn.QuantizedLinear, its weight is packed into uint32
         # words of 32 // linear.bits values each, so input_dims = weight.shape[1] * 32 // linear.bits.
+        output_dims, packed_in = linear.weight.shape
         if isinstance(linear, nn.QuantizedLinear):
-            input_dims = linear.weight.shape[1] * 32 // linear.bits
+            input_dims = packed_in * 32 // linear.bits
         else:
-            input_dims = linear.weight.shape[1]
-        input_dims, output_dims = linear.weight.shape
-        return LoRALinear(input_dims, output_dims, rank, scale, dropout)
+            input_dims = packed_in[1]
+        layer = LoRALinear(input_dims, output_dims, rank, scale, dropout)
+        layer.linear = linear
+        layer.freeze()
+        return layer
 
     def __call__(self, x: mx.array) -> mx.array:
         # base output plus the scaled low-rank update. Cast the update
