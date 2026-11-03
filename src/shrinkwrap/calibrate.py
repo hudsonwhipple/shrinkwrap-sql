@@ -1,4 +1,4 @@
-"""Model-level fake quantization: RTN on every block linear layer, or sequential GPTQ.
+"""Model-level quantization: fake or real RTN on every block linear layer, or sequential GPTQ.
 
 GPTQ runs block by block: calibration hidden states go through block i with every linear layer
 wrapped in a recorder that accumulates H = mean(x x^T) of its inputs; each layer is then quantized
@@ -18,7 +18,7 @@ import mlx.core as mx
 import mlx.nn as nn
 
 from .modules import LINEAR_TYPES, block_linears, set_module
-from .quant import fake_quantize
+from .quant import fake_quantize, to_quantized_linear
 
 
 def fake_quantize_model(model: nn.Module, method: str, bits: int, group_size: int, exact_zero: bool = True) -> int:
@@ -34,6 +34,28 @@ def fake_quantize_model(model: nn.Module, method: str, bits: int, group_size: in
             raise ValueError(f"unknown method {method!r}")
         linear.weight = w_hat.astype(w.dtype)
         mx.eval(linear.weight)
+    return len(targets)
+
+
+def real_quantize_model(model: nn.Module, config: dict, bits: int, group_size: int, exact_zero: bool = True) -> int:
+    """Exercise 3d: swap every block linear for a real nn.QuantizedLinear. Returns the count.
+
+    Use block_linears, to_quantized_linear and set_module, and call mx.eval on each new layer's
+    parameters as you go. Also set config["quantization"] and config["quantization_config"] to
+    {"group_size": group_size, "bits": bits, "mode": "affine"}: mlx_lm.load needs them to rebuild the
+    low-bit layers from the saved file.
+    """
+    targets = block_linears(model)
+    for block, name, linear in targets:
+        real = to_quantized_linear(linear, bits, group_size, exact_zero)
+        # MLX is lazy, so evaluate here or the packing work for every layer piles up until the save.
+        mx.eval(real.parameters())
+        set_module(block, name, real)
+    # load builds the model from the config before reading the weights, so without these it creates
+    # plain layers and rejects the saved .scales and .biases. `mlx_lm convert` writes both keys.
+    params = {"group_size": group_size, "bits": bits, "mode": "affine"}
+    config["quantization"] = dict(params)
+    config["quantization_config"] = dict(params)
     return len(targets)
 
 

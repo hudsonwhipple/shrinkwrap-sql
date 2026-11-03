@@ -41,16 +41,16 @@ src/shrinkwrap/evaluate.py   batched MLX generation -> execution accuracy
 src/shrinkwrap/compare.py    paired bootstrap comparison of two runs
 src/shrinkwrap/reward.py     verifiable reward for GRPO (same checks as eval)
 src/shrinkwrap/modules.py    finding and swapping a model's linear layers
-src/shrinkwrap/calibrate.py  model-level fake quantization and sequential GPTQ calibration
+src/shrinkwrap/calibrate.py  model-level fake and real quantization, sequential GPTQ calibration
 
 src/shrinkwrap/lora.py       exercise 1: LoRA layer
 src/shrinkwrap/losses.py     exercise 2: masked SFT loss
-src/shrinkwrap/quant.py      exercise 3: group-wise RTN quantization
+src/shrinkwrap/quant.py      exercise 3: group-wise RTN quantization, fake and real
 src/shrinkwrap/gptq.py       exercise 4: GPTQ
 src/shrinkwrap/grpo.py       exercise 5: GRPO
 
 scripts/train_sft.py         LoRA SFT with your LoRA + loss (or mlx_lm's, for comparison)
-scripts/quantize_model.py    fake-quantize with your RTN / GPTQ, save for evaluation
+scripts/quantize_model.py    quantize with your RTN (fake or real) or GPTQ, save for evaluation
 scripts/train_grpo.py        GRPO with your LoRA + GRPO math
 scripts/quant_sweep.py       real MLX quantization sweep across pipelines and bit widths
 tests/exercises/             exercise tests (skipped until implemented)

@@ -10,7 +10,7 @@ a tiny in-memory model.
 | 0 | nothing: library baselines | | | `make baseline`, `make train`, `make eval-sft` |
 | 1 | LoRA layer, fusing, QLoRA support, model wrapping | `src/shrinkwrap/lora.py` | `tests/exercises/test_lora.py` | `scripts/train_sft.py` |
 | 2 | Masked SFT loss | `src/shrinkwrap/losses.py` | `tests/exercises/test_losses.py` | `scripts/train_sft.py` |
-| 3 | Group-wise RTN quantization | `src/shrinkwrap/quant.py` | `tests/exercises/test_quant.py` | `scripts/quantize_model.py --method rtn` |
+| 3 | Group-wise RTN quantization, then real low-bit layers (3d) | `src/shrinkwrap/quant.py`, `src/shrinkwrap/calibrate.py` | `tests/exercises/test_quant.py` | `scripts/quantize_model.py --method rtn`, with `--real` for 3d |
 | 4 | GPTQ | `src/shrinkwrap/gptq.py` | `tests/exercises/test_gptq.py` | `scripts/quantize_model.py --method gptq` |
 | 5 | GRPO advantages, log-probs, loss | `src/shrinkwrap/grpo.py` | `tests/exercises/test_grpo.py` | `scripts/train_grpo.py` |
 
@@ -171,8 +171,8 @@ variants yourself:
 ```
 Your RTN should match MLX's within the CI. Then sweep bits (8/6/4/3) and group sizes (32/64/128) and
 plot accuracy against bits per weight. These are *fake*-quantized models: real low-bit accuracy,
-bf16 size and speed. For real memory and speed numbers, use `make sweep` (`mlx_lm convert`), which
-also quantizes the embedding and LM head.
+bf16 size and speed. For real memory and speed numbers, do Exercise 3d below, or use `make sweep`
+(`mlx_lm convert`), which also quantizes the embedding and LM head.
 
 What correct implementations scored (my reference solutions; Qwen3-1.7B base, 3-bit, group size 64,
 the same 200 dev questions; unquantized bf16 scores 62.5%):
@@ -188,6 +188,78 @@ at 4 bits expect all of them to be much closer to bf16.
 
 **Be ready to explain:** symmetric vs asymmetric quantization; why groups (outliers); the
 bits-per-weight overhead; why fake quantization is valid for accuracy studies but not for speed.
+
+### 3d. Real quantization (`quant.py`, `calibrate.py`)
+
+**Idea.** Fake quantization shows what low-bit weights do to accuracy, but it saves nothing. A real
+`nn.QuantizedLinear` stores the same codes packed into `uint32` words, plus one scale and bias per
+group, and unpacks them inside the matmul. `quantize_rtn` already produces everything it needs, so
+the work is packing the codes, swapping the layers, and telling `mlx_lm.load` what it's reading.
+
+**Steps.**
+- **`pack_codes`:** each row is one continuous stream of bits, lowest bits first. At 2, 4 and 8 bits
+  the codes fit neatly inside words. At 3, 5 and 6 bits a code can straddle two words, which is the
+  part to get right. MLX's own decoder is the reference in the tests.
+- **`to_quantized_linear`:** build an `nn.QuantizedLinear`, then replace its weight, scales and biases
+  with yours. Don't use `from_linear`, which would run MLX's quantizer instead of yours.
+- **`real_quantize_model`:** swap every block linear and record the settings in `config`. Without
+  them, `mlx_lm.load` builds plain layers and fails on the unexpected `.biases` parameters.
+
+`scripts/quantize_model.py --real` already calls these, and `shrinkwrap.evaluate` needs no changes.
+Only block linears are swapped, the same layers as the fake path, so the two are directly comparable.
+`load` only rebuilds layers that have `.scales` saved, so the bf16 embedding loads as usual.
+
+**Two traps with scales and biases.**
+- **Keep them in the model's dtype.** Float32 scales turn every layer's output into float32. When I
+  kept them, the 3-bit evaluation ran out of GPU memory on this 24 GB machine, most likely for that
+  reason.
+- **bf16 costs you exact zero.** The zero point stays an integer, but rounding the scale and bias to
+  bf16 means `zero * scale + bias` no longer cancels perfectly. On synthetic weights, a true zero lands
+  this far off on average, in units of one quantization step:
+
+  | Bits | Your RTN, cast to bf16 | MLX's quantizer on bf16 |
+  |---|---|---|
+  | 2 | 0.000 | 0.000 |
+  | 3 | 0.003 | 0.0003 |
+  | 4 | 0.009 | 0.004 |
+  | 8 | 0.22 | 0.19 |
+
+  It's the price of 16-bit scales and biases, and it showed no measurable effect on accuracy below.
+
+**Run.**
+```bash
+.venv/bin/python -m pytest tests/exercises/test_quant.py -q --tb=short
+.venv/bin/python scripts/quantize_model.py --method rtn --bits 4 --out models/Qwen3-1.7B-rtn-q4g64
+.venv/bin/python scripts/quantize_model.py --method rtn --bits 4 --real --out models/Qwen3-1.7B-rtnreal-q4g64
+.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-rtn-q4g64 --limit 200 --out results/rtn_q4g64_n200
+.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-rtnreal-q4g64 --limit 200 --out results/rtnreal_q4g64_n200
+.venv/bin/python -m shrinkwrap.compare results/rtn_q4g64_n200.jsonl results/rtnreal_q4g64_n200.jsonl
+du -sh models/Qwen3-1.7B-rtn-q4g64 models/Qwen3-1.7B-rtnreal-q4g64
+```
+Use `--limit 1034` for anything you report.
+
+What my reference solution scored (Qwen3-1.7B base, group size 64, the same 200 dev questions;
+unquantized bf16 scores 62.5%). Fake models are 3.2 GB on disk and peaked at 10.9–12.4 GB in evaluation:
+
+| Bits | Fake | Real | Real minus fake (95% CI) | Real on disk | Real peak memory |
+|---|---|---|---|---|---|
+| 2 | 0.0% | 0.0% | 0 | 1.0 GB | 9.3 GB |
+| 3 | 17.5% | 15.0% | −2.5 (−7.5 to +2.5) | 1.2 GB | 10.3 GB |
+| 4 | 58.5% | 60.5% | +2.0 (−1.0 to +5.0) | 1.3 GB | 8.9 GB |
+| 8 | 61.0% | 61.5% | +0.5 (−2.0 to +3.0) | 2.0 GB | 9.6 GB |
+
+Real and fake match within noise at every width, which is your check that the packing is right. The
+savings are in disk and memory; speed showed no clear change (the same real 4-bit model ran at 211 and
+236 tokens/s in two runs, and fake ran at 220).
+
+About 0.62 GB of each real model is the bf16 embedding, which this model also uses as its output head.
+`mlx_lm convert` quantizes it too, which is why its 4-bit model is 934 MB. It scored 54.5% on the same
+questions, 6.0 points below real RTN (95% CI +0.5 to +11.5), but the quantizer also differs, so this
+doesn't show which of the two caused the gap.
+
+**Be ready to explain:** how a 3-bit code gets split across two words; why scales and biases stay in
+the model's dtype, and what that costs; why real and fake give the same accuracy; why real quantization
+clearly saved memory here but not time.
 
 ## 4. GPTQ (`src/shrinkwrap/gptq.py`)
 
@@ -289,8 +361,10 @@ why the KL penalty and what k3 estimates; why `--updates-per-step 1` makes the r
 
 ## Stretch goals
 
-- Pack your RTN or GPTQ codes into real `nn.QuantizedLinear` layers (match MLX's packing and its
-  scale/bias convention) to get the memory and speed savings, then benchmark with `mlx_lm benchmark`.
+- Make GPTQ real as well: have `gptq_quantize` also return its codes, scales and biases, then reuse
+  `pack_codes`. Benchmark your real models with `mlx_lm benchmark`.
+- Quantize the embedding with `nn.QuantizedEmbedding` to close the size gap with `mlx_lm convert`, and
+  measure what it costs in accuracy.
 - AWQ, DoRA (`fine_tune_type: dora` in mlx_lm, then your own), LoRA+ (separate learning rates for A and B).
 - Replace mlx_lm's trainer with your own training loop.
 - Repeat the key results on a second task (e.g. JSON extraction) to show they generalize.
