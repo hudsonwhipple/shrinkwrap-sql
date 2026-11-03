@@ -79,7 +79,12 @@ return no rows always "match", so numbers run slightly optimistic versus the off
 | Run | Dev examples | EX | 95% CI | Notes |
 |---|---|---|---|---|
 | Gold SQL vs. itself | 1,034 (all) | 1.000 | [0.996, 1.000] | harness sanity check |
-| Qwen3-1.7B base | 200 (seed 0) | 0.625 | [0.556, 0.689] | 11% of queries fail to execute; 63 s, 10.9 GB peak |
+| Qwen3-1.7B base | 1,034 (all) | 0.589 | [0.559, 0.619] | 11.4% of queries fail to execute |
+| + LoRA SFT | 1,034 (all) | 0.705 | [0.677, 0.732] | from-scratch LoRA and loss; rank 16, all layers, 800 steps, seed 0; 8.9% of queries fail to execute |
+
+Paired difference, LoRA SFT vs. base: **+11.6 points** (95% CI +8.6 to +14.6). The fine-tune alone gets
+190 questions right and the base model alone gets 70. This is one training run with one seed, scored
+with plain execution accuracy (see the known limitation above).
 
 ## Data license and citation
 
