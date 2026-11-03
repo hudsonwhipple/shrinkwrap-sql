@@ -30,16 +30,18 @@ def affine_params(w: mx.array, bits: int, exact_zero: bool = True) -> tuple[mx.a
     """
     # TODO(3a)
     if exact_zero:
-        lo = mx.min(mx.min(w, axis=-1, keepdims=True), 0.0)
-        hi = mx.max(mx.max(w, axis=-1, keepdims=True), 0.0)
+        lo = mx.minimum(mx.min(w, axis=-1, keepdims=True), 0.0)
+        hi = mx.maximum(mx.max(w, axis=-1, keepdims=True), 0.0)
         scale = (hi - lo) / (2**bits - 1)
-        zero = (round(-lo / scale))
+        scale = mx.where(hi > lo, scale, 1.0)
+        zero = (mx.round(-lo / scale))
         bias = -zero * scale
         return scale, bias
     else:
-        lo = mx.min(mx.min(w, axis=-1, keepdims=True), 0.0)
-        hi = mx.max(mx.max(w, axis=-1, keepdims=True), 0.0)
+        lo = mx.min(w, axis=-1, keepdims=True)
+        hi = mx.max(w, axis=-1, keepdims=True)
         scale = (hi - lo) / (2**bits - 1)
+        scale = mx.where(hi > lo, scale, 1.0)
         bias = lo
         return scale, bias
     
@@ -53,20 +55,26 @@ def quantize_rtn(w: mx.array, bits: int, group_size: int, exact_zero: bool = Tru
     to the valid range. Hint: reshape to (out, in // group_size, group_size) so the last axis is a group.
     """
     # TODO(3b)
+    w = w.astype(mx.float32)
     w = w.reshape(w.shape[0], w.shape[1] // group_size, group_size)
     scale, bias = affine_params(w, bits, exact_zero)
-    q = (w - bias) / scale
-    q = mx.clip(q, 0, 2**bits - 1)
+    q = mx.round((w - bias) / scale)
+    q = mx.clip(q, 0, 2**bits - 1).astype(mx.uint8)
+    # Reshape q back to (out, in)
+    q = q.reshape(w.shape[0], w.shape[1] * group_size)
+    # Use .squeeze(-1) to remove the last dimension of scale and bias
+    scale = scale.squeeze(-1)
+    bias = bias.squeeze(-1)
     return q, scale, bias
 
 
 def dequantize(q: mx.array, scales: mx.array, biases: mx.array, group_size: int) -> mx.array:
     """Inverse of quantize_rtn: float32 weights of shape (out, in)."""
     # TODO(3c)
-    q = q.reshape(q.shape[0], q.shape[1] * group_size)
-    scale = scale.reshape(scale.shape[0], scale.shape[1] // group_size)
-    bias = bias.reshape(bias.shape[0], bias.shape[1] // group_size)
-    w = q * scale + bias
+    # Reshape q back to (out, in // group_size, group_size)
+    q = q.reshape(q.shape[0], q.shape[1] // group_size, group_size)
+    w = q * scales[..., None] + biases[..., None]
+    w = w.reshape(w.shape[0], w.shape[1] * group_size)
     return w
 
 
