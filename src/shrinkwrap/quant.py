@@ -29,7 +29,20 @@ def affine_params(w: mx.array, bits: int, exact_zero: bool = True) -> tuple[mx.a
         scale = (max - min) / (2**bits - 1), bias = min, with a guard for constant rows.
     """
     # TODO(3a)
-    raise NotImplementedError("Exercise 3a: affine_params")
+    if exact_zero:
+        lo = mx.min(mx.min(w), 0)
+        hi = mx.max(mx.max(w), 0)
+        scale = (hi - lo) / (2**bits - 1)
+        zero = (round(-lo / scale))
+        bias = -zero * scale
+        return scale, bias
+    else:
+        lo = mx.min(mx.min(w), 0)
+        hi = mx.max(mx.max(w), 0)
+        scale = (hi - lo) / (2**bits - 1)
+        bias = lo
+        return scale, bias
+    
 
 
 def quantize_rtn(w: mx.array, bits: int, group_size: int, exact_zero: bool = True) -> tuple[mx.array, mx.array, mx.array]:
@@ -40,13 +53,21 @@ def quantize_rtn(w: mx.array, bits: int, group_size: int, exact_zero: bool = Tru
     to the valid range. Hint: reshape to (out, in // group_size, group_size) so the last axis is a group.
     """
     # TODO(3b)
-    raise NotImplementedError("Exercise 3b: quantize_rtn")
+    w = w.reshape(w.shape[0], w.shape[1] // group_size, group_size)
+    scale, bias = affine_params(w, bits, exact_zero)
+    q = (w - bias) / scale
+    q = mx.clip(q, 0, 2**bits - 1)
+    return q, scale, bias
 
 
 def dequantize(q: mx.array, scales: mx.array, biases: mx.array, group_size: int) -> mx.array:
     """Inverse of quantize_rtn: float32 weights of shape (out, in)."""
     # TODO(3c)
-    raise NotImplementedError("Exercise 3c: dequantize")
+    q = q.reshape(q.shape[0], q.shape[1] * group_size)
+    scale = scale.reshape(scale.shape[0], scale.shape[1] // group_size)
+    bias = bias.reshape(bias.shape[0], bias.shape[1] // group_size)
+    w = q * scale + bias
+    return w
 
 
 def fake_quantize(w: mx.array, bits: int, group_size: int, exact_zero: bool = True) -> mx.array:
