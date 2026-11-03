@@ -30,15 +30,15 @@ def affine_params(w: mx.array, bits: int, exact_zero: bool = True) -> tuple[mx.a
     """
     # TODO(3a)
     if exact_zero:
-        lo = mx.min(mx.min(w), 0)
-        hi = mx.max(mx.max(w), 0)
+        lo = mx.min(mx.min(w, axis=-1, keepdims=True), 0.0)
+        hi = mx.max(mx.max(w, axis=-1, keepdims=True), 0.0)
         scale = (hi - lo) / (2**bits - 1)
         zero = (round(-lo / scale))
         bias = -zero * scale
         return scale, bias
     else:
-        lo = mx.min(mx.min(w), 0)
-        hi = mx.max(mx.max(w), 0)
+        lo = mx.min(mx.min(w, axis=-1, keepdims=True), 0.0)
+        hi = mx.max(mx.max(w, axis=-1, keepdims=True), 0.0)
         scale = (hi - lo) / (2**bits - 1)
         bias = lo
         return scale, bias
