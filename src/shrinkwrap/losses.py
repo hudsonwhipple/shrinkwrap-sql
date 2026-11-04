@@ -20,7 +20,7 @@ def sft_loss(model: nn.Module, batch: mx.array, lengths: mx.array) -> tuple[mx.a
              the number of real tokens (positions >= length are padding).
 
     Returns (loss, ntoks): loss is a float32 scalar averaged over every counted target token in the
-    batch; ntoks is the number of target tokens counted.
+    batch; ntoks is the number of target tokens counted. A batch with no target tokens returns (0, 0).
 
     The logits at position t predict the token at position t + 1. Count a target token at
     position p only when answer_start <= p < length.
@@ -32,5 +32,7 @@ def sft_loss(model: nn.Module, batch: mx.array, lengths: mx.array) -> tuple[mx.a
     mask = (positions >= lengths[:, 0:1]) & (positions < lengths[:, 1:2])
     ce = nn.losses.cross_entropy(logits, targets) * mask
     ntoks = mask.sum()
+    # Truncation can cut off every answer in a batch, and 0 / 0 here would turn every adapter weight into
+    # NaN for the rest of the run. The trainer compiles this function, so it can't check the value and raise.
     # The real model runs in bf16, which has too little precision to sum per-token losses accurately.
-    return ce.astype(mx.float32).sum() / ntoks, ntoks
+    return ce.astype(mx.float32).sum() / mx.maximum(ntoks, 1), ntoks

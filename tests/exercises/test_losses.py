@@ -61,6 +61,17 @@ def test_padding_is_ignored(tiny_model, batch):
     assert math.isclose(loss_a.item(), loss_b.item(), rel_tol=1e-6)
 
 
+@pytest.mark.parametrize("lengths", [[[6, 6], [8, 8]], [[20, 6], [20, 8]]], ids=["empty answers", "answers truncated away"])
+def test_batch_with_no_answer_tokens_is_zero_not_nan(tiny_model, batch, lengths):
+    """Sorted batching groups the longest examples, so truncation can empty a whole batch. One NaN
+    gradient would ruin every adapter weight for the rest of the run."""
+    model = tiny_model()
+    tokens, _ = batch
+    (loss, ntoks), grads = nn.value_and_grad(model, sft_loss)(model, tokens, mx.array(lengths))
+    assert loss.item() == 0.0 and int(ntoks.item()) == 0
+    assert all(mx.abs(g).sum().item() == 0 for _, g in tree_flatten(grads))
+
+
 def test_differentiable(tiny_model, batch):
     model = tiny_model()
     tokens, lengths = batch

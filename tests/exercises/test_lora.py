@@ -7,6 +7,7 @@ import pytest
 from mlx.utils import tree_flatten
 
 from shrinkwrap.lora import LoRALinear, apply_lora
+from shrinkwrap.modules import set_module
 
 
 def make_lora(input_dims=32, output_dims=24, rank=4, scale=2.0, bias=False):
@@ -122,6 +123,38 @@ def test_apply_lora_last_n_layers(tiny_model):
     model = tiny_model(layers=3)
     assert apply_lora(model, num_layers=1, rank=4) == 7
     assert all(k.startswith("model.layers.2.") for k, _ in tree_flatten(model.trainable_parameters()))
+
+
+def test_apply_lora_refuses_a_model_with_your_adapters(tiny_model):
+    """A second pass would nest adapters under names mlx_lm can't load, wasting the whole run."""
+    model = tiny_model()
+    apply_lora(model, rank=4)
+    before = sorted(k for k, _ in tree_flatten(model.trainable_parameters()))
+    with pytest.raises(ValueError, match="already has LoRA adapters"):
+        apply_lora(model, rank=4)
+    assert sorted(k for k, _ in tree_flatten(model.trainable_parameters())) == before
+
+
+def test_apply_lora_refuses_a_model_with_mlx_lm_adapters(tiny_model):
+    """mlx_lm.load(adapter_path=...) builds its own class, which would nest the same way."""
+    from mlx_lm.tuner.utils import linear_to_lora_layers
+
+    model = tiny_model()
+    model.freeze()
+    linear_to_lora_layers(model, num_layers=2, config={"rank": 4, "scale": 2.0, "dropout": 0.0})
+    with pytest.raises(ValueError, match="already has LoRA adapters"):
+        apply_lora(model, rank=4)
+
+
+def test_apply_lora_accepts_a_fused_model(tiny_model):
+    """Fusing and then training a fresh adapter is how GRPO starts from the SFT model."""
+    model = tiny_model()
+    apply_lora(model, rank=4)
+    for block in model.layers:
+        for name, module in block.named_modules():
+            if isinstance(module, LoRALinear):
+                set_module(block, name, module.fuse())
+    assert apply_lora(model, rank=4) == 14
 
 
 def test_adapter_starts_as_no_op_on_full_model(tiny_model):

@@ -87,8 +87,13 @@ class LoRALinear(nn.Module):
 def apply_lora(model: nn.Module, num_layers: int = -1, rank: int = 8, scale: float = 2.0, dropout: float = 0.0) -> int:
     """Freeze the whole model, then wrap every linear layer in the last `num_layers` blocks.
 
-    Returns how many layers were wrapped.
+    Returns how many layers were wrapped. Raises ValueError if the model already has adapters.
     """
+    # A second pass would find each frozen base at .linear and wrap it too. Training would look normal, but
+    # mlx_lm refuses to load the result because its names are wrong, so you'd only find out after the run.
+    # Checking before freeze() leaves a refused model exactly as it was, with its adapters still trainable.
+    if any("lora_a" in m for m in model.modules()):
+        raise ValueError("model already has LoRA adapters; load a fresh model or fuse them first")
     # Freeze first so embeddings, norms and any unwrapped layers stay fixed; adapters created
     # afterwards are the only new trainable parameters.
     model.freeze()

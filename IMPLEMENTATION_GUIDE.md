@@ -83,7 +83,9 @@ attention.
 - **1e QLoRA:** accept an `nn.QuantizedLinear` base. Its weight is packed, `32 // bits` values per
   uint32, so `in = weight.shape[1] * 32 // bits`; in `fuse`, `mx.dequantize` first.
 - **1f `apply_lora`:** `model.freeze()`, then wrap everything `modules.block_linears` returns, using
-  `modules.set_module`.
+  `modules.set_module`. First raise a `ValueError` if the model already has adapters, because
+  `block_linears` also finds each frozen base at `.linear`. A second pass would nest adapters under
+  names mlx_lm refuses to load, and you'd only find out after training.
 
 Parameter names and shapes must match mlx_lm's, so your adapters load with
 `mlx_lm.load(adapter_path=...)`, `mlx_lm fuse` and the quantization sweep. `test_apply_lora_matches_mlx_lm_naming` checks this.
@@ -109,6 +111,13 @@ costs and saves; how QLoRA keeps the base frozen in 4 bits but trains in higher 
 **Idea.** Next-token cross-entropy, but only on answer tokens: the schema and question are inputs,
 not targets. The logits at position `t` predict token `t + 1`, so shift by one, build a mask from
 `lengths` (`[answer_start, length]` per row) and average over the counted tokens.
+
+**Guard the empty batch.** Truncation keeps `answer_start` but shortens `length`, so an answer past
+`max_seq_length` counts no tokens, and the trainer's length-sorted batches group those examples
+together. A batch with no tokens makes the mean 0 / 0, and that single NaN gradient turns every adapter
+weight into NaN for the rest of the run. Divide by `mx.maximum(ntoks, 1)`; the trainer compiles the loss,
+so you can't check the value and raise. On Spider train, `max_seq_length: 2560` gives no such batches,
+but mlx_lm's default of 2048 gives 20 of 1,613, 1024 gives 173, and 512 gives 479.
 
 **The off-by-one you will find.** Once your tests pass, read `default_loss` in
 `.venv/lib/python3.13/site-packages/mlx_lm/tuner/trainer.py`. Its mask uses `steps <= length`,
