@@ -13,6 +13,7 @@ Check your work:  pytest tests/exercises/test_gptq.py
 from __future__ import annotations
 
 import mlx.core as mx
+import numpy as np
 
 from .quant import affine_params
 
@@ -47,5 +48,50 @@ def gptq_quantize(
     Requires block_size to be a multiple of group_size.
     NumPy (float64) is fine for the inner loop if you find MLX slicing awkward.
     """
-    # TODO(4)
-    raise NotImplementedError("Exercise 4: gptq_quantize")
+    # Use numpy for updating slices in place
+    w = np.array(w.astype(mx.float32), dtype=np.float64)
+    h = np.array(h.astype(mx.float32), dtype=np.float64)
+    inp = w.shape[1]
+
+    # Handle dead columns
+    dead = np.diag(h) == 0
+    h[dead, dead] = 1.0
+    w[:, dead] = 0.0
+
+    # Add damping
+    damp = percdamp * np.mean(np.diag(h))
+    h[np.arange(inp), np.arange(inp)] += damp
+
+    # Build hinv
+    hinv = np.linalg.cholesky(np.linalg.inv(h)).T
+
+    # Start the block loop
+    w_hat = np.zeros_like(w)
+    for start in range(0, inp, block_size):
+        end = min(start + block_size, inp)
+        block = w[:, start:end].copy()
+        errors = np.zeros_like(block)
+
+        # Loop over columns in the block
+        for i in range(start, end):
+            j = i - start
+            if j % group_size == 0:
+                group = mx.array(block[:, j:j + group_size])
+                scale, bias = affine_params(group, bits, exact_zero)
+                scale, bias = np.array(scale, dtype=np.float64), np.array(bias, dtype=np.float64)
+            # Quantize the column
+            column = block[:, j:j + 1]
+            codes = np.clip(np.round((column - bias) / scale), 0, 2**bits - 1)
+            q = codes * scale + bias
+            w_hat[:, i] = q[:, 0]
+            # Compute the error
+            err = (column - q) / hinv[i, i]
+            errors[:, j] = err[:, 0]
+            # Adjust the rest of this block
+            block[:, j:] -= err * hinv[i, i:end]
+
+        # Push the block's accumulated errors onto all later columns at once (lazy batch update)
+        w[:, end:] -= errors @ hinv[start:end, end:]
+
+    # Convert back to float32 and return
+    return mx.array(w_hat.astype(np.float32))
