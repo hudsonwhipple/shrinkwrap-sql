@@ -81,10 +81,21 @@ return no rows always "match", so numbers run slightly optimistic versus the off
 | Gold SQL vs. itself | 1,034 (all) | 1.000 | [0.996, 1.000] | harness sanity check |
 | Qwen3-1.7B base | 1,034 (all) | 0.589 | [0.559, 0.619] | 11.4% of queries fail to execute |
 | + LoRA SFT | 1,034 (all) | 0.705 | [0.677, 0.732] | from-scratch LoRA and loss; rank 16, all layers, 800 steps, seed 0; 8.9% of queries fail to execute |
+| Base, real 4-bit RTN | 1,034 (all) | 0.578 | [0.548, 0.608] | from-scratch RTN and packing; group size 64, block linears only; 1.3 GB on disk, 8.9 GB peak memory; 16.6% of queries fail to execute |
+| Base, fake 3-bit GPTQ | 200 (subset) | 0.530 | [0.461, 0.598] | from-scratch GPTQ; group size 64, 64 calibration sequences; 14.5% of queries fail to execute |
 
 Paired difference, LoRA SFT vs. base: **+11.6 points** (95% CI +8.6 to +14.6). The fine-tune alone gets
 190 questions right and the base model alone gets 70. This is one training run with one seed, scored
 with plain execution accuracy (see the known limitation above).
+
+Paired difference, real 4-bit RTN vs. base: **-1.1 points** (95% CI -3.8 to +1.6), so no loss was
+detected at about 40% of the bf16 model's size. The answers do change: the quantized model alone gets
+96 questions right and the base model alone gets 107.
+
+Paired difference, 3-bit GPTQ vs. 3-bit RTN on the same 200 questions: **+35.5 points** (95% CI +28.5 to
++42.5). RTN scores 17.5% there and unquantized bf16 scores 62.5%. This model is fake-quantized, so it
+shows real low-bit accuracy but not the size savings. Both quantized models here are the base model,
+not the fine-tune.
 
 ## Data license and citation
 
