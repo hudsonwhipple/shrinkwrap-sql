@@ -45,13 +45,18 @@ def gptq_quantize(
            - err = (w[:, i] - q) / hinv[i, i]
            - update the remaining columns of the block: w[:, i:] -= err * hinv[i, i:]
          then push the block's accumulated errors onto all later columns at once (lazy batch update).
-    Requires block_size to be a multiple of group_size.
+    Requires block_size and w's input width to be multiples of group_size.
     NumPy (float64) is fine for the inner loop if you find MLX slicing awkward.
     """
+    inp = w.shape[1]
+    # Otherwise a group gets cut short at a block boundary and ends up with more than one grid, so it
+    # holds more than 2**bits values and the model isn't really at the bit width it claims.
+    if block_size % group_size or inp % group_size:
+        raise ValueError(f"block_size ({block_size}) and input width ({inp}) must be multiples of group_size ({group_size})")
+
     # Use numpy for updating slices in place
     w = np.array(w.astype(mx.float32), dtype=np.float64)
     h = np.array(h.astype(mx.float32), dtype=np.float64)
-    inp = w.shape[1]
 
     # Handle dead columns
     dead = np.diag(h) == 0

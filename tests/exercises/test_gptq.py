@@ -46,6 +46,14 @@ def test_identity_hessian_reduces_to_rtn():
     assert mx.allclose(w_gptq, fake_quantize(w, 4, 32), atol=1e-5).item()
 
 
+@pytest.mark.parametrize("inp, group_size, block_size", [(480, 48, 128), (512, 256, 128), (480, 64, 128)])
+def test_rejects_sizes_that_would_cut_a_group_short(inp, group_size, block_size):
+    """A cut-off group gets a second grid, so it would silently hold more than 2**bits values."""
+    w, h, _ = layer_problem(inp=inp)
+    with pytest.raises(ValueError, match="multiples of group_size"):
+        gptq_quantize(w, h, 3, group_size=group_size, block_size=block_size)
+
+
 def test_dead_inputs_do_not_produce_nans():
     w, h, _ = layer_problem()
     h = np.array(h)
