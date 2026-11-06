@@ -21,6 +21,11 @@ def test_group_advantages_are_per_group():
     assert mx.allclose(adv, mx.array([-1.0, 1.0, -1.0, 1.0]), atol=1e-4).item()
 
 
+def test_group_advantages_rejects_incomplete_groups():
+    with pytest.raises(ValueError):
+        group_advantages(mx.ones(7), group_size=4)
+
+
 def test_token_logprobs_matches_log_softmax(tiny_model):
     model = tiny_model()
     tokens = mx.array([[3, 14, 15, 92, 65], [35, 89, 79, 32, 38]])
@@ -64,6 +69,29 @@ def test_sequences_weigh_equally():
     loss, _ = grpo_loss(logp, logp, None, adv, mask, beta=0.0)
     # per-sequence mean: -(2 + 0 + 0) / 3. A flat token mean would give -(4 * 2) / 9 instead.
     assert math.isclose(loss.item(), -2 / 3, rel_tol=1e-5)
+
+
+def test_sequence_with_no_completion_tokens_counts_as_zero_not_nan():
+    """One NaN gradient would ruin every adapter weight for the rest of the run."""
+    logp, _ = setup(batch=2)
+    adv = mx.array([1.0, -1.0])
+    mask = mx.array([[0, 0, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]], dtype=mx.float32)
+    loss, grad = mx.value_and_grad(lambda lp: grpo_loss(lp, mx.stop_gradient(lp), None, adv, mask, beta=0.0)[0])(logp)
+    assert math.isclose(loss.item(), -0.5, rel_tol=1e-5)
+    assert not mx.any(mx.isnan(grad)).item()
+
+
+def test_batch_with_no_completion_tokens_is_zero_not_nan():
+    logp, _ = setup()
+    loss, kl = grpo_loss(logp, logp, logp + 0.2, mx.array([1.0, -0.5, 2.0]), mx.zeros_like(logp))
+    assert loss.item() == 0.0 and kl.item() == 0.0
+
+
+def test_kl_penalty_without_a_reference_raises():
+    """Otherwise a missing reference would silently turn the penalty off."""
+    logp, mask = setup()
+    with pytest.raises(ValueError):
+        grpo_loss(logp, logp, None, mx.zeros(3), mask, beta=0.1)
 
 
 def test_masked_tokens_are_ignored():

@@ -63,28 +63,27 @@ def grpo_loss(
                 pg    = -min(ratio * A, clip(ratio, 1 - clip_eps, 1 + clip_eps) * A)
                 kl    = exp(ref_logp - logp) - (ref_logp - logp) - 1       (the "k3" estimator, >= 0)
                 term  = pg + beta * kl
-    Average `term` over each sequence's masked tokens, then average over sequences.
+    Average `term` over each sequence's masked tokens, then average over sequences. A sequence with
+    no masked tokens counts as 0.
     Returns (loss, kl) where kl is the mean of `kl` over all masked tokens (0 when ref_logp is None),
-    for logging.
+    for logging. Raises ValueError if beta != 0 and ref_logp is None.
     """
+    # Otherwise a missing reference would silently turn the penalty off.
+    if ref_logp is None and beta != 0:
+        raise ValueError("beta != 0 needs ref_logp")
     ratio = mx.exp(logp - old_logp)
     # Compute the clipped objective.
     adv = advantages[:, None]  # (B, 1), so it broadcasts across tokens
     pg = -mx.minimum(ratio * adv, mx.clip(ratio, 1 - clip_eps, 1 + clip_eps) * adv)
-    # KL penalty
+    # Add the KL penalty to keep the model from drifting too far from your SFT model
     if ref_logp is None:
         kl = mx.zeros_like(logp)
     else:
         diff = ref_logp - logp
         kl = mx.exp(diff) - diff - 1
-    #  Add the KL penalty to keep the model from drifting too far from your SFT model
-    if ref_logp is None:
-        kl = mx.zeros_like(logp)
-    else:
-        diff = ref_logp - logp
-        kl = mx.exp(diff) - diff - 1
-    # Average it
+    # Average it. An empty sequence would make this 0 / 0, and one NaN gradient would ruin every
+    # adapter weight for the rest of the run.
     term = pg + beta * kl
-    per_sequence = (term * mask).sum(axis=1) / mask.sum(axis=1)
-    return per_sequence.mean(), (kl * mask).sum() / mask.sum()
+    per_sequence = (term * mask).sum(axis=1) / mx.maximum(mask.sum(axis=1), 1)
+    return per_sequence.mean(), (kl * mask).sum() / mx.maximum(mask.sum(), 1)
 

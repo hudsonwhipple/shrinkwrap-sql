@@ -10,6 +10,10 @@ reference model for the KL penalty is the same network with the LoRA switched of
 Each step samples --group-size completions for each of --prompts-per-step training questions,
 scores them with shrinkwrap.reward.sql_reward, and takes one optimizer step (or more with
 --updates-per-step, which is where the ratio clipping starts to matter). Logs go to <out>/log.jsonl.
+
+Spider's schemas reach over 2,000 tokens, so memory depends on the longest sequence, not the average.
+Each prompt is sampled separately, each micro-batch pads only to its own longest sequence and is
+limited by --max-batch-tokens, and gradient checkpointing runs during the update.
 """
 
 import argparse
@@ -25,6 +29,7 @@ import mlx.optimizers as optim
 from mlx.utils import tree_flatten, tree_map
 from mlx_lm import batch_generate, load
 from mlx_lm.sample_utils import make_sampler
+from mlx_lm.tuner.trainer import grad_checkpoint
 
 from shrinkwrap.grpo import group_advantages, grpo_loss, token_logprobs
 from shrinkwrap.lora import LoRALinear, apply_lora
@@ -46,6 +51,34 @@ def lora_disabled(model: nn.Module):
     finally:
         for m, s in zip(layers, saved):
             m.scale = s
+
+
+@contextmanager
+def checkpointing(model: nn.Module):
+    """Re-run each block during backprop instead of storing its activations. Only the update needs this."""
+    block_type = type(model.layers[0])
+    original = block_type.__call__
+    grad_checkpoint(model.layers[0])
+    try:
+        yield
+    finally:
+        block_type.__call__ = original
+
+
+def micro_batches(lengths: list[int], max_sequences: int, max_tokens: int) -> list[range]:
+    """Split sequences into consecutive runs of at most max_sequences and max_tokens once padded.
+
+    A sequence longer than max_tokens gets a run of its own.
+    """
+    runs, start, longest = [], 0, 0
+    for i, length in enumerate(lengths):
+        longest = max(longest, length)
+        count = i + 1 - start
+        if count > 1 and (count > max_sequences or count * longest > max_tokens):
+            runs.append(range(start, i))
+            start, longest = i, length
+    runs.append(range(start, len(lengths)))
+    return runs
 
 
 def pad(seqs: list[list[int]]) -> mx.array:
@@ -80,6 +113,7 @@ def main() -> None:
     ap.add_argument("--group-size", type=int, default=8)
     ap.add_argument("--updates-per-step", type=int, default=1)
     ap.add_argument("--micro-batch", type=int, default=4, help="sequences per forward/backward pass")
+    ap.add_argument("--max-batch-tokens", type=int, default=4096, help="limit on sequences x padded length per pass")
     ap.add_argument("--max-tokens", type=int, default=256)
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--learning-rate", type=float, default=1e-5)
@@ -109,21 +143,28 @@ def main() -> None:
 
     for step in range(1, args.steps + 1):
         start = time.perf_counter()
+        mx.reset_peak_memory()
         batch_examples = [examples[((step - 1) * P + i) % len(examples)] for i in range(P)]
         prompts = [
             render_prompt(tokenizer, build_messages(schema_ddl(str(e.db_path)), e.question)) for e in batch_examples
         ]
 
-        # 1. Sample G completions per prompt from the current policy.
-        resp = batch_generate(
-            model, tokenizer, [p for p in prompts for _ in range(G)], max_tokens=args.max_tokens,
-            sampler=sampler, return_token_ids=True, completion_batch_size=P * G,
-        )
-        completions = [ids + [tokenizer.eos_token_id] if len(ids) < args.max_tokens else ids for ids in resp.token_ids]
+        # 1. Sample G completions per prompt from the current policy. One call per prompt, so short
+        # prompts aren't left-padded to the longest prompt of the step.
+        completions, texts = [], []
+        for prompt in prompts:
+            resp = batch_generate(
+                model, tokenizer, [prompt] * G, max_tokens=args.max_tokens,
+                sampler=sampler, return_token_ids=True, completion_batch_size=G,
+            )
+            completions += [ids + [tokenizer.eos_token_id] if len(ids) < args.max_tokens else ids for ids in resp.token_ids]
+            texts += resp.texts
+        mx.clear_cache()
+        sample_seconds = time.perf_counter() - start
 
         # 2. Verifiable rewards, normalized within each prompt's group.
         rewards = []
-        for i, text in enumerate(resp.texts):
+        for i, text in enumerate(texts):
             e = batch_examples[i // G]
             if e.idx not in gold_cache:
                 gold_cache[e.idx] = execute(e.db_path, e.gold_sql)
@@ -131,45 +172,54 @@ def main() -> None:
         rewards_arr = mx.array(rewards)
         advantages = group_advantages(rewards_arr, G)
 
-        # 3. Batch prompt + completion, with a mask over completion tokens.
+        # 3. Batch prompt + completion, with a mask over completion tokens. Each micro-batch pads only
+        # to its own longest sequence, so one long schema doesn't slow down the whole step.
         seqs = [prompts[i // G] + c for i, c in enumerate(completions)]
-        tokens = pad(seqs)
-        mask = completion_mask([len(prompts[i // G]) for i in range(len(seqs))], list(map(len, seqs)), tokens.shape[1])
+        prompt_lens = [len(prompts[i // G]) for i in range(len(seqs))]
+        lengths = list(map(len, seqs))
+        batches = []
+        for run in micro_batches(lengths, args.micro_batch, args.max_batch_tokens):
+            tokens = pad([seqs[i] for i in run])
+            mask = completion_mask([prompt_lens[i] for i in run], [lengths[i] for i in run], tokens.shape[1])
+            batches.append((tokens, mask, slice(run.start, run.stop)))
 
-        def chunks():
-            for s in range(0, len(seqs), args.micro_batch):
-                yield slice(s, s + args.micro_batch)
+        def all_logprobs() -> list[mx.array]:
+            logps = []
+            for tokens, _, _ in batches:
+                logps.append(token_logprobs(model, tokens))
+                mx.eval(logps[-1])
+            return logps
 
-        ref_logp = None
+        ref_logps = None
         if args.beta > 0:
             with lora_disabled(model):
-                ref_logp = mx.concatenate([token_logprobs(model, tokens[c]) for c in chunks()])
-            mx.eval(ref_logp)
-        old_logp = None
+                ref_logps = all_logprobs()
+        old_logps = None
         if args.updates_per_step > 1:
-            old_logp = mx.concatenate([token_logprobs(model, tokens[c]) for c in chunks()])
-            mx.eval(old_logp)
+            old_logps = all_logprobs()
 
         # 4. Policy update, accumulating gradients over micro-batches.
-        for _ in range(args.updates_per_step):
-            total_grads, losses, kls = None, [], []
-            for c in chunks():
-                n = len(range(*c.indices(len(seqs))))
+        with checkpointing(model):
+            for _ in range(args.updates_per_step):
+                total_grads, losses, kls = None, [], []
+                for b, (tokens, mask, run) in enumerate(batches):
 
-                def loss_fn(m):
-                    lp = token_logprobs(m, tokens[c])
-                    old = old_logp[c] if old_logp is not None else mx.stop_gradient(lp)
-                    ref = ref_logp[c] if ref_logp is not None else None
-                    loss, kl = grpo_loss(lp, old, ref, advantages[c], mask[c], args.clip_eps, args.beta)
-                    return loss * (n / len(seqs)), kl
+                    def loss_fn(m):
+                        lp = token_logprobs(m, tokens)
+                        old = old_logps[b] if old_logps is not None else mx.stop_gradient(lp)
+                        ref = ref_logps[b] if ref_logps is not None else None
+                        loss, kl = grpo_loss(lp, old, ref, advantages[run], mask, args.clip_eps, args.beta)
+                        return loss * (tokens.shape[0] / len(seqs)), kl
 
-                (loss, kl), grads = nn.value_and_grad(model, loss_fn)(model)
-                total_grads = grads if total_grads is None else tree_map(mx.add, total_grads, grads)
-                mx.eval(total_grads)
-                losses.append(loss.item())
-                kls.append(kl.item())
-            optimizer.update(model, total_grads)
-            mx.eval(model.trainable_parameters(), optimizer.state)
+                    (loss, kl), grads = nn.value_and_grad(model, loss_fn)(model)
+                    total_grads = grads if total_grads is None else tree_map(mx.add, total_grads, grads)
+                    mx.eval(total_grads, loss, kl)
+                    losses.append(loss.item())
+                    kls.append(kl.item())
+                optimizer.update(model, total_grads)
+                mx.eval(model.trainable_parameters(), optimizer.state)
+        peak_gb = mx.get_peak_memory() / 1e9
+        mx.clear_cache()
 
         groups = rewards_arr.reshape(P, G)
         record = {
@@ -180,7 +230,10 @@ def main() -> None:
             "completion_tokens": round(sum(map(len, completions)) / len(completions), 1),
             "loss": round(sum(losses), 5),
             "kl": round(sum(kls) / len(kls), 5),
+            "longest_sequence": max(lengths),
+            "sample_seconds": round(sample_seconds, 1),
             "seconds": round(time.perf_counter() - start, 1),
+            "peak_gb": round(peak_gb, 2),
         }
         log_file.write(json.dumps(record) + "\n")
         log_file.flush()
