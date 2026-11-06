@@ -23,8 +23,12 @@ def group_advantages(rewards: mx.array, group_size: int, eps: float = 1e-6) -> m
     Returns (rewards - group mean) / (group std + eps), using the population std (ddof=0).
     A group where every completion got the same reward has zero advantage (it teaches nothing).
     """
-    # TODO(5a)
-    raise NotImplementedError("Exercise 5a: group_advantages")
+    groups = rewards.reshape(-1, group_size)
+    mean = groups.mean(axis=1, keepdims=True)
+    std = mx.std(groups, axis=1, keepdims=True)
+    advantages = (groups - mean) / (std + eps)
+    same = groups.max(axis=1, keepdims=True) == groups.min(axis=1, keepdims=True)
+    return mx.where(same, 0, advantages).reshape(-1)
 
 
 def token_logprobs(model: nn.Module, tokens: mx.array) -> mx.array:
@@ -34,8 +38,10 @@ def token_logprobs(model: nn.Module, tokens: mx.array) -> mx.array:
     Memory tip: the vocabulary is ~152K, so avoid materializing a full float32 log_softmax if you can
     (logits at the target minus logsumexp over the vocabulary gives the same thing).
     """
-    # TODO(5b)
-    raise NotImplementedError("Exercise 5b: token_logprobs")
+    inputs, targets = tokens[:, :-1], tokens[:, 1:]
+    logits = model(inputs).astype(mx.float32)
+    target_logits = mx.take_along_axis(logits, targets[..., None], axis=-1).squeeze(-1)
+    return target_logits - mx.logsumexp(logits, axis=-1)
 
 
 def grpo_loss(
@@ -61,5 +67,24 @@ def grpo_loss(
     Returns (loss, kl) where kl is the mean of `kl` over all masked tokens (0 when ref_logp is None),
     for logging.
     """
-    # TODO(5c)
-    raise NotImplementedError("Exercise 5c: grpo_loss")
+    ratio = mx.exp(logp - old_logp)
+    # Compute the clipped objective.
+    adv = advantages[:, None]  # (B, 1), so it broadcasts across tokens
+    pg = -mx.minimum(ratio * adv, mx.clip(ratio, 1 - clip_eps, 1 + clip_eps) * adv)
+    # KL penalty
+    if ref_logp is None:
+        kl = mx.zeros_like(logp)
+    else:
+        diff = ref_logp - logp
+        kl = mx.exp(diff) - diff - 1
+    #  Add the KL penalty to keep the model from drifting too far from your SFT model
+    if ref_logp is None:
+        kl = mx.zeros_like(logp)
+    else:
+        diff = ref_logp - logp
+        kl = mx.exp(diff) - diff - 1
+    # Average it
+    term = pg + beta * kl
+    per_sequence = (term * mask).sum(axis=1) / mask.sum(axis=1)
+    return per_sequence.mean(), (kl * mask).sum() / mask.sum()
+
