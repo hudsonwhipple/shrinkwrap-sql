@@ -1,0 +1,14 @@
+format,model,adapter,prompt_tps,generation_tps,peak_memory_gb
+bf16-fused,models/Qwen3-1.7B-mine_r16-fused,,4989.3,75.8,3.82
+bf16-adapter,Qwen/Qwen3-1.7B,adapters/mine_r16,3136.1,53.1,4.44
+mlx-q8-fused,models/Qwen3-1.7B-mine_r16-fused-q8g64,,5345.8,132.0,2.39
+mlx-q6-fused,models/Qwen3-1.7B-mine_r16-fused-q6g64,,5413.7,157.3,2.01
+mlx-q4-fused,models/Qwen3-1.7B-mine_r16-fused-q4g64,,5772.9,218.5,1.6
+mlx-q3-fused,models/Qwen3-1.7B-mine_r16-fused-q3g64,,5839.2,246.2,1.36
+mlx-q8-adapter,models/Qwen3-1.7B-q8g64,adapters/mine_r16,2846.3,74.6,3.35
+mlx-q6-adapter,models/Qwen3-1.7B-q6g64,adapters/mine_r16,2931.3,82.6,2.79
+mlx-q4-adapter,models/Qwen3-1.7B-q4g64,adapters/mine_r16,3091.3,96.8,2.44
+mlx-q3-adapter,models/Qwen3-1.7B-q3g64,adapters/mine_r16,3172.3,102.7,2.14
+your-rtn-q4,models/Qwen3-1.7B-sft-rtnreal-q4g64,,5769.8,163.7,2.05
+your-rtn-q3,models/Qwen3-1.7B-sft-rtnreal-q3g64,,5711.2,176.8,1.9
+your-gptq-q3,models/Qwen3-1.7B-sft-gptq-q3g64,,4983.3,75.5,3.82

@@ -1,0 +1,23 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.589,
+  "ci95": [
+    0.5587,
+    0.6186
+  ],
+  "pred_exec_error_rate": 0.1141,
+  "gold_exec_errors": 0,
+  "wall_time_s": 136.4,
+  "prompt_tokens": 397463,
+  "generation_tokens": 41228,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.9,
+  "batched_generation_tps": 302.1,
+  "peak_memory_gb": 10.88
+}

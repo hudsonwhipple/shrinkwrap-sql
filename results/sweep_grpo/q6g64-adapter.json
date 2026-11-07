@@ -1,0 +1,23 @@
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q6g64",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7292,
+  "ci95": [
+    0.7013,
+    0.7554
+  ],
+  "pred_exec_error_rate": 0.0629,
+  "gold_exec_errors": 0,
+  "wall_time_s": 191.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 36278,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 35.1,
+  "batched_generation_tps": 189.3,
+  "peak_memory_gb": 8.94
+}

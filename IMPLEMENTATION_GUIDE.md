@@ -290,21 +290,29 @@ block. Read it; you will be asked how GPTQ is applied to a whole model.
 
 **Run.**
 ```bash
-.venv/bin/python scripts/quantize_model.py --method gptq --bits 3 --calib-samples 128 --out models/Qwen3-1.7B-gptq-q3g64
+.venv/bin/python scripts/quantize_model.py --method gptq --bits 3 --calib-samples 64 --out models/Qwen3-1.7B-gptq-q3g64
 .venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-gptq-q3g64 --limit 1034 --out results/gptq_q3g64
 ```
 
-What a correct implementation scored (same setup as the RTN table, 64 calibration sequences):
+What correct implementations scored (same setup as the RTN table: base model, 3-bit, group size 64,
+the same 200 dev questions, 64 calibration sequences; unquantized bf16 scores 62.5%):
 
-| Quantizer | Execution accuracy | 95% CI | Queries that fail to run |
-|---|---|---|---|
-| RTN, exact zero | 17.5% | 12.9–23.4% | 61% |
-| GPTQ, exact zero | 47.5% | 40.7–54.4% | 26% |
-| GPTQ, naive zero | 43.0% | 36.3–49.9% | 21% |
+| Quantizer | Reference solution | Fails to run | Yours | Fails to run |
+|---|---|---|---|---|
+| RTN, exact zero | 17.5% (12.9–23.4%) | 61% | 17.5% | — |
+| GPTQ, exact zero | 47.5% (40.7–54.4%) | 26% | 53.0% (46.1–59.8%) | 14.5% |
+| GPTQ, naive zero | 43.0% (36.3–49.9%) | 21% | 46.0% (39.2–52.9%) | 24.5% |
 
 GPTQ recovers most of what 3-bit RTN loses. It even rescues the naive quantizer that broke RTN
-completely: feeding each column's error forward breaks up the correlated rounding. Quantizing
-Qwen3-1.7B took about 6 minutes with a NumPy implementation of the inner loop.
+completely: feeding each column's error forward breaks up the correlated rounding. The exact zero
+still helps: 7 points for yours, and the naive-zero model writes twice as many tokens per answer
+(71 vs 35), a sign it rambles. Two implementations of the same algorithm can land a few points apart (damping, Cholesky
+details, float precision); both are within each other's CI.
+
+On the full dev set, yours scores 50.5% (47.4–53.5%) on the base model, against 14.7% for real 3-bit
+RTN, and 64.9% on the fused SFT model, statistically tied with MLX's 4-bit quantizer (63.6%). See the
+README's results. Quantizing Qwen3-1.7B took about 5–6 minutes with a NumPy implementation of the
+inner loop.
 
 **Ablations:** calibration size (16/64/256), calibration domain (Spider vs generic text: add a
 second source to `calibration_tokens`), `percdamp`, act-order (quantize columns in decreasing

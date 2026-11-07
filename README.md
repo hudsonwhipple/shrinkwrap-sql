@@ -53,6 +53,8 @@ scripts/train_sft.py         LoRA SFT with your LoRA + loss (or mlx_lm's, for co
 scripts/quantize_model.py    quantize with your RTN (fake or real) or GPTQ, save for evaluation
 scripts/train_grpo.py        GRPO with your LoRA + GRPO math
 scripts/quant_sweep.py       real MLX quantization sweep across pipelines and bit widths
+scripts/speed_bench.py       single-stream generation speed of each model format
+scripts/overnight.sh         every experiment behind the results below, unattended and resumable
 tests/exercises/             exercise tests (skipped until implemented)
 ```
 
@@ -76,26 +78,86 @@ return no rows always "match", so numbers run slightly optimistic versus the off
 
 ## Results
 
-| Run | Dev examples | EX | 95% CI | Notes |
-|---|---|---|---|---|
-| Gold SQL vs. itself | 1,034 (all) | 1.000 | [0.996, 1.000] | harness sanity check |
-| Qwen3-1.7B base | 1,034 (all) | 0.589 | [0.559, 0.619] | 11.4% of queries fail to execute |
-| + LoRA SFT | 1,034 (all) | 0.705 | [0.677, 0.732] | from-scratch LoRA and loss; rank 16, all layers, 800 steps, seed 0; 8.9% of queries fail to execute |
-| Base, real 4-bit RTN | 1,034 (all) | 0.578 | [0.548, 0.608] | from-scratch RTN and packing; group size 64, block linears only; 1.3 GB on disk, 8.9 GB peak memory; 16.6% of queries fail to execute |
-| Base, fake 3-bit GPTQ | 200 (subset) | 0.530 | [0.461, 0.598] | from-scratch GPTQ; group size 64, 64 calibration sequences; 14.5% of queries fail to execute |
+Everything is execution accuracy on the full Spider dev set (1,034 questions), and every difference is
+a paired bootstrap 95% CI from `shrinkwrap.compare`. Gold SQL against itself scores 1.000
+[0.996, 1.000], a harness sanity check. Each model is one training run with seed 0.
+`scripts/overnight.sh` reruns everything in about 2 h 40 min, and `scripts/speed_bench.py` the speed
+columns.
 
-Paired difference, LoRA SFT vs. base: **+11.6 points** (95% CI +8.6 to +14.6). The fine-tune alone gets
-190 questions right and the base model alone gets 70. This is one training run with one seed, scored
-with plain execution accuracy (see the known limitation above).
+- **Base:** Qwen3-1.7B; 11.4% of its queries fail to execute.
+- **SFT:** from-scratch LoRA and loss; rank 16 on every layer, 800 steps.
+- **GRPO:** from-scratch GRPO math on top of the fused SFT model; a second rank-16 LoRA, 100 steps of
+  4 training questions × 8 samples, learning rate 1e-5, KL weight 0.04, 42 minutes.
+- **Fused** rows merge the adapter into the weights, then quantize. **+ adapter** rows run the adapter
+  on top of the quantized model (for GRPO, on top of the quantized SFT model). The from-scratch RTN and
+  GPTQ quantize the transformer blocks only; MLX's quantizer (`mlx_lm convert`) also quantizes the embedding.
 
-Paired difference, real 4-bit RTN vs. base: **-1.1 points** (95% CI -3.8 to +1.6), so no loss was
-detected at about 40% of the bf16 model's size. The answers do change: the quantized model alone gets
-96 questions right and the base model alone gets 107.
+| Format | Weights | Generation | Peak memory | Base | SFT | GRPO |
+|---|---|---|---|---|---|---|
+| bf16, fused | 3.44 GB | 76 tok/s | 3.82 GB | 0.589 | 0.705 | — |
+| bf16 + adapter | 3.44 GB + 70 MB | 53 tok/s | 4.44 GB | | 0.705 | 0.720 |
+| MLX 8-bit, fused | 1.83 GB | 132 tok/s | 2.39 GB | 0.586 | 0.707 | 0.723 |
+| MLX 8-bit + adapter | 1.83 GB + 70 MB | 75 tok/s | 3.35 GB | | 0.708 | 0.725 |
+| MLX 6-bit, fused | 1.40 GB | 157 tok/s | 2.01 GB | 0.597 | 0.706 | 0.722 |
+| MLX 6-bit + adapter | 1.40 GB + 70 MB | 83 tok/s | 2.79 GB | | 0.699 | 0.729 |
+| MLX 4-bit, fused | 0.97 GB | 218 tok/s | 1.60 GB | 0.556 | 0.636 | 0.677 |
+| MLX 4-bit + adapter | 0.97 GB + 70 MB | 97 tok/s | 2.44 GB | | 0.627 | 0.674 |
+| MLX 3-bit, fused | 0.75 GB | 246 tok/s | 1.36 GB | 0.196 | 0.373 | 0.438 |
+| MLX 3-bit + adapter | 0.75 GB + 70 MB | 103 tok/s | 2.14 GB | | 0.327 | 0.424 |
+| From-scratch RTN 4-bit | 1.42 GB | 164 tok/s | 2.05 GB | 0.578 | 0.655 | — |
+| From-scratch RTN 3-bit | 1.24 GB | 177 tok/s | 1.90 GB | 0.147 | 0.335 | — |
+| From-scratch GPTQ 3-bit (fake) | 3.44 GB | 76 tok/s | 3.82 GB | 0.505 | 0.649 | 0.684 |
 
-Paired difference, 3-bit GPTQ vs. 3-bit RTN on the same 200 questions: **+35.5 points** (95% CI +28.5 to
-+42.5). RTN scores 17.5% there and unquantized bf16 scores 62.5%. This model is fake-quantized, so it
-shows real low-bit accuracy but not the size savings. Both quantized models here are the base model,
-not the fine-tune.
+The base model has no adapter, so its adapter rows are blank; — means not run (fusing is lossless, so
+the bf16 GRPO result is its adapter row). Generation is single-stream speed on the M5 Pro: batch 1, a
+384-token prompt, 128 generated tokens, median of 5 runs. Peak memory is at that size; batched
+evaluation peaks at 8–11 GB. Don't compare the evaluations' `batched_generation_tps` across models: a
+broken model that rambles to the token limit keeps the batch full and looks faster.
+
+**1. How much of the fine-tune's gain survives quantization.** SFT adds **+11.6 points** at bf16 (+8.6
+to +14.6): 190 questions only the fine-tune gets right, 70 only the base. Fused and quantized with MLX,
+the gain is +12.1 at 8 bits and +10.9 at 6, so it survives intact. At 4 bits about two-thirds of it
+survives: +8.0 (+5.0 to +11.0) with MLX and +7.6 (+4.7 to +10.5) with the from-scratch RTN. Both quantizers cost
+the SFT model more than the base: MLX 4-bit costs it 6.9 points (4.6 to 9.1) against 3.3 (0.7 to 5.9)
+for the base, and the from-scratch 4-bit RTN 5.0 (3.1 to 7.1) against 1.1 (−1.6 to 3.8). What fine-tuning adds
+looks more fragile than what the model already knew. At 3 bits the gain grows in points (+17.7 with
+MLX, +14.4 with the from-scratch GPTQ), but only because the base model collapses further.
+
+**2. How to combine LoRA and quantization: fuse first, then quantize.** Fusing is lossless (0.705
+before and after; 5 answers change each way). Fused-then-quantized ties the adapter on a quantized
+base at 8, 6 and 4 bits (4-bit: +1.0, −0.8 to +2.7) and beats it at 3 bits (+4.6, +2.2 to +7.2). It
+also generates 1.8–2.4× faster: at 4 bits, 218 against 97 tok/s, with 0.8 GB less memory. The separate
+adapter adds two small matrix multiplies to each of the 196 adapted layers for every token, and at
+batch 1 those extra operations dominate: 4-bit with an adapter is only 1.3× faster than bf16 fused. Keep
+adapters separate only when one base model has to serve many of them.
+
+**3. From-scratch 3-bit GPTQ matches MLX's 4-bit accuracy.** On the fused SFT model it scores 0.649, tied with
+MLX 4-bit's 0.636 (+1.3, −1.2 to +3.7) and 31.4 points above the from-scratch 3-bit RTN (+28.3 to +34.5). On the
+base model it is 35.8 points above RTN (+32.7 to +38.9). The exact zero point matters even with GPTQ:
+the naive zero scores 0.460 against 0.530 on the 200-question subset. **Caveat:** these GPTQ models are
+fake-quantized (bf16 weights rounded to the 3-bit grid), so they have 3-bit accuracy at bf16 size and
+speed. Packed the way the RTN models are (a stretch goal in the guide), they would run like the "From-scratch RTN
+3-bit" row: 1.24 GB at 177 tok/s.
+
+From-scratch RTN against MLX's: tied at 4 bits (+2.2 on the base, −0.4 to +4.8; +1.8 on SFT, −0.2 to +3.9),
+worse at 3 bits (−4.9 on the base, −7.6 to −2.2; −3.9 on SFT, −6.6 to −1.1). It is 25% slower and
+0.45 GB larger at 4 bits because the embedding stays bf16: Qwen3-1.7B shares it with the output layer,
+so all 0.62 GB of it is read for every generated token.
+
+**4. Are RL gains more or less fragile under quantization than SFT gains? Less, here.** GRPO adds +1.5
+points over SFT at bf16 (−0.2 to +3.1), too small to call on its own, and cuts queries that fail to
+execute from 9.2% to 7.3%. Under quantization its gain holds or grows: +1.6 at 8 bits, +1.5 at 6,
+**+4.1 at 4** (+2.3 to +5.9), +6.5 at MLX 3-bit (+4.3 to +8.8) and +3.5 with the from-scratch 3-bit GPTQ (+1.2 to
++5.9). Put the other way, MLX 4-bit costs the GRPO model 4.3 points (2.2 to 6.2) against 6.9 for the
+SFT model, and the from-scratch 3-bit GPTQ costs it 3.6 (1.6 to 5.5) against 5.6 (3.5 to 7.7). A possible reason,
+not tested here: GRPO sharpens the output distribution. Its sampled accuracy on training questions
+rose from about 51% in the first 10 steps to about 70% by the end, while greedy dev accuracy rose 1.5
+points, and wider margins between the top token and the next leave less room for quantization noise
+to flip a choice.
+
+**Limitations.** One seed per model, so run-to-run variance isn't measured; plain execution accuracy
+(see above); and GRPO ran only 100 steps. By the end, about 2.4 of each step's 4 questions taught
+nothing because all 8 samples got the same reward, so a longer run needs harder questions.
 
 ## Data license and citation
 

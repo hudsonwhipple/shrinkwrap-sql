@@ -1,0 +1,23 @@
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q8g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.707,
+  "ci95": [
+    0.6785,
+    0.7339
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.0,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35226,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 268.9,
+  "peak_memory_gb": 9.29
+}
