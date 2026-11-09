@@ -4,12 +4,35 @@ Post-training and quantizing a small LLM for text-to-SQL, entirely on an Apple S
 (M5 Pro, 24 GB) with [MLX](https://github.com/ml-explore/mlx).
 
 **Research question:** how much of a fine-tune's gain survives quantization, and how should LoRA
-and quantization be combined for on-device deployment? Later: are RL (GRPO) gains more or less
+and quantization be combined for on-device deployment? And are RL (GRPO) gains more or less
 fragile under quantization than SFT gains?
 
 **Task:** [Spider](https://yale-lily.github.io/spider) (Yu et al., 2018), scored by execution
 accuracy: the predicted query runs against the real SQLite database and its result is compared
 with the gold query's result.
+
+## Key results
+
+Full Spider dev set (1,034 questions), one training run per model. LoRA, RTN, GPTQ and GRPO are
+implemented from scratch. Brackets are paired 95% CIs.
+
+- **Fine-tuning works.** LoRA SFT takes Qwen3-1.7B from 58.9% to 70.5% (+11.6 points [+8.6, +14.6]);
+  GRPO on top of it reaches 72.0%.
+- **Most of the gain survives quantization.** It is intact at 8 and 6 bits, and about two-thirds of it
+  survives 4 bits (+8.0 [+5.0, +11.0]).
+- **Fuse first, then quantize.** That ties or beats running the adapter on a quantized model and
+  generates 1.8–2.4× faster (at 4 bits, 218 against 97 tok/s).
+- **RL gains held up better than SFT gains.** GRPO's edge over SFT is too small to call at full
+  precision (+1.5 [−0.2, +3.1]) but larger at 4 bits (+4.1 [+2.3, +5.9]).
+- **3-bit GPTQ matches MLX's 4-bit accuracy** on the fine-tune (64.9% against 63.6%, no significant
+  difference) and beats 3-bit RTN by 31 points. These GPTQ models are not packed yet, so they show
+  3-bit accuracy without the size savings.
+- **Best deployable model:** GRPO, fused, MLX 4-bit: 67.7% in 0.97 GB at 218 tok/s, against 76 tok/s
+  and 3.44 GB at full precision.
+
+For scale, the best published result found on this split is 87.6% (a 7B model with voting over 8
+samples), and CodeS-1B reaches 77.9%; both use more data and richer prompts. See
+[Results](#results) and [How this compares](#how-this-compares-with-published-results).
 
 ## Setup
 
