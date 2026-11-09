@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Large or regenerable artifacts
+data/
+models/
+adapters/
+results/**/*.jsonl
+results/overnight/*.done

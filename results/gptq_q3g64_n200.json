@@ -1,0 +1,23 @@
+{
+  "model": "models/Qwen3-1.7B-gptq-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 200,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.53,
+  "ci95": [
+    0.4609,
+    0.598
+  ],
+  "pred_exec_error_rate": 0.145,
+  "gold_exec_errors": 0,
+  "wall_time_s": 30.4,
+  "prompt_tokens": 78044,
+  "generation_tokens": 6940,
+  "mean_prompt_tokens": 390.2,
+  "mean_generation_tokens": 34.7,
+  "batched_generation_tps": 228.0,
+  "peak_memory_gb": 10.88
+}

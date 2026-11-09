@@ -1,0 +1,23 @@
+{
+  "model": "models/Qwen3-1.7B-q4g64",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6267,
+  "ci95": [
+    0.5968,
+    0.6557
+  ],
+  "pred_exec_error_rate": 0.1422,
+  "gold_exec_errors": 0,
+  "wall_time_s": 186.9,
+  "prompt_tokens": 397463,
+  "generation_tokens": 37700,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.5,
+  "batched_generation_tps": 201.7,
+  "peak_memory_gb": 8.51
+}

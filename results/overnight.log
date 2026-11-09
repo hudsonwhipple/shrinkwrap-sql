@@ -1,0 +1,1324 @@
+[Fri 17:49] start  fuse-sft: .venv/bin/python -m mlx_lm fuse --model Qwen/Qwen3-1.7B --adapter-path adapters/mine_r16 --save-path models/Qwen3-1.7B-mine_r16-fused
+Loading pretrained model
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3171.36it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[Fri 17:49] done   fuse-sft in 0 min
+[Fri 17:49] start  eval-sft-fused: evaluate models/Qwen3-1.7B-mine_r16-fused results/sft_fused
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:28,  4.65s/batch]generate:   6%|▌         | 2/33 [00:08<02:17,  4.44s/batch]generate:   9%|▉         | 3/33 [00:13<02:09,  4.32s/batch]generate:  12%|█▏        | 4/33 [00:16<02:00,  4.14s/batch]generate:  15%|█▌        | 5/33 [00:20<01:48,  3.89s/batch]generate:  18%|█▊        | 6/33 [00:23<01:41,  3.77s/batch]generate:  21%|██        | 7/33 [00:26<01:29,  3.45s/batch]generate:  24%|██▍       | 8/33 [00:29<01:22,  3.29s/batch]generate:  27%|██▋       | 9/33 [00:32<01:14,  3.10s/batch]generate:  30%|███       | 10/33 [00:35<01:09,  3.00s/batch]generate:  33%|███▎      | 11/33 [00:38<01:05,  3.00s/batch]generate:  36%|███▋      | 12/33 [00:41<01:04,  3.05s/batch]generate:  39%|███▉      | 13/33 [00:43<00:57,  2.88s/batch]generate:  42%|████▏     | 14/33 [00:47<01:00,  3.19s/batch]generate:  45%|████▌     | 15/33 [00:51<01:02,  3.45s/batch]generate:  48%|████▊     | 16/33 [00:55<01:02,  3.66s/batch]generate:  52%|█████▏    | 17/33 [01:03<01:15,  4.69s/batch]generate:  55%|█████▍    | 18/33 [01:10<01:24,  5.65s/batch]generate:  58%|█████▊    | 19/33 [01:16<01:18,  5.64s/batch]generate:  61%|██████    | 20/33 [01:19<01:04,  4.98s/batch]generate:  64%|██████▎   | 21/33 [01:22<00:49,  4.14s/batch]generate:  67%|██████▋   | 22/33 [01:25<00:43,  3.98s/batch]generate:  70%|██████▉   | 23/33 [01:29<00:38,  3.85s/batch]generate:  73%|███████▎  | 24/33 [01:33<00:36,  4.04s/batch]generate:  76%|███████▌  | 25/33 [01:38<00:33,  4.15s/batch]generate:  79%|███████▉  | 26/33 [01:41<00:27,  3.98s/batch]generate:  82%|████████▏ | 27/33 [01:44<00:22,  3.68s/batch]generate:  85%|████████▍ | 28/33 [01:49<00:20,  4.01s/batch]generate:  88%|████████▊ | 29/33 [01:54<00:16,  4.25s/batch]generate:  91%|█████████ | 30/33 [02:00<00:14,  4.72s/batch]generate:  94%|█████████▍| 31/33 [02:04<00:09,  4.71s/batch]generate:  97%|█████████▋| 32/33 [02:07<00:04,  4.19s/batch]generate: 100%|██████████| 33/33 [02:09<00:00,  3.46s/batch]generate: 100%|██████████| 33/33 [02:09<00:00,  3.93s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.705,
+  "ci95": [
+    0.6765,
+    0.732
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 129.6,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35334,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.2,
+  "batched_generation_tps": 272.7,
+  "peak_memory_gb": 10.88
+}
+[Fri 17:51] done   eval-sft-fused in 2 min
+[Fri 17:51] start  quant-sft-rtnreal-q4: quantize --model models/Qwen3-1.7B-mine_r16-fused --method rtn --bits 4 --real --out models/Qwen3-1.7B-sft-rtnreal-q4g64
+rtn: real-quantized 196 linear layers
+Saved models/Qwen3-1.7B-sft-rtnreal-q4g64 in 1s
+[Fri 17:51] done   quant-sft-rtnreal-q4 in 0 min
+[Fri 17:51] start  eval-sft-rtnreal-q4: evaluate models/Qwen3-1.7B-sft-rtnreal-q4g64 results/sft_rtnreal_q4g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:39,  3.10s/batch]generate:   6%|▌         | 2/33 [00:07<01:51,  3.59s/batch]generate:   9%|▉         | 3/33 [00:10<01:46,  3.54s/batch]generate:  12%|█▏        | 4/33 [00:14<01:43,  3.57s/batch]generate:  15%|█▌        | 5/33 [00:18<01:46,  3.81s/batch]generate:  18%|█▊        | 6/33 [00:22<01:46,  3.96s/batch]generate:  21%|██        | 7/33 [00:25<01:35,  3.69s/batch]generate:  24%|██▍       | 8/33 [00:28<01:28,  3.54s/batch]generate:  27%|██▋       | 9/33 [00:31<01:20,  3.37s/batch]generate:  30%|███       | 10/33 [00:35<01:18,  3.41s/batch]generate:  33%|███▎      | 11/33 [00:38<01:12,  3.32s/batch]generate:  36%|███▋      | 12/33 [00:42<01:12,  3.45s/batch]generate:  39%|███▉      | 13/33 [00:44<01:04,  3.20s/batch]generate:  42%|████▏     | 14/33 [00:48<01:04,  3.40s/batch]generate:  45%|████▌     | 15/33 [00:53<01:06,  3.71s/batch]generate:  48%|████▊     | 16/33 [00:58<01:09,  4.07s/batch]generate:  52%|█████▏    | 17/33 [01:06<01:23,  5.23s/batch]generate:  55%|█████▍    | 18/33 [01:14<01:34,  6.33s/batch]generate:  58%|█████▊    | 19/33 [01:20<01:25,  6.08s/batch]generate:  61%|██████    | 20/33 [01:24<01:09,  5.35s/batch]generate:  64%|██████▎   | 21/33 [01:26<00:53,  4.46s/batch]generate:  67%|██████▋   | 22/33 [01:29<00:44,  4.08s/batch]generate:  70%|██████▉   | 23/33 [01:34<00:41,  4.16s/batch]generate:  73%|███████▎  | 24/33 [01:39<00:39,  4.44s/batch]generate:  76%|███████▌  | 25/33 [01:43<00:36,  4.56s/batch]generate:  79%|███████▉  | 26/33 [01:47<00:30,  4.37s/batch]generate:  82%|████████▏ | 27/33 [01:51<00:24,  4.03s/batch]generate:  85%|████████▍ | 28/33 [01:55<00:20,  4.03s/batch]generate:  88%|████████▊ | 29/33 [02:00<00:17,  4.34s/batch]generate:  91%|█████████ | 30/33 [02:06<00:15,  5.01s/batch]generate:  94%|█████████▍| 31/33 [02:11<00:09,  4.99s/batch]generate:  97%|█████████▋| 32/33 [02:14<00:04,  4.41s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  3.59s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  4.14s/batch]
+{
+  "model": "models/Qwen3-1.7B-sft-rtnreal-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6547,
+  "ci95": [
+    0.6252,
+    0.6831
+  ],
+  "pred_exec_error_rate": 0.1257,
+  "gold_exec_errors": 0,
+  "wall_time_s": 136.5,
+  "prompt_tokens": 397463,
+  "generation_tokens": 37271,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.0,
+  "batched_generation_tps": 273.0,
+  "peak_memory_gb": 8.87
+}
+[Fri 17:53] done   eval-sft-rtnreal-q4 in 2 min
+[Fri 17:53] start  quant-sft-gptq-q3: quantize --model models/Qwen3-1.7B-mine_r16-fused --method gptq --bits 3 --calib-samples 64 --out models/Qwen3-1.7B-sft-gptq-q3g64
+GPTQ with 64 calibration sequences (24,843 tokens)
+  block 1/28 quantized
+  block 2/28 quantized
+  block 3/28 quantized
+  block 4/28 quantized
+  block 5/28 quantized
+  block 6/28 quantized
+  block 7/28 quantized
+  block 8/28 quantized
+  block 9/28 quantized
+  block 10/28 quantized
+  block 11/28 quantized
+  block 12/28 quantized
+  block 13/28 quantized
+  block 14/28 quantized
+  block 15/28 quantized
+  block 16/28 quantized
+  block 17/28 quantized
+  block 18/28 quantized
+  block 19/28 quantized
+  block 20/28 quantized
+  block 21/28 quantized
+  block 22/28 quantized
+  block 23/28 quantized
+  block 24/28 quantized
+  block 25/28 quantized
+  block 26/28 quantized
+  block 27/28 quantized
+  block 28/28 quantized
+Saved models/Qwen3-1.7B-sft-gptq-q3g64 in 351s
+[Fri 17:59] done   quant-sft-gptq-q3 in 5 min
+[Fri 17:59] start  eval-sft-gptq-q3: evaluate models/Qwen3-1.7B-sft-gptq-q3g64 results/sft_gptq_q3g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:40,  3.13s/batch]generate:   6%|▌         | 2/33 [00:07<01:51,  3.59s/batch]generate:   9%|▉         | 3/33 [00:10<01:49,  3.67s/batch]generate:  12%|█▏        | 4/33 [00:14<01:43,  3.56s/batch]generate:  15%|█▌        | 5/33 [00:17<01:36,  3.46s/batch]generate:  18%|█▊        | 6/33 [00:20<01:32,  3.44s/batch]generate:  21%|██        | 7/33 [00:23<01:20,  3.10s/batch]generate:  24%|██▍       | 8/33 [00:26<01:18,  3.15s/batch]generate:  27%|██▋       | 9/33 [00:29<01:13,  3.04s/batch]generate:  30%|███       | 10/33 [00:32<01:08,  2.96s/batch]generate:  33%|███▎      | 11/33 [00:34<01:04,  2.93s/batch]generate:  36%|███▋      | 12/33 [00:38<01:05,  3.10s/batch]generate:  39%|███▉      | 13/33 [00:40<00:57,  2.88s/batch]generate:  42%|████▏     | 14/33 [00:43<00:56,  2.96s/batch]generate:  45%|████▌     | 15/33 [00:48<00:59,  3.30s/batch]generate:  48%|████▊     | 16/33 [00:52<01:01,  3.60s/batch]generate:  52%|█████▏    | 17/33 [00:59<01:15,  4.69s/batch]generate:  55%|█████▍    | 18/33 [01:08<01:31,  6.10s/batch]generate:  58%|█████▊    | 19/33 [01:14<01:24,  6.00s/batch]generate:  61%|██████    | 20/33 [01:18<01:08,  5.25s/batch]generate:  64%|██████▎   | 21/33 [01:20<00:52,  4.40s/batch]generate:  67%|██████▋   | 22/33 [01:24<00:45,  4.18s/batch]generate:  70%|██████▉   | 23/33 [01:27<00:40,  4.01s/batch]generate:  73%|███████▎  | 24/33 [01:32<00:36,  4.11s/batch]generate:  76%|███████▌  | 25/33 [01:36<00:33,  4.20s/batch]generate:  79%|███████▉  | 26/33 [01:40<00:28,  4.01s/batch]generate:  82%|████████▏ | 27/33 [01:43<00:22,  3.67s/batch]generate:  85%|████████▍ | 28/33 [01:45<00:16,  3.24s/batch]generate:  88%|████████▊ | 29/33 [01:50<00:14,  3.74s/batch]generate:  91%|█████████ | 30/33 [01:56<00:13,  4.35s/batch]generate:  94%|█████████▍| 31/33 [02:01<00:09,  4.54s/batch]generate:  97%|█████████▋| 32/33 [02:03<00:04,  4.05s/batch]generate: 100%|██████████| 33/33 [02:05<00:00,  3.36s/batch]generate: 100%|██████████| 33/33 [02:05<00:00,  3.81s/batch]
+{
+  "model": "models/Qwen3-1.7B-sft-gptq-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6489,
+  "ci95": [
+    0.6193,
+    0.6774
+  ],
+  "pred_exec_error_rate": 0.1248,
+  "gold_exec_errors": 0,
+  "wall_time_s": 125.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35864,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.7,
+  "batched_generation_tps": 285.3,
+  "peak_memory_gb": 10.88
+}
+[Fri 18:01] done   eval-sft-gptq-q3 in 2 min
+[Fri 18:01] start  quant-sft-rtnreal-q3: quantize --model models/Qwen3-1.7B-mine_r16-fused --method rtn --bits 3 --real --out models/Qwen3-1.7B-sft-rtnreal-q3g64
+rtn: real-quantized 196 linear layers
+Saved models/Qwen3-1.7B-sft-rtnreal-q3g64 in 1s
+[Fri 18:01] done   quant-sft-rtnreal-q3 in 0 min
+[Fri 18:01] start  eval-sft-rtnreal-q3: evaluate models/Qwen3-1.7B-sft-rtnreal-q3g64 results/sft_rtnreal_q3g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:41,  3.16s/batch]generate:   6%|▌         | 2/33 [00:07<01:58,  3.83s/batch]generate:   9%|▉         | 3/33 [00:10<01:47,  3.59s/batch]generate:  12%|█▏        | 4/33 [00:14<01:43,  3.56s/batch]generate:  15%|█▌        | 5/33 [00:17<01:37,  3.50s/batch]generate:  18%|█▊        | 6/33 [00:22<01:43,  3.84s/batch]generate:  21%|██        | 7/33 [00:27<01:53,  4.36s/batch]generate:  24%|██▍       | 8/33 [00:32<01:54,  4.60s/batch]generate:  27%|██▋       | 9/33 [00:36<01:46,  4.45s/batch]generate:  30%|███       | 10/33 [00:39<01:33,  4.05s/batch]generate:  33%|███▎      | 11/33 [00:42<01:21,  3.69s/batch]generate:  36%|███▋      | 12/33 [00:46<01:15,  3.58s/batch]generate:  39%|███▉      | 13/33 [00:48<01:04,  3.24s/batch]generate:  42%|████▏     | 14/33 [00:52<01:03,  3.33s/batch]generate:  45%|████▌     | 15/33 [00:56<01:02,  3.50s/batch]generate:  48%|████▊     | 16/33 [01:00<01:03,  3.76s/batch]generate:  52%|█████▏    | 17/33 [01:07<01:16,  4.80s/batch]generate:  55%|█████▍    | 18/33 [01:15<01:24,  5.63s/batch]generate:  58%|█████▊    | 19/33 [01:20<01:16,  5.43s/batch]generate:  61%|██████    | 20/33 [01:24<01:06,  5.11s/batch]generate:  64%|██████▎   | 21/33 [01:27<00:52,  4.34s/batch]generate:  67%|██████▋   | 22/33 [01:30<00:45,  4.12s/batch]generate:  70%|██████▉   | 23/33 [01:34<00:40,  4.08s/batch]generate:  73%|███████▎  | 24/33 [01:39<00:38,  4.24s/batch]generate:  76%|███████▌  | 25/33 [01:45<00:37,  4.68s/batch]generate:  79%|███████▉  | 26/33 [01:48<00:30,  4.32s/batch]generate:  82%|████████▏ | 27/33 [01:51<00:24,  4.02s/batch]generate:  85%|████████▍ | 28/33 [01:54<00:17,  3.48s/batch]generate:  88%|████████▊ | 29/33 [01:58<00:15,  3.75s/batch]generate:  91%|█████████ | 30/33 [02:04<00:13,  4.51s/batch]generate:  94%|█████████▍| 31/33 [02:10<00:09,  4.76s/batch]generate:  97%|█████████▋| 32/33 [02:13<00:04,  4.29s/batch]generate: 100%|██████████| 33/33 [02:14<00:00,  3.47s/batch]generate: 100%|██████████| 33/33 [02:14<00:00,  4.08s/batch]
+{
+  "model": "models/Qwen3-1.7B-sft-rtnreal-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3346,
+  "ci95": [
+    0.3065,
+    0.3639
+  ],
+  "pred_exec_error_rate": 0.3221,
+  "gold_exec_errors": 0,
+  "wall_time_s": 134.8,
+  "prompt_tokens": 397463,
+  "generation_tokens": 36649,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 35.4,
+  "batched_generation_tps": 271.9,
+  "peak_memory_gb": 8.99
+}
+[Fri 18:04] done   eval-sft-rtnreal-q3 in 2 min
+[Fri 18:04] start  quant-base-rtnreal-q3: quantize --method rtn --bits 3 --real --out models/Qwen3-1.7B-rtnreal-q3g64
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3751.61it/s]
+rtn: real-quantized 196 linear layers
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Saved models/Qwen3-1.7B-rtnreal-q3g64 in 1s
+[Fri 18:04] done   quant-base-rtnreal-q3 in 0 min
+[Fri 18:04] start  eval-base-rtnreal-q3: evaluate models/Qwen3-1.7B-rtnreal-q3g64 results/rtnreal_q3g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:10<05:32, 10.40s/batch]generate:   6%|▌         | 2/33 [00:20<05:16, 10.22s/batch]generate:   9%|▉         | 3/33 [00:30<05:06, 10.23s/batch]generate:  12%|█▏        | 4/33 [00:41<05:02, 10.43s/batch]generate:  15%|█▌        | 5/33 [00:52<04:54, 10.53s/batch]generate:  18%|█▊        | 6/33 [01:02<04:43, 10.49s/batch]generate:  21%|██        | 7/33 [01:11<04:22, 10.10s/batch]generate:  24%|██▍       | 8/33 [01:21<04:06,  9.84s/batch]generate:  27%|██▋       | 9/33 [01:31<03:57,  9.90s/batch]generate:  30%|███       | 10/33 [01:41<03:50, 10.02s/batch]generate:  33%|███▎      | 11/33 [01:51<03:40, 10.02s/batch]generate:  36%|███▋      | 12/33 [02:01<03:31, 10.09s/batch]generate:  39%|███▉      | 13/33 [02:11<03:18,  9.91s/batch]generate:  42%|████▏     | 14/33 [02:21<03:12, 10.14s/batch]generate:  45%|████▌     | 15/33 [02:32<03:06, 10.34s/batch]generate:  48%|████▊     | 16/33 [02:44<03:04, 10.85s/batch]generate:  52%|█████▏    | 17/33 [03:00<03:18, 12.39s/batch]generate:  55%|█████▍    | 18/33 [03:16<03:21, 13.45s/batch]generate:  58%|█████▊    | 19/33 [03:29<03:07, 13.37s/batch]generate:  61%|██████    | 20/33 [03:40<02:41, 12.44s/batch]generate:  64%|██████▎   | 21/33 [03:49<02:17, 11.50s/batch]generate:  67%|██████▋   | 22/33 [03:59<02:01, 11.03s/batch]generate:  70%|██████▉   | 23/33 [04:11<01:53, 11.35s/batch]generate:  73%|███████▎  | 24/33 [04:23<01:44, 11.57s/batch]generate:  76%|███████▌  | 25/33 [04:35<01:34, 11.76s/batch]generate:  79%|███████▉  | 26/33 [04:47<01:21, 11.63s/batch]generate:  82%|████████▏ | 27/33 [04:57<01:07, 11.28s/batch]generate:  85%|████████▍ | 28/33 [05:06<00:53, 10.65s/batch]generate:  88%|████████▊ | 29/33 [05:18<00:43, 10.97s/batch]generate:  91%|█████████ | 30/33 [05:32<00:35, 11.86s/batch]generate:  94%|█████████▍| 31/33 [05:46<00:25, 12.51s/batch]generate:  97%|█████████▋| 32/33 [05:56<00:11, 11.76s/batch]generate: 100%|██████████| 33/33 [06:01<00:00,  9.68s/batch]generate: 100%|██████████| 33/33 [06:01<00:00, 10.95s/batch]
+{
+  "model": "models/Qwen3-1.7B-rtnreal-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.147,
+  "ci95": [
+    0.1267,
+    0.1699
+  ],
+  "pred_exec_error_rate": 0.6557,
+  "gold_exec_errors": 0,
+  "wall_time_s": 361.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 240811,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 232.9,
+  "batched_generation_tps": 666.6,
+  "peak_memory_gb": 10.55
+}
+[Fri 18:10] done   eval-base-rtnreal-q3 in 6 min
+[Fri 18:10] start  eval-base-gptq-q3: evaluate models/Qwen3-1.7B-gptq-q3g64 results/gptq_q3g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:41,  3.16s/batch]generate:   6%|▌         | 2/33 [00:08<02:19,  4.50s/batch]generate:   9%|▉         | 3/33 [00:14<02:27,  4.92s/batch]generate:  12%|█▏        | 4/33 [00:17<02:04,  4.29s/batch]generate:  15%|█▌        | 5/33 [00:23<02:15,  4.83s/batch]generate:  18%|█▊        | 6/33 [00:28<02:16,  5.05s/batch]generate:  21%|██        | 7/33 [00:30<01:47,  4.13s/batch]generate:  24%|██▍       | 8/33 [00:33<01:34,  3.78s/batch]generate:  27%|██▋       | 9/33 [00:36<01:23,  3.48s/batch]generate:  30%|███       | 10/33 [00:40<01:19,  3.47s/batch]generate:  33%|███▎      | 11/33 [00:43<01:12,  3.29s/batch]generate:  36%|███▋      | 12/33 [00:45<01:05,  3.11s/batch]generate:  39%|███▉      | 13/33 [00:48<01:00,  3.01s/batch]generate:  42%|████▏     | 14/33 [00:54<01:13,  3.85s/batch]generate:  45%|████▌     | 15/33 [01:00<01:20,  4.49s/batch]generate:  48%|████▊     | 16/33 [01:04<01:13,  4.33s/batch]generate:  52%|█████▏    | 17/33 [01:13<01:32,  5.79s/batch]generate:  55%|█████▍    | 18/33 [01:22<01:42,  6.85s/batch]generate:  58%|█████▊    | 19/33 [01:30<01:37,  6.99s/batch]generate:  61%|██████    | 20/33 [01:33<01:15,  5.83s/batch]generate:  64%|██████▎   | 21/33 [01:35<00:57,  4.79s/batch]generate:  67%|██████▋   | 22/33 [01:38<00:47,  4.31s/batch]generate:  70%|██████▉   | 23/33 [01:43<00:43,  4.34s/batch]generate:  73%|███████▎  | 24/33 [01:49<00:45,  5.03s/batch]generate:  76%|███████▌  | 25/33 [01:54<00:39,  4.89s/batch]generate:  79%|███████▉  | 26/33 [01:57<00:31,  4.48s/batch]generate:  82%|████████▏ | 27/33 [02:00<00:24,  4.02s/batch]generate:  85%|████████▍ | 28/33 [02:02<00:17,  3.47s/batch]generate:  88%|████████▊ | 29/33 [02:08<00:16,  4.06s/batch]generate:  91%|█████████ | 30/33 [02:16<00:15,  5.20s/batch]generate:  94%|█████████▍| 31/33 [02:22<00:10,  5.39s/batch]generate:  97%|█████████▋| 32/33 [02:25<00:04,  4.64s/batch]generate: 100%|██████████| 33/33 [02:28<00:00,  4.25s/batch]generate: 100%|██████████| 33/33 [02:28<00:00,  4.50s/batch]
+{
+  "model": "models/Qwen3-1.7B-gptq-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.5048,
+  "ci95": [
+    0.4744,
+    0.5352
+  ],
+  "pred_exec_error_rate": 0.175,
+  "gold_exec_errors": 0,
+  "wall_time_s": 148.4,
+  "prompt_tokens": 397463,
+  "generation_tokens": 37414,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.2,
+  "batched_generation_tps": 252.2,
+  "peak_memory_gb": 10.88
+}
+[Fri 18:12] done   eval-base-gptq-q3 in 2 min
+[Fri 18:12] start  quant-base-gptq-q3-naive: quantize --method gptq --bits 3 --naive-zero --calib-samples 64 --out models/Qwen3-1.7B-gptq-q3g64-naive
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 4643.14it/s]
+GPTQ with 64 calibration sequences (24,843 tokens)
+  block 1/28 quantized
+  block 2/28 quantized
+  block 3/28 quantized
+  block 4/28 quantized
+  block 5/28 quantized
+  block 6/28 quantized
+  block 7/28 quantized
+  block 8/28 quantized
+  block 9/28 quantized
+  block 10/28 quantized
+  block 11/28 quantized
+  block 12/28 quantized
+  block 13/28 quantized
+  block 14/28 quantized
+  block 15/28 quantized
+  block 16/28 quantized
+  block 17/28 quantized
+  block 18/28 quantized
+  block 19/28 quantized
+  block 20/28 quantized
+  block 21/28 quantized
+  block 22/28 quantized
+  block 23/28 quantized
+  block 24/28 quantized
+  block 25/28 quantized
+  block 26/28 quantized
+  block 27/28 quantized
+  block 28/28 quantized
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Saved models/Qwen3-1.7B-gptq-q3g64-naive in 342s
+[Fri 18:18] done   quant-base-gptq-q3-naive in 5 min
+[Fri 18:18] start  eval-base-gptq-q3-naive: .venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-gptq-q3g64-naive --limit 200 --out results/gptq_q3g64_naive_n200
+generate:   0%|          | 0/7 [00:00<?, ?batch/s]generate:  14%|█▍        | 1/7 [00:05<00:33,  5.52s/batch]generate:  29%|██▊       | 2/7 [00:10<00:27,  5.50s/batch]generate:  43%|████▎     | 3/7 [00:19<00:27,  6.81s/batch]generate:  57%|█████▋    | 4/7 [00:26<00:20,  6.94s/batch]generate:  71%|███████▏  | 5/7 [00:33<00:14,  7.03s/batch]generate:  86%|████████▌ | 6/7 [00:42<00:07,  7.55s/batch]generate: 100%|██████████| 7/7 [00:45<00:00,  5.99s/batch]generate: 100%|██████████| 7/7 [00:45<00:00,  6.43s/batch]
+{
+  "model": "models/Qwen3-1.7B-gptq-q3g64-naive",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 200,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.46,
+  "ci95": [
+    0.3923,
+    0.5292
+  ],
+  "pred_exec_error_rate": 0.245,
+  "gold_exec_errors": 0,
+  "wall_time_s": 45.0,
+  "prompt_tokens": 78044,
+  "generation_tokens": 14250,
+  "mean_prompt_tokens": 390.2,
+  "mean_generation_tokens": 71.2,
+  "batched_generation_tps": 316.4,
+  "peak_memory_gb": 10.88
+}
+[Fri 18:19] done   eval-base-gptq-q3-naive in 0 min
+[Fri 18:19] start  sweep-sft: .venv/bin/python scripts/quant_sweep.py --adapter-path adapters/mine_r16 --limit 1034 --out results/sweep_sft
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path Qwen/Qwen3-1.7B --mlx-path models/Qwen3-1.7B-q8g64 -q --q-bits 8 --q-group-size 64
+[INFO] Loading
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3655.70it/s]
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 8.501 bits per weight.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-q8g64 -q --q-bits 8 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 8.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path Qwen/Qwen3-1.7B --mlx-path models/Qwen3-1.7B-q6g64 -q --q-bits 6 --q-group-size 64
+[INFO] Loading
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3690.00it/s]
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 6.501 bits per weight.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-q6g64 -q --q-bits 6 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 6.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-q4g64 -q --q-bits 4 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 4.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path Qwen/Qwen3-1.7B --mlx-path models/Qwen3-1.7B-q3g64 -q --q-bits 3 --q-group-size 64
+[INFO] Loading
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3404.16it/s]
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 3.501 bits per weight.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-q3g64 -q --q-bits 3 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 3.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model Qwen/Qwen3-1.7B --out results/sweep_sft/bf16-base --limit 1034 --seed 0
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3070.75it/s]
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:53,  3.55s/batch]generate:   6%|▌         | 2/33 [00:06<01:47,  3.46s/batch]generate:   9%|▉         | 3/33 [00:10<01:43,  3.47s/batch]generate:  12%|█▏        | 4/33 [00:14<01:43,  3.58s/batch]generate:  15%|█▌        | 5/33 [00:18<01:42,  3.67s/batch]generate:  18%|█▊        | 6/33 [00:22<01:47,  3.99s/batch]generate:  21%|██        | 7/33 [00:24<01:28,  3.40s/batch]generate:  24%|██▍       | 8/33 [00:27<01:20,  3.22s/batch]generate:  27%|██▋       | 9/33 [00:30<01:15,  3.14s/batch]generate:  30%|███       | 10/33 [00:33<01:10,  3.08s/batch]generate:  33%|███▎      | 11/33 [00:36<01:09,  3.16s/batch]generate:  36%|███▋      | 12/33 [00:39<01:05,  3.13s/batch]generate:  39%|███▉      | 13/33 [00:42<00:59,  2.97s/batch]generate:  42%|████▏     | 14/33 [00:46<01:00,  3.20s/batch]generate:  45%|████▌     | 15/33 [00:52<01:13,  4.09s/batch]generate:  48%|████▊     | 16/33 [00:56<01:11,  4.23s/batch]generate:  52%|█████▏    | 17/33 [01:06<01:31,  5.74s/batch]generate:  55%|█████▍    | 18/33 [01:14<01:39,  6.63s/batch]generate:  58%|█████▊    | 19/33 [01:22<01:35,  6.79s/batch]generate:  61%|██████    | 20/33 [01:25<01:13,  5.66s/batch]generate:  64%|██████▎   | 21/33 [01:27<00:56,  4.74s/batch]generate:  67%|██████▋   | 22/33 [01:31<00:47,  4.36s/batch]generate:  70%|██████▉   | 23/33 [01:35<00:43,  4.35s/batch]generate:  73%|███████▎  | 24/33 [01:39<00:38,  4.27s/batch]generate:  76%|███████▌  | 25/33 [01:44<00:35,  4.49s/batch]generate:  79%|███████▉  | 26/33 [01:48<00:30,  4.30s/batch]generate:  82%|████████▏ | 27/33 [01:51<00:23,  3.89s/batch]generate:  85%|████████▍ | 28/33 [01:53<00:17,  3.41s/batch]generate:  88%|████████▊ | 29/33 [02:00<00:17,  4.44s/batch]generate:  91%|█████████ | 30/33 [02:06<00:14,  4.95s/batch]generate:  94%|█████████▍| 31/33 [02:11<00:09,  4.91s/batch]generate:  97%|█████████▋| 32/33 [02:14<00:04,  4.37s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  3.62s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  4.13s/batch]
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.589,
+  "ci95": [
+    0.5587,
+    0.6186
+  ],
+  "pred_exec_error_rate": 0.1141,
+  "gold_exec_errors": 0,
+  "wall_time_s": 136.4,
+  "prompt_tokens": 397463,
+  "generation_tokens": 41228,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.9,
+  "batched_generation_tps": 302.1,
+  "peak_memory_gb": 10.88
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model Qwen/Qwen3-1.7B --out results/sweep_sft/bf16-adapter --limit 1034 --seed 0 --adapter-path adapters/mine_r16
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 3913.00it/s]
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:14,  4.20s/batch]generate:   6%|▌         | 2/33 [00:10<02:40,  5.19s/batch]generate:   9%|▉         | 3/33 [00:15<02:43,  5.45s/batch]generate:  12%|█▏        | 4/33 [00:20<02:32,  5.25s/batch]generate:  15%|█▌        | 5/33 [00:25<02:21,  5.06s/batch]generate:  18%|█▊        | 6/33 [00:30<02:18,  5.12s/batch]generate:  21%|██        | 7/33 [00:34<01:59,  4.61s/batch]generate:  24%|██▍       | 8/33 [00:38<01:51,  4.48s/batch]generate:  27%|██▋       | 9/33 [00:42<01:42,  4.26s/batch]generate:  30%|███       | 10/33 [00:46<01:36,  4.18s/batch]generate:  33%|███▎      | 11/33 [00:50<01:32,  4.19s/batch]generate:  36%|███▋      | 12/33 [00:54<01:27,  4.17s/batch]generate:  39%|███▉      | 13/33 [00:57<01:18,  3.92s/batch]generate:  42%|████▏     | 14/33 [01:03<01:23,  4.39s/batch]generate:  45%|████▌     | 15/33 [01:09<01:27,  4.88s/batch]generate:  48%|████▊     | 16/33 [01:15<01:27,  5.17s/batch]generate:  52%|█████▏    | 17/33 [01:25<01:46,  6.63s/batch]generate:  55%|█████▍    | 18/33 [01:36<01:57,  7.86s/batch]generate:  58%|█████▊    | 19/33 [01:43<01:50,  7.87s/batch]generate:  61%|██████    | 20/33 [01:48<01:30,  6.98s/batch]generate:  64%|██████▎   | 21/33 [01:52<01:10,  5.84s/batch]generate:  67%|██████▋   | 22/33 [01:57<01:02,  5.67s/batch]generate:  70%|██████▉   | 23/33 [02:02<00:54,  5.45s/batch]generate:  73%|███████▎  | 24/33 [02:08<00:51,  5.69s/batch]generate:  76%|███████▌  | 25/33 [02:14<00:46,  5.83s/batch]generate:  79%|███████▉  | 26/33 [02:19<00:39,  5.59s/batch]generate:  82%|████████▏ | 27/33 [02:23<00:31,  5.20s/batch]generate:  85%|████████▍ | 28/33 [02:31<00:28,  5.78s/batch]generate:  88%|████████▊ | 29/33 [02:37<00:24,  6.03s/batch]generate:  91%|█████████ | 30/33 [02:45<00:20,  6.71s/batch]generate:  94%|█████████▍| 31/33 [02:52<00:13,  6.64s/batch]generate:  97%|█████████▋| 32/33 [02:56<00:05,  5.90s/batch]generate: 100%|██████████| 33/33 [02:59<00:00,  4.92s/batch]generate: 100%|██████████| 33/33 [02:59<00:00,  5.43s/batch]
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.705,
+  "ci95": [
+    0.6765,
+    0.732
+  ],
+  "pred_exec_error_rate": 0.089,
+  "gold_exec_errors": 0,
+  "wall_time_s": 179.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35311,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 197.0,
+  "peak_memory_gb": 10.97
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q8g64 --out results/sweep_sft/q8g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<02:07,  4.00s/batch]generate:   6%|▌         | 2/33 [00:07<02:00,  3.88s/batch]generate:   9%|▉         | 3/33 [00:11<01:56,  3.89s/batch]generate:  12%|█▏        | 4/33 [00:15<01:53,  3.92s/batch]generate:  15%|█▌        | 5/33 [00:19<01:51,  3.98s/batch]generate:  18%|█▊        | 6/33 [00:24<01:56,  4.33s/batch]generate:  21%|██        | 7/33 [00:27<01:37,  3.73s/batch]generate:  24%|██▍       | 8/33 [00:30<01:28,  3.52s/batch]generate:  27%|██▋       | 9/33 [00:33<01:22,  3.43s/batch]generate:  30%|███       | 10/33 [00:36<01:18,  3.41s/batch]generate:  33%|███▎      | 11/33 [00:40<01:15,  3.44s/batch]generate:  36%|███▋      | 12/33 [00:43<01:11,  3.42s/batch]generate:  39%|███▉      | 13/33 [00:46<01:04,  3.25s/batch]generate:  42%|████▏     | 14/33 [00:50<01:05,  3.42s/batch]generate:  45%|████▌     | 15/33 [00:56<01:14,  4.12s/batch]generate:  48%|████▊     | 16/33 [01:01<01:13,  4.34s/batch]generate:  52%|█████▏    | 17/33 [01:09<01:30,  5.65s/batch]generate:  55%|█████▍    | 18/33 [01:18<01:38,  6.57s/batch]generate:  58%|█████▊    | 19/33 [01:25<01:33,  6.65s/batch]generate:  61%|██████    | 20/33 [01:28<01:13,  5.69s/batch]generate:  64%|██████▎   | 21/33 [01:31<00:57,  4.81s/batch]generate:  67%|██████▋   | 22/33 [01:34<00:48,  4.40s/batch]generate:  70%|██████▉   | 23/33 [01:39<00:44,  4.48s/batch]generate:  73%|███████▎  | 24/33 [01:44<00:40,  4.55s/batch]generate:  76%|███████▌  | 25/33 [01:49<00:38,  4.85s/batch]generate:  79%|███████▉  | 26/33 [01:54<00:32,  4.66s/batch]generate:  82%|████████▏ | 27/33 [01:57<00:25,  4.26s/batch]generate:  85%|████████▍ | 28/33 [02:00<00:18,  3.76s/batch]generate:  88%|████████▊ | 29/33 [02:05<00:17,  4.35s/batch]generate:  91%|█████████ | 30/33 [02:12<00:15,  5.13s/batch]generate:  94%|█████████▍| 31/33 [02:18<00:10,  5.19s/batch]generate:  97%|█████████▋| 32/33 [02:21<00:04,  4.62s/batch]generate: 100%|██████████| 33/33 [02:23<00:00,  3.78s/batch]generate: 100%|██████████| 33/33 [02:23<00:00,  4.34s/batch]
+{
+  "model": "models/Qwen3-1.7B-q8g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.5861,
+  "ci95": [
+    0.5558,
+    0.6157
+  ],
+  "pred_exec_error_rate": 0.1277,
+  "gold_exec_errors": 0,
+  "wall_time_s": 143.2,
+  "prompt_tokens": 397463,
+  "generation_tokens": 40831,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.5,
+  "batched_generation_tps": 285.1,
+  "peak_memory_gb": 9.29
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q8g64 --out results/sweep_sft/q8g64-adapter --limit 1034 --seed 0 --adapter-path adapters/mine_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:20,  4.41s/batch]generate:   6%|▌         | 2/33 [00:10<02:45,  5.34s/batch]generate:   9%|▉         | 3/33 [00:15<02:40,  5.34s/batch]generate:  12%|█▏        | 4/33 [00:20<02:30,  5.19s/batch]generate:  15%|█▌        | 5/33 [00:25<02:24,  5.17s/batch]generate:  18%|█▊        | 6/33 [00:31<02:21,  5.22s/batch]generate:  21%|██        | 7/33 [00:35<02:05,  4.81s/batch]generate:  24%|██▍       | 8/33 [00:39<01:58,  4.73s/batch]generate:  27%|██▋       | 9/33 [00:43<01:47,  4.50s/batch]generate:  30%|███       | 10/33 [00:47<01:41,  4.42s/batch]generate:  33%|███▎      | 11/33 [00:52<01:37,  4.44s/batch]generate:  36%|███▋      | 12/33 [00:56<01:34,  4.49s/batch]generate:  39%|███▉      | 13/33 [01:00<01:24,  4.22s/batch]generate:  42%|████▏     | 14/33 [01:06<01:27,  4.61s/batch]generate:  45%|████▌     | 15/33 [01:12<01:32,  5.12s/batch]generate:  48%|████▊     | 16/33 [01:18<01:32,  5.44s/batch]generate:  52%|█████▏    | 17/33 [01:29<01:52,  7.03s/batch]generate:  55%|█████▍    | 18/33 [01:40<02:03,  8.25s/batch]generate:  58%|█████▊    | 19/33 [01:48<01:53,  8.09s/batch]generate:  61%|██████    | 20/33 [01:53<01:33,  7.19s/batch]generate:  64%|██████▎   | 21/33 [01:56<01:12,  6.04s/batch]generate:  67%|██████▋   | 22/33 [02:01<01:03,  5.76s/batch]generate:  70%|██████▉   | 23/33 [02:07<00:56,  5.64s/batch]generate:  73%|███████▎  | 24/33 [02:13<00:53,  5.98s/batch]generate:  76%|███████▌  | 25/33 [02:20<00:49,  6.16s/batch]generate:  79%|███████▉  | 26/33 [02:25<00:41,  5.90s/batch]generate:  82%|████████▏ | 27/33 [02:30<00:33,  5.54s/batch]generate:  85%|████████▍ | 28/33 [02:36<00:28,  5.78s/batch]generate:  88%|████████▊ | 29/33 [02:43<00:24,  6.13s/batch]generate:  91%|█████████ | 30/33 [02:52<00:20,  6.93s/batch]generate:  94%|█████████▍| 31/33 [02:59<00:13,  6.93s/batch]generate:  97%|█████████▋| 32/33 [03:03<00:06,  6.17s/batch]generate: 100%|██████████| 33/33 [03:06<00:00,  5.11s/batch]generate: 100%|██████████| 33/33 [03:06<00:00,  5.65s/batch]
+{
+  "model": "models/Qwen3-1.7B-q8g64",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7079,
+  "ci95": [
+    0.6795,
+    0.7348
+  ],
+  "pred_exec_error_rate": 0.088,
+  "gold_exec_errors": 0,
+  "wall_time_s": 186.5,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35157,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.0,
+  "batched_generation_tps": 188.5,
+  "peak_memory_gb": 9.37
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q8g64 --out results/sweep_sft/q8g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:37,  3.05s/batch]generate:   6%|▌         | 2/33 [00:07<01:54,  3.71s/batch]generate:   9%|▉         | 3/33 [00:10<01:49,  3.66s/batch]generate:  12%|█▏        | 4/33 [00:14<01:45,  3.63s/batch]generate:  15%|█▌        | 5/33 [00:18<01:42,  3.65s/batch]generate:  18%|█▊        | 6/33 [00:21<01:37,  3.61s/batch]generate:  21%|██        | 7/33 [00:24<01:26,  3.35s/batch]generate:  24%|██▍       | 8/33 [00:27<01:21,  3.27s/batch]generate:  27%|██▋       | 9/33 [00:30<01:14,  3.12s/batch]generate:  30%|███       | 10/33 [00:33<01:10,  3.05s/batch]generate:  33%|███▎      | 11/33 [00:36<01:07,  3.07s/batch]generate:  36%|███▋      | 12/33 [00:39<01:06,  3.15s/batch]generate:  39%|███▉      | 13/33 [00:42<00:59,  2.96s/batch]generate:  42%|████▏     | 14/33 [00:45<01:00,  3.20s/batch]generate:  45%|████▌     | 15/33 [00:50<01:03,  3.54s/batch]generate:  48%|████▊     | 16/33 [00:54<01:04,  3.80s/batch]generate:  52%|█████▏    | 17/33 [01:02<01:19,  4.97s/batch]generate:  55%|█████▍    | 18/33 [01:10<01:28,  5.89s/batch]generate:  58%|█████▊    | 19/33 [01:15<01:20,  5.74s/batch]generate:  61%|██████    | 20/33 [01:19<01:06,  5.08s/batch]generate:  64%|██████▎   | 21/33 [01:21<00:51,  4.25s/batch]generate:  67%|██████▋   | 22/33 [01:25<00:43,  3.99s/batch]generate:  70%|██████▉   | 23/33 [01:28<00:39,  3.96s/batch]generate:  73%|███████▎  | 24/33 [01:33<00:38,  4.26s/batch]generate:  76%|███████▌  | 25/33 [01:38<00:34,  4.36s/batch]generate:  79%|███████▉  | 26/33 [01:42<00:29,  4.19s/batch]generate:  82%|████████▏ | 27/33 [01:45<00:23,  3.92s/batch]generate:  85%|████████▍ | 28/33 [01:49<00:19,  3.93s/batch]generate:  88%|████████▊ | 29/33 [01:54<00:16,  4.23s/batch]generate:  91%|█████████ | 30/33 [02:00<00:14,  4.91s/batch]generate:  94%|█████████▍| 31/33 [02:06<00:09,  4.95s/batch]generate:  97%|█████████▋| 32/33 [02:09<00:04,  4.44s/batch]generate: 100%|██████████| 33/33 [02:10<00:00,  3.62s/batch]generate: 100%|██████████| 33/33 [02:10<00:00,  3.97s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q8g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.707,
+  "ci95": [
+    0.6785,
+    0.7339
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.0,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35226,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 268.9,
+  "peak_memory_gb": 9.29
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q6g64 --out results/sweep_sft/q6g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:12,  4.13s/batch]generate:   6%|▌         | 2/33 [00:08<02:03,  3.99s/batch]generate:   9%|▉         | 3/33 [00:12<02:07,  4.25s/batch]generate:  12%|█▏        | 4/33 [00:16<02:00,  4.15s/batch]generate:  15%|█▌        | 5/33 [00:21<02:01,  4.35s/batch]generate:  18%|█▊        | 6/33 [00:26<02:02,  4.55s/batch]generate:  21%|██        | 7/33 [00:28<01:40,  3.86s/batch]generate:  24%|██▍       | 8/33 [00:31<01:30,  3.62s/batch]generate:  27%|██▋       | 9/33 [00:34<01:23,  3.50s/batch]generate:  30%|███       | 10/33 [00:38<01:20,  3.50s/batch]generate:  33%|███▎      | 11/33 [00:42<01:17,  3.51s/batch]generate:  36%|███▋      | 12/33 [00:45<01:13,  3.51s/batch]generate:  39%|███▉      | 13/33 [00:48<01:05,  3.29s/batch]generate:  42%|████▏     | 14/33 [00:52<01:05,  3.46s/batch]generate:  45%|████▌     | 15/33 [00:57<01:09,  3.88s/batch]generate:  48%|████▊     | 16/33 [01:01<01:11,  4.21s/batch]generate:  52%|█████▏    | 17/33 [01:10<01:29,  5.60s/batch]generate:  55%|█████▍    | 18/33 [01:19<01:39,  6.65s/batch]generate:  58%|█████▊    | 19/33 [01:26<01:32,  6.64s/batch]generate:  61%|██████    | 20/33 [01:30<01:14,  5.73s/batch]generate:  64%|██████▎   | 21/33 [01:33<00:59,  4.92s/batch]generate:  67%|██████▋   | 22/33 [01:36<00:49,  4.54s/batch]generate:  70%|██████▉   | 23/33 [01:41<00:45,  4.58s/batch]generate:  73%|███████▎  | 24/33 [01:46<00:42,  4.69s/batch]generate:  76%|███████▌  | 25/33 [01:51<00:39,  4.90s/batch]generate:  79%|███████▉  | 26/33 [01:56<00:33,  4.73s/batch]generate:  82%|████████▏ | 27/33 [01:59<00:26,  4.34s/batch]generate:  85%|████████▍ | 28/33 [02:02<00:18,  3.79s/batch]generate:  88%|████████▊ | 29/33 [02:07<00:17,  4.35s/batch]generate:  91%|█████████ | 30/33 [02:16<00:16,  5.54s/batch]generate:  94%|█████████▍| 31/33 [02:21<00:11,  5.53s/batch]generate:  97%|█████████▋| 32/33 [02:25<00:04,  4.93s/batch]generate: 100%|██████████| 33/33 [02:27<00:00,  4.10s/batch]generate: 100%|██████████| 33/33 [02:27<00:00,  4.46s/batch]
+{
+  "model": "models/Qwen3-1.7B-q6g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.5967,
+  "ci95": [
+    0.5665,
+    0.6262
+  ],
+  "pred_exec_error_rate": 0.1228,
+  "gold_exec_errors": 0,
+  "wall_time_s": 147.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 40810,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.5,
+  "batched_generation_tps": 277.0,
+  "peak_memory_gb": 8.86
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q6g64 --out results/sweep_sft/q6g64-adapter --limit 1034 --seed 0 --adapter-path adapters/mine_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:20,  4.39s/batch]generate:   6%|▌         | 2/33 [00:10<02:48,  5.42s/batch]generate:   9%|▉         | 3/33 [00:16<02:46,  5.54s/batch]generate:  12%|█▏        | 4/33 [00:21<02:38,  5.46s/batch]generate:  15%|█▌        | 5/33 [00:27<02:33,  5.50s/batch]generate:  18%|█▊        | 6/33 [00:32<02:24,  5.34s/batch]generate:  21%|██        | 7/33 [00:36<02:07,  4.91s/batch]generate:  24%|██▍       | 8/33 [00:40<01:59,  4.79s/batch]generate:  27%|██▋       | 9/33 [00:44<01:49,  4.56s/batch]generate:  30%|███       | 10/33 [00:48<01:42,  4.46s/batch]generate:  33%|███▎      | 11/33 [00:53<01:37,  4.45s/batch]generate:  36%|███▋      | 12/33 [00:58<01:34,  4.51s/batch]generate:  39%|███▉      | 13/33 [01:01<01:24,  4.23s/batch]generate:  42%|████▏     | 14/33 [01:06<01:26,  4.53s/batch]generate:  45%|████▌     | 15/33 [01:13<01:30,  5.05s/batch]generate:  48%|████▊     | 16/33 [01:19<01:32,  5.41s/batch]generate:  52%|█████▏    | 17/33 [01:30<01:52,  7.01s/batch]generate:  55%|█████▍    | 18/33 [01:41<02:03,  8.24s/batch]generate:  58%|█████▊    | 19/33 [01:48<01:50,  7.87s/batch]generate:  61%|██████    | 20/33 [01:53<01:31,  7.02s/batch]generate:  64%|██████▎   | 21/33 [01:56<01:11,  5.92s/batch]generate:  67%|██████▋   | 22/33 [02:01<01:02,  5.69s/batch]generate:  70%|██████▉   | 23/33 [02:07<00:56,  5.66s/batch]generate:  73%|███████▎  | 24/33 [02:14<00:54,  6.09s/batch]generate:  76%|███████▌  | 25/33 [02:21<00:50,  6.25s/batch]generate:  79%|███████▉  | 26/33 [02:26<00:41,  5.99s/batch]generate:  82%|████████▏ | 27/33 [02:31<00:33,  5.60s/batch]generate:  85%|████████▍ | 28/33 [02:37<00:28,  5.77s/batch]generate:  88%|████████▊ | 29/33 [02:43<00:23,  5.99s/batch]generate:  91%|█████████ | 30/33 [02:52<00:20,  6.92s/batch]generate:  94%|█████████▍| 31/33 [02:59<00:13,  6.96s/batch]generate:  97%|█████████▋| 32/33 [03:04<00:06,  6.22s/batch]generate: 100%|██████████| 33/33 [03:07<00:00,  5.15s/batch]generate: 100%|██████████| 33/33 [03:07<00:00,  5.67s/batch]
+{
+  "model": "models/Qwen3-1.7B-q6g64",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6992,
+  "ci95": [
+    0.6706,
+    0.7264
+  ],
+  "pred_exec_error_rate": 0.0938,
+  "gold_exec_errors": 0,
+  "wall_time_s": 187.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35180,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.0,
+  "batched_generation_tps": 188.1,
+  "peak_memory_gb": 8.94
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q6g64 --out results/sweep_sft/q6g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:37,  3.04s/batch]generate:   6%|▌         | 2/33 [00:07<01:53,  3.67s/batch]generate:   9%|▉         | 3/33 [00:10<01:51,  3.71s/batch]generate:  12%|█▏        | 4/33 [00:14<01:46,  3.67s/batch]generate:  15%|█▌        | 5/33 [00:18<01:42,  3.67s/batch]generate:  18%|█▊        | 6/33 [00:21<01:36,  3.57s/batch]generate:  21%|██        | 7/33 [00:24<01:26,  3.33s/batch]generate:  24%|██▍       | 8/33 [00:27<01:22,  3.31s/batch]generate:  27%|██▋       | 9/33 [00:30<01:15,  3.14s/batch]generate:  30%|███       | 10/33 [00:33<01:10,  3.07s/batch]generate:  33%|███▎      | 11/33 [00:36<01:06,  3.02s/batch]generate:  36%|███▋      | 12/33 [00:39<01:05,  3.12s/batch]generate:  39%|███▉      | 13/33 [00:42<00:58,  2.94s/batch]generate:  42%|████▏     | 14/33 [00:45<00:59,  3.14s/batch]generate:  45%|████▌     | 15/33 [00:50<01:03,  3.53s/batch]generate:  48%|████▊     | 16/33 [00:54<01:05,  3.83s/batch]generate:  52%|█████▏    | 17/33 [01:02<01:21,  5.08s/batch]generate:  55%|█████▍    | 18/33 [01:11<01:33,  6.25s/batch]generate:  58%|█████▊    | 19/33 [01:17<01:27,  6.27s/batch]generate:  61%|██████    | 20/33 [01:21<01:11,  5.47s/batch]generate:  64%|██████▎   | 21/33 [01:23<00:54,  4.55s/batch]generate:  67%|██████▋   | 22/33 [01:27<00:46,  4.21s/batch]generate:  70%|██████▉   | 23/33 [01:31<00:41,  4.17s/batch]generate:  73%|███████▎  | 24/33 [01:36<00:40,  4.47s/batch]generate:  76%|███████▌  | 25/33 [01:41<00:36,  4.61s/batch]generate:  79%|███████▉  | 26/33 [01:45<00:30,  4.43s/batch]generate:  82%|████████▏ | 27/33 [01:48<00:24,  4.11s/batch]generate:  85%|████████▍ | 28/33 [01:52<00:20,  4.02s/batch]generate:  88%|████████▊ | 29/33 [01:57<00:16,  4.24s/batch]generate:  91%|█████████ | 30/33 [02:04<00:15,  5.00s/batch]generate:  94%|█████████▍| 31/33 [02:09<00:10,  5.09s/batch]generate:  97%|█████████▋| 32/33 [02:12<00:04,  4.55s/batch]generate: 100%|██████████| 33/33 [02:14<00:00,  3.73s/batch]generate: 100%|██████████| 33/33 [02:14<00:00,  4.08s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q6g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.706,
+  "ci95": [
+    0.6775,
+    0.733
+  ],
+  "pred_exec_error_rate": 0.0996,
+  "gold_exec_errors": 0,
+  "wall_time_s": 134.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35303,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 262.1,
+  "peak_memory_gb": 8.86
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q4g64 --out results/sweep_sft/q4g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:49,  3.43s/batch]generate:   6%|▌         | 2/33 [00:07<01:56,  3.74s/batch]generate:   9%|▉         | 3/33 [00:10<01:48,  3.63s/batch]generate:  12%|█▏        | 4/33 [00:15<01:55,  4.00s/batch]generate:  15%|█▌        | 5/33 [00:20<01:57,  4.21s/batch]generate:  18%|█▊        | 6/33 [00:23<01:49,  4.05s/batch]generate:  21%|██        | 7/33 [00:26<01:30,  3.50s/batch]generate:  24%|██▍       | 8/33 [00:28<01:21,  3.24s/batch]generate:  27%|██▋       | 9/33 [00:31<01:16,  3.19s/batch]generate:  30%|███       | 10/33 [00:34<01:12,  3.16s/batch]generate:  33%|███▎      | 11/33 [00:38<01:09,  3.17s/batch]generate:  36%|███▋      | 12/33 [00:41<01:06,  3.18s/batch]generate:  39%|███▉      | 13/33 [00:44<01:02,  3.14s/batch]generate:  42%|████▏     | 14/33 [00:48<01:02,  3.28s/batch]generate:  45%|████▌     | 15/33 [00:52<01:03,  3.56s/batch]generate:  48%|████▊     | 16/33 [00:56<01:06,  3.89s/batch]generate:  52%|█████▏    | 17/33 [01:05<01:22,  5.16s/batch]generate:  55%|█████▍    | 18/33 [01:13<01:31,  6.11s/batch]generate:  58%|█████▊    | 19/33 [01:19<01:25,  6.11s/batch]generate:  61%|██████    | 20/33 [01:22<01:09,  5.33s/batch]generate:  64%|██████▎   | 21/33 [01:25<00:55,  4.60s/batch]generate:  67%|██████▋   | 22/33 [01:29<00:46,  4.20s/batch]generate:  70%|██████▉   | 23/33 [01:33<00:42,  4.23s/batch]generate:  73%|███████▎  | 24/33 [01:37<00:38,  4.30s/batch]generate:  76%|███████▌  | 25/33 [01:43<00:36,  4.55s/batch]generate:  79%|███████▉  | 26/33 [01:46<00:30,  4.36s/batch]generate:  82%|████████▏ | 27/33 [01:50<00:24,  4.01s/batch]generate:  85%|████████▍ | 28/33 [01:52<00:18,  3.61s/batch]generate:  88%|████████▊ | 29/33 [01:58<00:16,  4.17s/batch]generate:  91%|█████████ | 30/33 [02:05<00:15,  5.01s/batch]generate:  94%|█████████▍| 31/33 [02:10<00:10,  5.14s/batch]generate:  97%|█████████▋| 32/33 [02:13<00:04,  4.59s/batch]generate: 100%|██████████| 33/33 [02:15<00:00,  3.77s/batch]generate: 100%|██████████| 33/33 [02:15<00:00,  4.12s/batch]
+{
+  "model": "models/Qwen3-1.7B-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.5561,
+  "ci95": [
+    0.5257,
+    0.5861
+  ],
+  "pred_exec_error_rate": 0.1663,
+  "gold_exec_errors": 0,
+  "wall_time_s": 135.9,
+  "prompt_tokens": 397463,
+  "generation_tokens": 38798,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 37.5,
+  "batched_generation_tps": 285.6,
+  "peak_memory_gb": 8.43
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q4g64 --out results/sweep_sft/q4g64-adapter --limit 1034 --seed 0 --adapter-path adapters/mine_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:17,  4.30s/batch]generate:   6%|▌         | 2/33 [00:11<03:05,  5.99s/batch]generate:   9%|▉         | 3/33 [00:16<02:49,  5.64s/batch]generate:  12%|█▏        | 4/33 [00:21<02:33,  5.30s/batch]generate:  15%|█▌        | 5/33 [00:26<02:29,  5.35s/batch]generate:  18%|█▊        | 6/33 [00:31<02:20,  5.22s/batch]generate:  21%|██        | 7/33 [00:35<02:04,  4.80s/batch]generate:  24%|██▍       | 8/33 [00:40<01:57,  4.70s/batch]generate:  27%|██▋       | 9/33 [00:46<02:02,  5.10s/batch]generate:  30%|███       | 10/33 [00:51<01:54,  4.99s/batch]generate:  33%|███▎      | 11/33 [00:55<01:43,  4.70s/batch]generate:  36%|███▋      | 12/33 [00:59<01:39,  4.76s/batch]generate:  39%|███▉      | 13/33 [01:03<01:27,  4.38s/batch]generate:  42%|████▏     | 14/33 [01:08<01:28,  4.64s/batch]generate:  45%|████▌     | 15/33 [01:15<01:33,  5.21s/batch]generate:  48%|████▊     | 16/33 [01:21<01:34,  5.56s/batch]generate:  52%|█████▏    | 17/33 [01:33<02:00,  7.52s/batch]generate:  55%|█████▍    | 18/33 [01:43<02:04,  8.29s/batch]generate:  58%|█████▊    | 19/33 [01:50<01:48,  7.78s/batch]generate:  61%|██████    | 20/33 [01:55<01:30,  6.93s/batch]generate:  64%|██████▎   | 21/33 [01:58<01:10,  5.87s/batch]generate:  67%|██████▋   | 22/33 [02:02<00:59,  5.37s/batch]generate:  70%|██████▉   | 23/33 [02:08<00:54,  5.45s/batch]generate:  73%|███████▎  | 24/33 [02:15<00:51,  5.77s/batch]generate:  76%|███████▌  | 25/33 [02:21<00:47,  5.94s/batch]generate:  79%|███████▉  | 26/33 [02:26<00:40,  5.72s/batch]generate:  82%|████████▏ | 27/33 [02:31<00:31,  5.32s/batch]generate:  85%|████████▍ | 28/33 [02:37<00:28,  5.61s/batch]generate:  88%|████████▊ | 29/33 [02:44<00:24,  6.06s/batch]generate:  91%|█████████ | 30/33 [02:52<00:20,  6.75s/batch]generate:  94%|█████████▍| 31/33 [02:59<00:13,  6.87s/batch]generate:  97%|█████████▋| 32/33 [03:04<00:06,  6.12s/batch]generate: 100%|██████████| 33/33 [03:06<00:00,  5.07s/batch]generate: 100%|██████████| 33/33 [03:06<00:00,  5.66s/batch]
+{
+  "model": "models/Qwen3-1.7B-q4g64",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6267,
+  "ci95": [
+    0.5968,
+    0.6557
+  ],
+  "pred_exec_error_rate": 0.1422,
+  "gold_exec_errors": 0,
+  "wall_time_s": 186.9,
+  "prompt_tokens": 397463,
+  "generation_tokens": 37700,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.5,
+  "batched_generation_tps": 201.7,
+  "peak_memory_gb": 8.51
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q4g64 --out results/sweep_sft/q4g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:02<01:34,  2.95s/batch]generate:   6%|▌         | 2/33 [00:06<01:47,  3.45s/batch]generate:   9%|▉         | 3/33 [00:10<01:44,  3.49s/batch]generate:  12%|█▏        | 4/33 [00:13<01:40,  3.46s/batch]generate:  15%|█▌        | 5/33 [00:17<01:39,  3.54s/batch]generate:  18%|█▊        | 6/33 [00:20<01:36,  3.56s/batch]generate:  21%|██        | 7/33 [00:23<01:24,  3.26s/batch]generate:  24%|██▍       | 8/33 [00:26<01:19,  3.19s/batch]generate:  27%|██▋       | 9/33 [00:29<01:13,  3.05s/batch]generate:  30%|███       | 10/33 [00:32<01:10,  3.08s/batch]generate:  33%|███▎      | 11/33 [00:35<01:06,  3.01s/batch]generate:  36%|███▋      | 12/33 [00:38<01:04,  3.09s/batch]generate:  39%|███▉      | 13/33 [00:41<00:57,  2.88s/batch]generate:  42%|████▏     | 14/33 [00:44<00:58,  3.05s/batch]generate:  45%|████▌     | 15/33 [00:48<01:00,  3.34s/batch]generate:  48%|████▊     | 16/33 [00:52<01:02,  3.66s/batch]generate:  52%|█████▏    | 17/33 [01:00<01:16,  4.76s/batch]generate:  55%|█████▍    | 18/33 [01:07<01:24,  5.64s/batch]generate:  58%|█████▊    | 19/33 [01:13<01:19,  5.66s/batch]generate:  61%|██████    | 20/33 [01:17<01:04,  4.97s/batch]generate:  64%|██████▎   | 21/33 [01:19<00:50,  4.20s/batch]generate:  67%|██████▋   | 22/33 [01:22<00:42,  3.90s/batch]generate:  70%|██████▉   | 23/33 [01:26<00:38,  3.87s/batch]generate:  73%|███████▎  | 24/33 [01:31<00:37,  4.12s/batch]generate:  76%|███████▌  | 25/33 [01:35<00:33,  4.22s/batch]generate:  79%|███████▉  | 26/33 [01:39<00:28,  4.06s/batch]generate:  82%|████████▏ | 27/33 [01:42<00:23,  3.84s/batch]generate:  85%|████████▍ | 28/33 [01:45<00:18,  3.65s/batch]generate:  88%|████████▊ | 29/33 [01:50<00:15,  3.93s/batch]generate:  91%|█████████ | 30/33 [01:57<00:14,  4.97s/batch]generate:  94%|█████████▍| 31/33 [02:02<00:09,  4.99s/batch]generate:  97%|█████████▋| 32/33 [02:05<00:04,  4.41s/batch]generate: 100%|██████████| 33/33 [02:07<00:00,  3.58s/batch]generate: 100%|██████████| 33/33 [02:07<00:00,  3.86s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6364,
+  "ci95": [
+    0.6066,
+    0.6651
+  ],
+  "pred_exec_error_rate": 0.1422,
+  "gold_exec_errors": 0,
+  "wall_time_s": 127.5,
+  "prompt_tokens": 397463,
+  "generation_tokens": 38050,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.8,
+  "batched_generation_tps": 298.4,
+  "peak_memory_gb": 8.43
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q3g64 --out results/sweep_sft/q3g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:09<05:04,  9.51s/batch]generate:   6%|▌         | 2/33 [00:18<04:45,  9.20s/batch]generate:   9%|▉         | 3/33 [00:26<04:19,  8.66s/batch]generate:  12%|█▏        | 4/33 [00:36<04:25,  9.16s/batch]generate:  15%|█▌        | 5/33 [00:46<04:20,  9.31s/batch]generate:  18%|█▊        | 6/33 [00:54<04:05,  9.08s/batch]generate:  21%|██        | 7/33 [00:59<03:18,  7.62s/batch]generate:  24%|██▍       | 8/33 [01:05<02:57,  7.09s/batch]generate:  27%|██▋       | 9/33 [01:14<03:04,  7.69s/batch]generate:  30%|███       | 10/33 [01:22<03:00,  7.86s/batch]generate:  33%|███▎      | 11/33 [01:29<02:49,  7.69s/batch]generate:  36%|███▋      | 12/33 [01:37<02:41,  7.69s/batch]generate:  39%|███▉      | 13/33 [01:44<02:32,  7.61s/batch]generate:  42%|████▏     | 14/33 [01:53<02:31,  8.00s/batch]generate:  45%|████▌     | 15/33 [02:02<02:28,  8.22s/batch]generate:  48%|████▊     | 16/33 [02:12<02:28,  8.72s/batch]generate:  52%|█████▏    | 17/33 [02:27<02:48, 10.53s/batch]generate:  55%|█████▍    | 18/33 [02:41<02:55, 11.67s/batch]generate:  58%|█████▊    | 19/33 [02:51<02:34, 11.06s/batch]generate:  61%|██████    | 20/33 [02:59<02:12, 10.17s/batch]generate:  64%|██████▎   | 21/33 [03:05<01:46,  8.87s/batch]generate:  67%|██████▋   | 22/33 [03:11<01:29,  8.11s/batch]generate:  70%|██████▉   | 23/33 [03:22<01:30,  9.08s/batch]generate:  73%|███████▎  | 24/33 [03:33<01:27,  9.72s/batch]generate:  76%|███████▌  | 25/33 [03:45<01:21, 10.24s/batch]generate:  79%|███████▉  | 26/33 [03:54<01:09,  9.91s/batch]generate:  82%|████████▏ | 27/33 [04:03<00:58,  9.72s/batch]generate:  85%|████████▍ | 28/33 [04:10<00:43,  8.68s/batch]generate:  88%|████████▊ | 29/33 [04:20<00:37,  9.28s/batch]generate:  91%|█████████ | 30/33 [04:34<00:31, 10.51s/batch]generate:  94%|█████████▍| 31/33 [04:46<00:21, 10.98s/batch]generate:  97%|█████████▋| 32/33 [04:54<00:10, 10.24s/batch]generate: 100%|██████████| 33/33 [04:58<00:00,  8.35s/batch]generate: 100%|██████████| 33/33 [04:58<00:00,  9.05s/batch]
+{
+  "model": "models/Qwen3-1.7B-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.1963,
+  "ci95": [
+    0.1733,
+    0.2216
+  ],
+  "pred_exec_error_rate": 0.5416,
+  "gold_exec_errors": 0,
+  "wall_time_s": 298.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 162860,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 157.5,
+  "batched_generation_tps": 545.3,
+  "peak_memory_gb": 8.29
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-q3g64 --out results/sweep_sft/q3g64-adapter --limit 1034 --seed 0 --adapter-path adapters/mine_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:32,  4.76s/batch]generate:   6%|▌         | 2/33 [00:12<03:20,  6.47s/batch]generate:   9%|▉         | 3/33 [00:20<03:29,  7.00s/batch]generate:  12%|█▏        | 4/33 [00:25<03:01,  6.27s/batch]generate:  15%|█▌        | 5/33 [00:30<02:44,  5.88s/batch]generate:  18%|█▊        | 6/33 [00:38<02:59,  6.65s/batch]generate:  21%|██        | 7/33 [00:45<02:56,  6.77s/batch]generate:  24%|██▍       | 8/33 [00:52<02:51,  6.86s/batch]generate:  27%|██▋       | 9/33 [00:59<02:46,  6.93s/batch]generate:  30%|███       | 10/33 [01:04<02:23,  6.26s/batch]generate:  33%|███▎      | 11/33 [01:08<02:05,  5.70s/batch]generate:  36%|███▋      | 12/33 [01:13<01:53,  5.41s/batch]generate:  39%|███▉      | 13/33 [01:20<01:55,  5.77s/batch]generate:  42%|████▏     | 14/33 [01:25<01:44,  5.52s/batch]generate:  45%|████▌     | 15/33 [01:31<01:45,  5.86s/batch]generate:  48%|████▊     | 16/33 [01:41<01:56,  6.87s/batch]generate:  52%|█████▏    | 17/33 [01:51<02:05,  7.85s/batch]generate:  55%|█████▍    | 18/33 [02:01<02:08,  8.56s/batch]generate:  58%|█████▊    | 19/33 [02:10<02:00,  8.64s/batch]generate:  61%|██████    | 20/33 [02:16<01:44,  8.06s/batch]generate:  64%|██████▎   | 21/33 [02:20<01:20,  6.70s/batch]generate:  67%|██████▋   | 22/33 [02:24<01:06,  6.02s/batch]generate:  70%|██████▉   | 23/33 [02:33<01:08,  6.84s/batch]generate:  73%|███████▎  | 24/33 [02:41<01:05,  7.24s/batch]generate:  76%|███████▌  | 25/33 [02:51<01:03,  7.91s/batch]generate:  79%|███████▉  | 26/33 [02:56<00:49,  7.09s/batch]generate:  82%|████████▏ | 27/33 [03:01<00:39,  6.54s/batch]generate:  85%|████████▍ | 28/33 [03:04<00:27,  5.53s/batch]generate:  88%|████████▊ | 29/33 [03:11<00:23,  5.90s/batch]generate:  91%|█████████ | 30/33 [03:22<00:22,  7.45s/batch]generate:  94%|█████████▍| 31/33 [03:30<00:15,  7.51s/batch]generate:  97%|█████████▋| 32/33 [03:34<00:06,  6.60s/batch]generate: 100%|██████████| 33/33 [03:39<00:00,  5.96s/batch]generate: 100%|██████████| 33/33 [03:39<00:00,  6.65s/batch]
+{
+  "model": "models/Qwen3-1.7B-q3g64",
+  "adapter_path": "adapters/mine_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3269,
+  "ci95": [
+    0.299,
+    0.3561
+  ],
+  "pred_exec_error_rate": 0.4304,
+  "gold_exec_errors": 0,
+  "wall_time_s": 219.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 43673,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 42.2,
+  "batched_generation_tps": 199.1,
+  "peak_memory_gb": 8.3
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q3g64 --out results/sweep_sft/q3g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:09,  4.04s/batch]generate:   6%|▌         | 2/33 [00:08<02:07,  4.12s/batch]generate:   9%|▉         | 3/33 [00:12<02:03,  4.10s/batch]generate:  12%|█▏        | 4/33 [00:15<01:53,  3.91s/batch]generate:  15%|█▌        | 5/33 [00:20<01:55,  4.12s/batch]generate:  18%|█▊        | 6/33 [00:24<01:52,  4.17s/batch]generate:  21%|██        | 7/33 [00:27<01:37,  3.76s/batch]generate:  24%|██▍       | 8/33 [00:30<01:28,  3.54s/batch]generate:  27%|██▋       | 9/33 [00:33<01:22,  3.45s/batch]generate:  30%|███       | 10/33 [00:36<01:15,  3.30s/batch]generate:  33%|███▎      | 11/33 [00:39<01:10,  3.18s/batch]generate:  36%|███▋      | 12/33 [00:43<01:07,  3.22s/batch]generate:  39%|███▉      | 13/33 [00:45<01:00,  3.04s/batch]generate:  42%|████▏     | 14/33 [00:49<01:00,  3.16s/batch]generate:  45%|████▌     | 15/33 [00:53<01:03,  3.52s/batch]generate:  48%|████▊     | 16/33 [00:58<01:05,  3.83s/batch]generate:  52%|█████▏    | 17/33 [01:05<01:19,  4.95s/batch]generate:  55%|█████▍    | 18/33 [01:13<01:25,  5.71s/batch]generate:  58%|█████▊    | 19/33 [01:18<01:17,  5.54s/batch]generate:  61%|██████    | 20/33 [01:21<01:03,  4.91s/batch]generate:  64%|██████▎   | 21/33 [01:24<00:50,  4.21s/batch]generate:  67%|██████▋   | 22/33 [01:27<00:42,  3.89s/batch]generate:  70%|██████▉   | 23/33 [01:31<00:40,  4.00s/batch]generate:  73%|███████▎  | 24/33 [01:36<00:37,  4.17s/batch]generate:  76%|███████▌  | 25/33 [01:41<00:35,  4.47s/batch]generate:  79%|███████▉  | 26/33 [01:45<00:29,  4.28s/batch]generate:  82%|████████▏ | 27/33 [01:48<00:24,  4.05s/batch]generate:  85%|████████▍ | 28/33 [01:51<00:17,  3.53s/batch]generate:  88%|████████▊ | 29/33 [01:55<00:15,  3.85s/batch]generate:  91%|█████████ | 30/33 [02:02<00:13,  4.60s/batch]generate:  94%|█████████▍| 31/33 [02:07<00:09,  4.77s/batch]generate:  97%|█████████▋| 32/33 [02:10<00:04,  4.24s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.44s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.99s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3733,
+  "ci95": [
+    0.3443,
+    0.4032
+  ],
+  "pred_exec_error_rate": 0.3868,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.8,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39251,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 38.0,
+  "batched_generation_tps": 297.9,
+  "peak_memory_gb": 8.21
+}
+       bf16-base  EX 0.589  [0.559, 0.619]
+    bf16-adapter  EX 0.705  [0.676, 0.732]
+      q8g64-base  EX 0.586  [0.556, 0.616]
+   q8g64-adapter  EX 0.708  [0.679, 0.735]
+    q8g64-merged  EX 0.707  [0.678, 0.734]
+      q6g64-base  EX 0.597  [0.567, 0.626]
+   q6g64-adapter  EX 0.699  [0.671, 0.726]
+    q6g64-merged  EX 0.706  [0.677, 0.733]
+      q4g64-base  EX 0.556  [0.526, 0.586]
+   q4g64-adapter  EX 0.627  [0.597, 0.656]
+    q4g64-merged  EX 0.636  [0.607, 0.665]
+      q3g64-base  EX 0.196  [0.173, 0.222]
+   q3g64-adapter  EX 0.327  [0.299, 0.356]
+    q3g64-merged  EX 0.373  [0.344, 0.403]
+Wrote results/sweep_sft/summary.csv
+[Fri 18:59] done   sweep-sft in 40 min
+[Fri 18:59] start  grpo: grpo
+step=1 reward=0.8531 accuracy=0.8438 zero_signal_groups=1 completion_tokens=21.8 loss=-0.0 kl=0.0 longest_sequence=345 sample_seconds=4.5 seconds=13.9 peak_gb=7.7
+step=2 reward=0.3719 accuracy=0.3438 zero_signal_groups=0 completion_tokens=45.5 loss=1e-05 kl=0.00019 longest_sequence=492 sample_seconds=7.6 seconds=19.6 peak_gb=9.6
+step=3 reward=0.55 accuracy=0.5 zero_signal_groups=1 completion_tokens=23.1 loss=1e-05 kl=0.0002 longest_sequence=632 sample_seconds=5.5 seconds=17.4 peak_gb=10.93
+step=4 reward=0.4531 accuracy=0.4375 zero_signal_groups=1 completion_tokens=44.0 loss=1e-05 kl=0.00017 longest_sequence=918 sample_seconds=8.5 seconds=23.1 peak_gb=13.92
+step=5 reward=0.6187 accuracy=0.5938 zero_signal_groups=1 completion_tokens=36.0 loss=1e-05 kl=0.00026 longest_sequence=537 sample_seconds=7.7 seconds=21.1 peak_gb=10.14
+step=6 reward=0.5187 accuracy=0.5 zero_signal_groups=0 completion_tokens=34.3 loss=1e-05 kl=0.00019 longest_sequence=1603 sample_seconds=9.0 seconds=31.2 peak_gb=12.71
+step=7 reward=0.6375 accuracy=0.625 zero_signal_groups=0 completion_tokens=30.5 loss=3e-05 kl=0.00072 longest_sequence=846 sample_seconds=6.9 seconds=21.0 peak_gb=13.21
+step=8 reward=0.5844 accuracy=0.5625 zero_signal_groups=0 completion_tokens=37.5 loss=6e-05 kl=0.00153 longest_sequence=1318 sample_seconds=9.6 seconds=32.0 peak_gb=14.71
+step=9 reward=0.3094 accuracy=0.2812 zero_signal_groups=0 completion_tokens=60.9 loss=2e-05 kl=0.00047 longest_sequence=505 sample_seconds=11.7 seconds=24.2 peak_gb=9.53
+step=10 reward=0.4625 accuracy=0.4375 zero_signal_groups=1 completion_tokens=34.4 loss=4e-05 kl=0.00137 longest_sequence=2239 sample_seconds=12.9 seconds=51.6 peak_gb=13.78
+step=11 reward=0.35 accuracy=0.3125 zero_signal_groups=0 completion_tokens=49.4 loss=3e-05 kl=0.00075 longest_sequence=492 sample_seconds=9.4 seconds=21.1 peak_gb=9.6
+step=12 reward=0.4375 accuracy=0.4062 zero_signal_groups=0 completion_tokens=32.7 loss=0.00024 kl=0.00546 longest_sequence=1164 sample_seconds=7.7 seconds=22.9 peak_gb=13.51
+step=13 reward=0.4563 accuracy=0.4062 zero_signal_groups=1 completion_tokens=38.3 loss=0.00036 kl=0.00746 longest_sequence=495 sample_seconds=6.6 seconds=17.4 peak_gb=9.63
+step=14 reward=0.6125 accuracy=0.5938 zero_signal_groups=2 completion_tokens=28.8 loss=5e-05 kl=0.00133 longest_sequence=357 sample_seconds=5.8 seconds=15.9 peak_gb=7.86
+step=15 reward=0.6281 accuracy=0.625 zero_signal_groups=0 completion_tokens=36.6 loss=7e-05 kl=0.00186 longest_sequence=380 sample_seconds=6.9 seconds=16.8 peak_gb=8.26
+step=16 reward=0.6688 accuracy=0.6562 zero_signal_groups=0 completion_tokens=31.6 loss=0.0001 kl=0.00235 longest_sequence=1506 sample_seconds=9.1 seconds=34.4 peak_gb=13.15
+step=17 reward=0.6313 accuracy=0.625 zero_signal_groups=1 completion_tokens=39.4 loss=0.00037 kl=0.00548 longest_sequence=2258 sample_seconds=12.2 seconds=44.3 peak_gb=10.93
+step=18 reward=0.5437 accuracy=0.5312 zero_signal_groups=1 completion_tokens=41.5 loss=0.00019 kl=0.00532 longest_sequence=542 sample_seconds=8.0 seconds=20.9 peak_gb=10.2
+step=19 reward=0.5844 accuracy=0.5625 zero_signal_groups=0 completion_tokens=47.0 loss=0.00019 kl=0.00366 longest_sequence=954 sample_seconds=10.4 seconds=29.0 peak_gb=14.32
+step=20 reward=0.6469 accuracy=0.625 zero_signal_groups=1 completion_tokens=30.1 loss=0.00033 kl=0.00826 longest_sequence=565 sample_seconds=5.9 seconds=18.3 peak_gb=10.47
+step=21 reward=0.9438 accuracy=0.9375 zero_signal_groups=2 completion_tokens=30.0 loss=9e-05 kl=0.00216 longest_sequence=1020 sample_seconds=7.1 seconds=25.9 peak_gb=15.06
+step=22 reward=0.4688 accuracy=0.4375 zero_signal_groups=1 completion_tokens=45.0 loss=0.00023 kl=0.00639 longest_sequence=851 sample_seconds=10.6 seconds=29.6 peak_gb=13.26
+step=23 reward=0.5063 accuracy=0.4688 zero_signal_groups=1 completion_tokens=42.3 loss=0.00034 kl=0.00654 longest_sequence=1191 sample_seconds=10.5 seconds=32.9 peak_gb=13.74
+step=24 reward=0.5688 accuracy=0.5625 zero_signal_groups=1 completion_tokens=30.1 loss=0.00024 kl=0.00685 longest_sequence=1125 sample_seconds=7.9 seconds=28.4 peak_gb=13.23
+step=25 reward=0.525 accuracy=0.5 zero_signal_groups=0 completion_tokens=30.9 loss=0.0004 kl=0.01002 longest_sequence=558 sample_seconds=7.3 seconds=22.9 peak_gb=10.39
+step=26 reward=0.5156 accuracy=0.5 zero_signal_groups=0 completion_tokens=53.4 loss=0.00046 kl=0.01147 longest_sequence=1184 sample_seconds=10.8 seconds=30.3 peak_gb=13.68
+step=27 reward=0.3719 accuracy=0.3125 zero_signal_groups=0 completion_tokens=36.5 loss=0.00062 kl=0.01577 longest_sequence=614 sample_seconds=7.7 seconds=22.6 peak_gb=10.74
+step=28 reward=0.7406 accuracy=0.7188 zero_signal_groups=2 completion_tokens=34.6 loss=0.00024 kl=0.0108 longest_sequence=2240 sample_seconds=13.1 seconds=55.6 peak_gb=14.79
+step=29 reward=0.5 accuracy=0.4688 zero_signal_groups=1 completion_tokens=38.0 loss=0.00037 kl=0.0092 longest_sequence=451 sample_seconds=7.5 seconds=19.4 peak_gb=9.11
+step=30 reward=0.7125 accuracy=0.6875 zero_signal_groups=2 completion_tokens=33.2 loss=0.00016 kl=0.00461 longest_sequence=1054 sample_seconds=9.1 seconds=32.4 peak_gb=13.0
+step=31 reward=0.7406 accuracy=0.7188 zero_signal_groups=2 completion_tokens=28.6 loss=0.00106 kl=0.02228 longest_sequence=1034 sample_seconds=8.8 seconds=33.2 peak_gb=13.55
+step=32 reward=0.4938 accuracy=0.4688 zero_signal_groups=1 completion_tokens=39.4 loss=0.00036 kl=0.00872 longest_sequence=630 sample_seconds=8.0 seconds=24.0 peak_gb=10.91
+step=33 reward=0.7594 accuracy=0.75 zero_signal_groups=1 completion_tokens=40.2 loss=0.00058 kl=0.01504 longest_sequence=313 sample_seconds=6.3 seconds=14.9 peak_gb=7.41
+step=34 reward=0.7969 accuracy=0.7812 zero_signal_groups=1 completion_tokens=51.0 loss=0.00039 kl=0.0097 longest_sequence=1126 sample_seconds=11.3 seconds=39.5 peak_gb=13.19
+step=35 reward=0.6594 accuracy=0.625 zero_signal_groups=2 completion_tokens=36.2 loss=0.00037 kl=0.00941 longest_sequence=589 sample_seconds=6.8 seconds=19.5 peak_gb=10.76
+step=36 reward=0.4281 accuracy=0.4062 zero_signal_groups=2 completion_tokens=29.5 loss=0.00032 kl=0.00817 longest_sequence=425 sample_seconds=5.7 seconds=16.1 peak_gb=8.8
+step=37 reward=0.9406 accuracy=0.9375 zero_signal_groups=2 completion_tokens=28.9 loss=0.00028 kl=0.00691 longest_sequence=605 sample_seconds=5.5 seconds=17.0 peak_gb=10.62
+step=38 reward=0.4438 accuracy=0.4375 zero_signal_groups=1 completion_tokens=40.6 loss=0.00086 kl=0.02004 longest_sequence=2212 sample_seconds=12.0 seconds=41.8 peak_gb=10.32
+step=39 reward=0.675 accuracy=0.6562 zero_signal_groups=1 completion_tokens=45.3 loss=0.00023 kl=0.00531 longest_sequence=610 sample_seconds=7.9 seconds=19.9 peak_gb=10.68
+step=40 reward=0.5906 accuracy=0.5625 zero_signal_groups=1 completion_tokens=48.3 loss=0.00036 kl=0.00992 longest_sequence=1544 sample_seconds=10.8 seconds=35.1 peak_gb=12.38
+step=41 reward=0.875 accuracy=0.875 zero_signal_groups=2 completion_tokens=37.5 loss=0.00033 kl=0.00773 longest_sequence=467 sample_seconds=6.4 seconds=17.2 peak_gb=9.3
+step=42 reward=0.8531 accuracy=0.8438 zero_signal_groups=2 completion_tokens=26.2 loss=0.00018 kl=0.00447 longest_sequence=947 sample_seconds=6.1 seconds=20.7 peak_gb=14.18
+step=43 reward=0.45 accuracy=0.4375 zero_signal_groups=2 completion_tokens=41.7 loss=0.00038 kl=0.01089 longest_sequence=1659 sample_seconds=11.2 seconds=39.7 peak_gb=13.03
+step=44 reward=0.9406 accuracy=0.9375 zero_signal_groups=2 completion_tokens=26.7 loss=0.0008 kl=0.02674 longest_sequence=1294 sample_seconds=7.4 seconds=28.5 peak_gb=14.51
+step=45 reward=0.7844 accuracy=0.7812 zero_signal_groups=2 completion_tokens=37.1 loss=0.00076 kl=0.01966 longest_sequence=839 sample_seconds=8.5 seconds=26.3 peak_gb=13.13
+step=46 reward=0.1719 accuracy=0.125 zero_signal_groups=0 completion_tokens=42.0 loss=0.00072 kl=0.01966 longest_sequence=1193 sample_seconds=11.7 seconds=41.9 peak_gb=13.69
+step=47 reward=0.45 accuracy=0.4062 zero_signal_groups=1 completion_tokens=40.9 loss=0.00087 kl=0.01981 longest_sequence=741 sample_seconds=8.1 seconds=22.6 peak_gb=12.03
+step=48 reward=0.8469 accuracy=0.8438 zero_signal_groups=2 completion_tokens=30.1 loss=0.00038 kl=0.01373 longest_sequence=496 sample_seconds=6.3 seconds=18.1 peak_gb=9.65
+step=49 reward=0.4656 accuracy=0.4375 zero_signal_groups=1 completion_tokens=48.4 loss=0.00073 kl=0.01664 longest_sequence=912 sample_seconds=9.5 seconds=25.6 peak_gb=13.95
+step=50 reward=0.3281 accuracy=0.2812 zero_signal_groups=3 completion_tokens=25.4 loss=0.00144 kl=0.03542 longest_sequence=569 sample_seconds=6.0 seconds=20.7 peak_gb=10.51
+step=51 reward=1.0 accuracy=1.0 zero_signal_groups=4 completion_tokens=18.4 loss=5e-05 kl=0.00123 longest_sequence=631 sample_seconds=4.8 seconds=18.5 peak_gb=10.92
+step=52 reward=0.6437 accuracy=0.625 zero_signal_groups=2 completion_tokens=38.0 loss=0.00053 kl=0.01381 longest_sequence=543 sample_seconds=6.7 seconds=18.6 peak_gb=10.21
+step=53 reward=0.6844 accuracy=0.6562 zero_signal_groups=1 completion_tokens=37.1 loss=0.00072 kl=0.02045 longest_sequence=517 sample_seconds=7.4 seconds=18.7 peak_gb=9.9
+step=54 reward=0.6719 accuracy=0.6562 zero_signal_groups=0 completion_tokens=36.7 loss=0.00149 kl=0.03893 longest_sequence=369 sample_seconds=6.5 seconds=16.5 peak_gb=8.13
+step=55 reward=0.8531 accuracy=0.8438 zero_signal_groups=1 completion_tokens=29.0 loss=0.00041 kl=0.01084 longest_sequence=974 sample_seconds=6.6 seconds=22.1 peak_gb=14.55
+step=56 reward=0.5844 accuracy=0.5625 zero_signal_groups=1 completion_tokens=46.8 loss=0.00072 kl=0.02115 longest_sequence=1181 sample_seconds=10.8 seconds=35.8 peak_gb=13.65
+step=57 reward=0.8781 accuracy=0.875 zero_signal_groups=3 completion_tokens=32.5 loss=0.00022 kl=0.00532 longest_sequence=477 sample_seconds=5.6 seconds=16.5 peak_gb=9.42
+step=58 reward=0.8531 accuracy=0.8438 zero_signal_groups=2 completion_tokens=20.2 loss=0.00101 kl=0.02536 longest_sequence=669 sample_seconds=4.9 seconds=16.7 peak_gb=11.28
+step=59 reward=0.7594 accuracy=0.75 zero_signal_groups=1 completion_tokens=37.6 loss=0.00048 kl=0.01184 longest_sequence=377 sample_seconds=6.4 seconds=15.8 peak_gb=8.22
+step=60 reward=0.7906 accuracy=0.7812 zero_signal_groups=1 completion_tokens=58.4 loss=0.00027 kl=0.00657 longest_sequence=385 sample_seconds=8.8 seconds=20.1 peak_gb=8.32
+step=61 reward=0.5219 accuracy=0.4688 zero_signal_groups=3 completion_tokens=39.5 loss=0.0004 kl=0.00999 longest_sequence=650 sample_seconds=6.7 seconds=18.3 peak_gb=11.13
+step=62 reward=0.9719 accuracy=0.9688 zero_signal_groups=3 completion_tokens=18.0 loss=0.00041 kl=0.01015 longest_sequence=459 sample_seconds=4.1 seconds=14.6 peak_gb=9.2
+step=63 reward=0.9719 accuracy=0.9688 zero_signal_groups=3 completion_tokens=29.9 loss=0.0003 kl=0.00945 longest_sequence=1066 sample_seconds=7.5 seconds=26.3 peak_gb=12.69
+step=64 reward=0.5219 accuracy=0.5 zero_signal_groups=2 completion_tokens=29.4 loss=0.00049 kl=0.01587 longest_sequence=1643 sample_seconds=9.4 seconds=36.0 peak_gb=12.94
+step=65 reward=0.525 accuracy=0.5 zero_signal_groups=1 completion_tokens=41.5 loss=0.00105 kl=0.02618 longest_sequence=923 sample_seconds=9.3 seconds=29.5 peak_gb=13.98
+step=66 reward=0.8781 accuracy=0.875 zero_signal_groups=2 completion_tokens=26.9 loss=0.00125 kl=0.03205 longest_sequence=701 sample_seconds=6.3 seconds=21.1 peak_gb=11.72
+step=67 reward=0.7625 accuracy=0.75 zero_signal_groups=2 completion_tokens=54.2 loss=0.00023 kl=0.00683 longest_sequence=1171 sample_seconds=11.5 seconds=36.9 peak_gb=13.63
+step=68 reward=0.775 accuracy=0.75 zero_signal_groups=4 completion_tokens=22.7 loss=0.00011 kl=0.00278 longest_sequence=618 sample_seconds=6.2 seconds=24.2 peak_gb=10.77
+step=69 reward=0.8313 accuracy=0.8125 zero_signal_groups=3 completion_tokens=26.2 loss=0.00052 kl=0.01319 longest_sequence=621 sample_seconds=5.3 seconds=17.9 peak_gb=10.8
+step=70 reward=0.6281 accuracy=0.625 zero_signal_groups=2 completion_tokens=31.9 loss=0.00229 kl=0.0561 longest_sequence=1405 sample_seconds=10.1 seconds=42.2 peak_gb=12.75
+step=71 reward=0.6844 accuracy=0.6562 zero_signal_groups=1 completion_tokens=39.3 loss=0.00254 kl=0.04595 longest_sequence=1168 sample_seconds=8.8 seconds=27.8 peak_gb=13.55
+step=72 reward=0.8156 accuracy=0.8125 zero_signal_groups=1 completion_tokens=31.1 loss=0.00088 kl=0.02196 longest_sequence=1017 sample_seconds=7.0 seconds=24.1 peak_gb=15.02
+step=73 reward=0.85 accuracy=0.8438 zero_signal_groups=1 completion_tokens=46.5 loss=0.00026 kl=0.00586 longest_sequence=1613 sample_seconds=10.2 seconds=35.0 peak_gb=12.77
+step=74 reward=0.9375 accuracy=0.9375 zero_signal_groups=2 completion_tokens=41.6 loss=0.00062 kl=0.02115 longest_sequence=1192 sample_seconds=9.4 seconds=29.8 peak_gb=13.75
+step=75 reward=0.7437 accuracy=0.7188 zero_signal_groups=3 completion_tokens=28.6 loss=0.00039 kl=0.00996 longest_sequence=441 sample_seconds=5.0 seconds=13.4 peak_gb=8.99
+step=76 reward=0.5594 accuracy=0.5312 zero_signal_groups=1 completion_tokens=67.8 loss=0.00108 kl=0.03365 longest_sequence=803 sample_seconds=13.2 seconds=34.7 peak_gb=12.72
+step=77 reward=0.6562 accuracy=0.625 zero_signal_groups=2 completion_tokens=22.1 loss=0.00104 kl=0.03423 longest_sequence=1118 sample_seconds=6.5 seconds=25.2 peak_gb=13.12
+step=78 reward=0.775 accuracy=0.75 zero_signal_groups=4 completion_tokens=30.8 loss=0.00045 kl=0.01018 longest_sequence=1594 sample_seconds=9.6 seconds=39.3 peak_gb=12.76
+step=79 reward=0.6344 accuracy=0.625 zero_signal_groups=2 completion_tokens=29.0 loss=0.00126 kl=0.0297 longest_sequence=827 sample_seconds=6.7 seconds=22.6 peak_gb=12.99
+step=80 reward=0.4563 accuracy=0.4062 zero_signal_groups=2 completion_tokens=60.3 loss=0.00029 kl=0.0074 longest_sequence=1075 sample_seconds=10.9 seconds=30.8 peak_gb=12.76
+step=81 reward=0.3938 accuracy=0.375 zero_signal_groups=2 completion_tokens=28.5 loss=0.00378 kl=0.07453 longest_sequence=912 sample_seconds=7.3 seconds=22.7 peak_gb=13.95
+step=82 reward=0.7125 accuracy=0.6875 zero_signal_groups=2 completion_tokens=41.5 loss=0.00117 kl=0.02943 longest_sequence=563 sample_seconds=7.4 seconds=19.4 peak_gb=10.45
+step=83 reward=0.9406 accuracy=0.9375 zero_signal_groups=2 completion_tokens=75.9 loss=0.00101 kl=0.0243 longest_sequence=1192 sample_seconds=12.8 seconds=33.2 peak_gb=13.75
+step=84 reward=0.7719 accuracy=0.75 zero_signal_groups=3 completion_tokens=29.9 loss=0.00063 kl=0.0153 longest_sequence=975 sample_seconds=7.8 seconds=27.1 peak_gb=14.56
+step=85 reward=0.6906 accuracy=0.6562 zero_signal_groups=3 completion_tokens=22.9 loss=0.0008 kl=0.0191 longest_sequence=1603 sample_seconds=7.1 seconds=29.3 peak_gb=12.71
+step=86 reward=0.9375 accuracy=0.9375 zero_signal_groups=2 completion_tokens=33.6 loss=0.00022 kl=0.00565 longest_sequence=2237 sample_seconds=9.3 seconds=35.8 peak_gb=10.41
+step=87 reward=0.7406 accuracy=0.7188 zero_signal_groups=2 completion_tokens=34.8 loss=0.00088 kl=0.02013 longest_sequence=1450 sample_seconds=9.7 seconds=34.7 peak_gb=12.96
+step=88 reward=0.9094 accuracy=0.9062 zero_signal_groups=1 completion_tokens=37.7 loss=0.00085 kl=0.02154 longest_sequence=785 sample_seconds=6.6 seconds=19.7 peak_gb=12.52
+step=89 reward=0.8875 accuracy=0.875 zero_signal_groups=3 completion_tokens=21.1 loss=0.00101 kl=0.02604 longest_sequence=947 sample_seconds=6.1 seconds=23.1 peak_gb=14.25
+step=90 reward=0.6812 accuracy=0.6562 zero_signal_groups=1 completion_tokens=28.6 loss=0.00164 kl=0.03656 longest_sequence=604 sample_seconds=6.0 seconds=17.7 peak_gb=10.61
+step=91 reward=0.6156 accuracy=0.5938 zero_signal_groups=2 completion_tokens=52.5 loss=0.00093 kl=0.02378 longest_sequence=962 sample_seconds=10.8 seconds=32.5 peak_gb=14.41
+step=92 reward=0.9719 accuracy=0.9688 zero_signal_groups=3 completion_tokens=22.2 loss=0.00066 kl=0.01665 longest_sequence=629 sample_seconds=5.3 seconds=17.9 peak_gb=10.89
+step=93 reward=0.8156 accuracy=0.8125 zero_signal_groups=3 completion_tokens=33.6 loss=0.00067 kl=0.01605 longest_sequence=390 sample_seconds=5.5 seconds=14.9 peak_gb=8.38
+step=94 reward=0.6594 accuracy=0.625 zero_signal_groups=3 completion_tokens=25.2 loss=0.00206 kl=0.04888 longest_sequence=1495 sample_seconds=7.4 seconds=28.2 peak_gb=12.11
+step=95 reward=0.5219 accuracy=0.4688 zero_signal_groups=3 completion_tokens=40.8 loss=0.00036 kl=0.00894 longest_sequence=614 sample_seconds=7.7 seconds=23.7 peak_gb=10.71
+step=96 reward=0.8813 accuracy=0.875 zero_signal_groups=2 completion_tokens=39.3 loss=0.00096 kl=0.02655 longest_sequence=543 sample_seconds=7.3 seconds=19.1 peak_gb=10.21
+step=97 reward=0.6781 accuracy=0.6562 zero_signal_groups=1 completion_tokens=37.8 loss=0.00057 kl=0.01424 longest_sequence=597 sample_seconds=6.7 seconds=19.6 peak_gb=10.85
+step=98 reward=0.55 accuracy=0.5312 zero_signal_groups=2 completion_tokens=45.8 loss=0.001 kl=0.02493 longest_sequence=630 sample_seconds=8.4 seconds=23.8 peak_gb=10.91
+step=99 reward=0.6875 accuracy=0.6562 zero_signal_groups=3 completion_tokens=41.4 loss=0.00113 kl=0.02958 longest_sequence=1012 sample_seconds=9.0 seconds=30.0 peak_gb=14.9
+step=100 reward=0.6969 accuracy=0.6875 zero_signal_groups=2 completion_tokens=47.1 loss=0.00071 kl=0.01932 longest_sequence=1109 sample_seconds=10.4 seconds=32.6 peak_gb=13.05
+Saved adapter to adapters/grpo_r16
+[Fri 19:42] done   grpo in 42 min
+[Fri 19:42] start  sweep-grpo: .venv/bin/python scripts/quant_sweep.py --model models/Qwen3-1.7B-mine_r16-fused --adapter-path adapters/grpo_r16 --limit 1034 --out results/sweep_grpo
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm fuse --model models/Qwen3-1.7B-mine_r16-fused --adapter-path adapters/grpo_r16 --save-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused
+Loading pretrained model
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q8g64 -q --q-bits 8 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 8.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q6g64 -q --q-bits 6 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 6.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q4g64 -q --q-bits 4 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 4.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m mlx_lm convert --hf-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --mlx-path models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q3g64 -q --q-bits 3 --q-group-size 64
+[INFO] Loading
+[INFO] Using dtype: bfloat16
+[INFO] Quantizing
+[INFO] Quantized model with 3.501 bits per weight.
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused --out results/sweep_grpo/bf16-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:02<01:31,  2.86s/batch]generate:   6%|▌         | 2/33 [00:06<01:48,  3.51s/batch]generate:   9%|▉         | 3/33 [00:10<01:50,  3.67s/batch]generate:  12%|█▏        | 4/33 [00:14<01:44,  3.61s/batch]generate:  15%|█▌        | 5/33 [00:17<01:39,  3.54s/batch]generate:  18%|█▊        | 6/33 [00:21<01:35,  3.54s/batch]generate:  21%|██        | 7/33 [00:23<01:23,  3.22s/batch]generate:  24%|██▍       | 8/33 [00:26<01:17,  3.09s/batch]generate:  27%|██▋       | 9/33 [00:29<01:10,  2.94s/batch]generate:  30%|███       | 10/33 [00:31<01:06,  2.88s/batch]generate:  33%|███▎      | 11/33 [00:34<01:03,  2.89s/batch]generate:  36%|███▋      | 12/33 [00:37<01:00,  2.88s/batch]generate:  39%|███▉      | 13/33 [00:39<00:53,  2.70s/batch]generate:  42%|████▏     | 14/33 [00:43<00:57,  3.04s/batch]generate:  45%|████▌     | 15/33 [00:47<01:00,  3.36s/batch]generate:  48%|████▊     | 16/33 [00:52<01:01,  3.62s/batch]generate:  52%|█████▏    | 17/33 [00:59<01:15,  4.71s/batch]generate:  55%|█████▍    | 18/33 [01:07<01:24,  5.64s/batch]generate:  58%|█████▊    | 19/33 [01:12<01:18,  5.64s/batch]generate:  61%|██████    | 20/33 [01:16<01:04,  4.95s/batch]generate:  64%|██████▎   | 21/33 [01:18<00:49,  4.11s/batch]generate:  67%|██████▋   | 22/33 [01:21<00:43,  3.95s/batch]generate:  70%|██████▉   | 23/33 [01:25<00:38,  3.82s/batch]generate:  73%|███████▎  | 24/33 [01:29<00:35,  3.99s/batch]generate:  76%|███████▌  | 25/33 [01:34<00:32,  4.11s/batch]generate:  79%|███████▉  | 26/33 [01:37<00:27,  3.92s/batch]generate:  82%|████████▏ | 27/33 [01:40<00:21,  3.63s/batch]generate:  85%|████████▍ | 28/33 [01:45<00:19,  3.96s/batch]generate:  88%|████████▊ | 29/33 [01:49<00:16,  4.16s/batch]generate:  91%|█████████ | 30/33 [01:55<00:13,  4.63s/batch]generate:  94%|█████████▍| 31/33 [02:00<00:09,  4.62s/batch]generate:  97%|█████████▋| 32/33 [02:03<00:04,  4.11s/batch]generate: 100%|██████████| 33/33 [02:04<00:00,  3.41s/batch]generate: 100%|██████████| 33/33 [02:04<00:00,  3.79s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.705,
+  "ci95": [
+    0.6765,
+    0.732
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 125.0,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35334,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.2,
+  "batched_generation_tps": 282.8,
+  "peak_memory_gb": 10.88
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused --out results/sweep_grpo/bf16-adapter --limit 1034 --seed 0 --adapter-path adapters/grpo_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:14,  4.20s/batch]generate:   6%|▌         | 2/33 [00:10<02:41,  5.22s/batch]generate:   9%|▉         | 3/33 [00:14<02:27,  4.90s/batch]generate:  12%|█▏        | 4/33 [00:19<02:22,  4.92s/batch]generate:  15%|█▌        | 5/33 [00:24<02:22,  5.09s/batch]generate:  18%|█▊        | 6/33 [00:29<02:16,  5.05s/batch]generate:  21%|██        | 7/33 [00:33<01:58,  4.55s/batch]generate:  24%|██▍       | 8/33 [00:38<01:53,  4.55s/batch]generate:  27%|██▋       | 9/33 [00:41<01:43,  4.31s/batch]generate:  30%|███       | 10/33 [00:45<01:37,  4.22s/batch]generate:  33%|███▎      | 11/33 [00:50<01:34,  4.30s/batch]generate:  36%|███▋      | 12/33 [00:54<01:30,  4.30s/batch]generate:  39%|███▉      | 13/33 [00:58<01:21,  4.07s/batch]generate:  42%|████▏     | 14/33 [01:03<01:27,  4.59s/batch]generate:  45%|████▌     | 15/33 [01:09<01:29,  5.00s/batch]generate:  48%|████▊     | 16/33 [01:15<01:29,  5.26s/batch]generate:  52%|█████▏    | 17/33 [01:26<01:49,  6.85s/batch]generate:  55%|█████▍    | 18/33 [01:37<02:00,  8.02s/batch]generate:  58%|█████▊    | 19/33 [01:44<01:49,  7.81s/batch]generate:  61%|██████    | 20/33 [01:49<01:30,  6.93s/batch]generate:  64%|██████▎   | 21/33 [01:52<01:10,  5.84s/batch]generate:  67%|██████▋   | 22/33 [01:57<01:02,  5.69s/batch]generate:  70%|██████▉   | 23/33 [02:02<00:54,  5.46s/batch]generate:  73%|███████▎  | 24/33 [02:09<00:51,  5.71s/batch]generate:  76%|███████▌  | 25/33 [02:15<00:46,  5.81s/batch]generate:  79%|███████▉  | 26/33 [02:20<00:39,  5.58s/batch]generate:  82%|████████▏ | 27/33 [02:24<00:30,  5.15s/batch]generate:  85%|████████▍ | 28/33 [02:32<00:29,  5.94s/batch]generate:  88%|████████▊ | 29/33 [02:38<00:24,  6.10s/batch]generate:  91%|█████████ | 30/33 [02:46<00:20,  6.69s/batch]generate:  94%|█████████▍| 31/33 [02:53<00:13,  6.64s/batch]generate:  97%|█████████▋| 32/33 [02:57<00:05,  5.89s/batch]generate: 100%|██████████| 33/33 [02:59<00:00,  4.92s/batch]generate: 100%|██████████| 33/33 [02:59<00:00,  5.45s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7195,
+  "ci95": [
+    0.6914,
+    0.7461
+  ],
+  "pred_exec_error_rate": 0.0725,
+  "gold_exec_errors": 0,
+  "wall_time_s": 180.0,
+  "prompt_tokens": 397463,
+  "generation_tokens": 36120,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.9,
+  "batched_generation_tps": 200.7,
+  "peak_memory_gb": 10.97
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q8g64 --out results/sweep_grpo/q8g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:37,  3.06s/batch]generate:   6%|▌         | 2/33 [00:07<01:55,  3.74s/batch]generate:   9%|▉         | 3/33 [00:10<01:50,  3.69s/batch]generate:  12%|█▏        | 4/33 [00:14<01:45,  3.65s/batch]generate:  15%|█▌        | 5/33 [00:18<01:42,  3.67s/batch]generate:  18%|█▊        | 6/33 [00:21<01:37,  3.63s/batch]generate:  21%|██        | 7/33 [00:24<01:27,  3.36s/batch]generate:  24%|██▍       | 8/33 [00:27<01:22,  3.28s/batch]generate:  27%|██▋       | 9/33 [00:30<01:15,  3.13s/batch]generate:  30%|███       | 10/33 [00:33<01:10,  3.07s/batch]generate:  33%|███▎      | 11/33 [00:36<01:07,  3.09s/batch]generate:  36%|███▋      | 12/33 [00:39<01:06,  3.16s/batch]generate:  39%|███▉      | 13/33 [00:42<00:59,  2.97s/batch]generate:  42%|████▏     | 14/33 [00:46<01:01,  3.21s/batch]generate:  45%|████▌     | 15/33 [00:50<01:03,  3.54s/batch]generate:  48%|████▊     | 16/33 [00:54<01:04,  3.80s/batch]generate:  52%|█████▏    | 17/33 [01:02<01:19,  4.96s/batch]generate:  55%|█████▍    | 18/33 [01:10<01:27,  5.87s/batch]generate:  58%|█████▊    | 19/33 [01:15<01:20,  5.72s/batch]generate:  61%|██████    | 20/33 [01:19<01:05,  5.05s/batch]generate:  64%|██████▎   | 21/33 [01:21<00:50,  4.23s/batch]generate:  67%|██████▋   | 22/33 [01:25<00:43,  3.98s/batch]generate:  70%|██████▉   | 23/33 [01:28<00:39,  3.95s/batch]generate:  73%|███████▎  | 24/33 [01:33<00:38,  4.25s/batch]generate:  76%|███████▌  | 25/33 [01:38<00:34,  4.34s/batch]generate:  79%|███████▉  | 26/33 [01:42<00:29,  4.18s/batch]generate:  82%|████████▏ | 27/33 [01:45<00:23,  3.91s/batch]generate:  85%|████████▍ | 28/33 [01:49<00:19,  3.93s/batch]generate:  88%|████████▊ | 29/33 [01:54<00:17,  4.25s/batch]generate:  91%|█████████ | 30/33 [02:01<00:14,  4.93s/batch]generate:  94%|█████████▍| 31/33 [02:06<00:09,  4.96s/batch]generate:  97%|█████████▋| 32/33 [02:09<00:04,  4.44s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.64s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.97s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q8g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.707,
+  "ci95": [
+    0.6785,
+    0.7339
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35226,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 268.8,
+  "peak_memory_gb": 9.29
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q8g64 --out results/sweep_grpo/q8g64-adapter --limit 1034 --seed 0 --adapter-path adapters/grpo_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:20,  4.39s/batch]generate:   6%|▌         | 2/33 [00:10<02:49,  5.47s/batch]generate:   9%|▉         | 3/33 [00:15<02:36,  5.21s/batch]generate:  12%|█▏        | 4/33 [00:20<02:32,  5.26s/batch]generate:  15%|█▌        | 5/33 [00:26<02:29,  5.34s/batch]generate:  18%|█▊        | 6/33 [00:31<02:22,  5.28s/batch]generate:  21%|██        | 7/33 [00:35<02:06,  4.87s/batch]generate:  24%|██▍       | 8/33 [00:40<02:01,  4.85s/batch]generate:  27%|██▋       | 9/33 [00:44<01:50,  4.60s/batch]generate:  30%|███       | 10/33 [00:48<01:43,  4.50s/batch]generate:  33%|███▎      | 11/33 [00:53<01:39,  4.53s/batch]generate:  36%|███▋      | 12/33 [00:58<01:36,  4.61s/batch]generate:  39%|███▉      | 13/33 [01:01<01:27,  4.36s/batch]generate:  42%|████▏     | 14/33 [01:07<01:30,  4.77s/batch]generate:  45%|████▌     | 15/33 [01:13<01:33,  5.19s/batch]generate:  48%|████▊     | 16/33 [01:19<01:33,  5.49s/batch]generate:  52%|█████▏    | 17/33 [01:31<01:55,  7.20s/batch]generate:  55%|█████▍    | 18/33 [01:42<02:05,  8.38s/batch]generate:  58%|█████▊    | 19/33 [01:49<01:53,  8.08s/batch]generate:  61%|██████    | 20/33 [01:54<01:32,  7.15s/batch]generate:  64%|██████▎   | 21/33 [01:58<01:12,  6.07s/batch]generate:  67%|██████▋   | 22/33 [02:03<01:03,  5.80s/batch]generate:  70%|██████▉   | 23/33 [02:08<00:56,  5.66s/batch]generate:  73%|███████▎  | 24/33 [02:15<00:54,  6.03s/batch]generate:  76%|███████▌  | 25/33 [02:22<00:49,  6.19s/batch]generate:  79%|███████▉  | 26/33 [02:27<00:41,  5.94s/batch]generate:  82%|████████▏ | 27/33 [02:32<00:33,  5.52s/batch]generate:  85%|████████▍ | 28/33 [02:38<00:28,  5.74s/batch]generate:  88%|████████▊ | 29/33 [02:45<00:24,  6.10s/batch]generate:  91%|█████████ | 30/33 [02:54<00:20,  6.93s/batch]generate:  94%|█████████▍| 31/33 [03:01<00:13,  6.95s/batch]generate:  97%|█████████▋| 32/33 [03:05<00:06,  6.21s/batch]generate: 100%|██████████| 33/33 [03:08<00:00,  5.13s/batch]generate: 100%|██████████| 33/33 [03:08<00:00,  5.70s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q8g64",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7253,
+  "ci95": [
+    0.6973,
+    0.7517
+  ],
+  "pred_exec_error_rate": 0.0696,
+  "gold_exec_errors": 0,
+  "wall_time_s": 188.2,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35968,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.8,
+  "batched_generation_tps": 191.1,
+  "peak_memory_gb": 9.37
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q8g64 --out results/sweep_grpo/q8g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:36,  3.02s/batch]generate:   6%|▌         | 2/33 [00:07<01:54,  3.70s/batch]generate:   9%|▉         | 3/33 [00:10<01:47,  3.57s/batch]generate:  12%|█▏        | 4/33 [00:14<01:45,  3.64s/batch]generate:  15%|█▌        | 5/33 [00:18<01:44,  3.75s/batch]generate:  18%|█▊        | 6/33 [00:21<01:38,  3.66s/batch]generate:  21%|██        | 7/33 [00:24<01:28,  3.40s/batch]generate:  24%|██▍       | 8/33 [00:27<01:24,  3.36s/batch]generate:  27%|██▋       | 9/33 [00:30<01:16,  3.19s/batch]generate:  30%|███       | 10/33 [00:33<01:11,  3.11s/batch]generate:  33%|███▎      | 11/33 [00:36<01:08,  3.13s/batch]generate:  36%|███▋      | 12/33 [00:40<01:07,  3.22s/batch]generate:  39%|███▉      | 13/33 [00:42<01:00,  3.04s/batch]generate:  42%|████▏     | 14/33 [00:46<01:00,  3.19s/batch]generate:  45%|████▌     | 15/33 [00:50<01:02,  3.49s/batch]generate:  48%|████▊     | 16/33 [00:55<01:04,  3.77s/batch]generate:  52%|█████▏    | 17/33 [01:03<01:20,  5.05s/batch]generate:  55%|█████▍    | 18/33 [01:11<01:28,  5.92s/batch]generate:  58%|█████▊    | 19/33 [01:16<01:19,  5.70s/batch]generate:  61%|██████    | 20/33 [01:19<01:05,  5.03s/batch]generate:  64%|██████▎   | 21/33 [01:22<00:51,  4.25s/batch]generate:  67%|██████▋   | 22/33 [01:25<00:44,  4.02s/batch]generate:  70%|██████▉   | 23/33 [01:29<00:39,  3.98s/batch]generate:  73%|███████▎  | 24/33 [01:34<00:38,  4.28s/batch]generate:  76%|███████▌  | 25/33 [01:39<00:35,  4.42s/batch]generate:  79%|███████▉  | 26/33 [01:43<00:29,  4.24s/batch]generate:  82%|████████▏ | 27/33 [01:46<00:23,  3.94s/batch]generate:  85%|████████▍ | 28/33 [01:49<00:18,  3.68s/batch]generate:  88%|████████▊ | 29/33 [01:54<00:16,  4.04s/batch]generate:  91%|█████████ | 30/33 [02:00<00:14,  4.81s/batch]generate:  94%|█████████▍| 31/33 [02:06<00:09,  4.92s/batch]generate:  97%|█████████▋| 32/33 [02:09<00:04,  4.42s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.63s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.97s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q8g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7234,
+  "ci95": [
+    0.6954,
+    0.7498
+  ],
+  "pred_exec_error_rate": 0.0725,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35538,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.4,
+  "batched_generation_tps": 271.2,
+  "peak_memory_gb": 9.29
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q6g64 --out results/sweep_grpo/q6g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:36,  3.03s/batch]generate:   6%|▌         | 2/33 [00:07<01:53,  3.66s/batch]generate:   9%|▉         | 3/33 [00:10<01:51,  3.70s/batch]generate:  12%|█▏        | 4/33 [00:14<01:46,  3.67s/batch]generate:  15%|█▌        | 5/33 [00:18<01:42,  3.68s/batch]generate:  18%|█▊        | 6/33 [00:21<01:36,  3.58s/batch]generate:  21%|██        | 7/33 [00:24<01:26,  3.34s/batch]generate:  24%|██▍       | 8/33 [00:27<01:22,  3.32s/batch]generate:  27%|██▋       | 9/33 [00:30<01:16,  3.17s/batch]generate:  30%|███       | 10/33 [00:33<01:11,  3.11s/batch]generate:  33%|███▎      | 11/33 [00:36<01:07,  3.08s/batch]generate:  36%|███▋      | 12/33 [00:39<01:07,  3.19s/batch]generate:  39%|███▉      | 13/33 [00:42<01:00,  3.02s/batch]generate:  42%|████▏     | 14/33 [00:46<01:01,  3.23s/batch]generate:  45%|████▌     | 15/33 [00:50<01:05,  3.61s/batch]generate:  48%|████▊     | 16/33 [00:55<01:06,  3.91s/batch]generate:  52%|█████▏    | 17/33 [01:03<01:22,  5.14s/batch]generate:  55%|█████▍    | 18/33 [01:12<01:34,  6.30s/batch]generate:  58%|█████▊    | 19/33 [01:18<01:28,  6.32s/batch]generate:  61%|██████    | 20/33 [01:22<01:11,  5.50s/batch]generate:  64%|██████▎   | 21/33 [01:24<00:54,  4.57s/batch]generate:  67%|██████▋   | 22/33 [01:28<00:46,  4.22s/batch]generate:  70%|██████▉   | 23/33 [01:32<00:41,  4.19s/batch]generate:  73%|███████▎  | 24/33 [01:37<00:40,  4.48s/batch]generate:  76%|███████▌  | 25/33 [01:42<00:36,  4.62s/batch]generate:  79%|███████▉  | 26/33 [01:46<00:30,  4.43s/batch]generate:  82%|████████▏ | 27/33 [01:49<00:24,  4.11s/batch]generate:  85%|████████▍ | 28/33 [01:53<00:20,  4.02s/batch]generate:  88%|████████▊ | 29/33 [01:58<00:16,  4.24s/batch]generate:  91%|█████████ | 30/33 [02:05<00:15,  5.00s/batch]generate:  94%|█████████▍| 31/33 [02:10<00:10,  5.09s/batch]generate:  97%|█████████▋| 32/33 [02:13<00:04,  4.55s/batch]generate: 100%|██████████| 33/33 [02:15<00:00,  3.73s/batch]generate: 100%|██████████| 33/33 [02:15<00:00,  4.11s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q6g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.706,
+  "ci95": [
+    0.6775,
+    0.733
+  ],
+  "pred_exec_error_rate": 0.0996,
+  "gold_exec_errors": 0,
+  "wall_time_s": 135.5,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35303,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.1,
+  "batched_generation_tps": 260.5,
+  "peak_memory_gb": 8.86
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q6g64 --out results/sweep_grpo/q6g64-adapter --limit 1034 --seed 0 --adapter-path adapters/grpo_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:20,  4.38s/batch]generate:   6%|▌         | 2/33 [00:10<02:47,  5.40s/batch]generate:   9%|▉         | 3/33 [00:16<02:43,  5.45s/batch]generate:  12%|█▏        | 4/33 [00:21<02:34,  5.32s/batch]generate:  15%|█▌        | 5/33 [00:26<02:30,  5.38s/batch]generate:  18%|█▊        | 6/33 [00:33<02:40,  5.94s/batch]generate:  21%|██        | 7/33 [00:37<02:18,  5.33s/batch]generate:  24%|██▍       | 8/33 [00:42<02:09,  5.19s/batch]generate:  27%|██▋       | 9/33 [00:46<01:56,  4.84s/batch]generate:  30%|███       | 10/33 [00:50<01:47,  4.65s/batch]generate:  33%|███▎      | 11/33 [00:55<01:41,  4.64s/batch]generate:  36%|███▋      | 12/33 [01:00<01:38,  4.70s/batch]generate:  39%|███▉      | 13/33 [01:04<01:28,  4.43s/batch]generate:  42%|████▏     | 14/33 [01:09<01:30,  4.78s/batch]generate:  45%|████▌     | 15/33 [01:15<01:33,  5.20s/batch]generate:  48%|████▊     | 16/33 [01:22<01:33,  5.50s/batch]generate:  52%|█████▏    | 17/33 [01:33<01:54,  7.18s/batch]generate:  55%|█████▍    | 18/33 [01:45<02:11,  8.79s/batch]generate:  58%|█████▊    | 19/33 [01:52<01:55,  8.25s/batch]generate:  61%|██████    | 20/33 [01:57<01:34,  7.26s/batch]generate:  64%|██████▎   | 21/33 [02:01<01:13,  6.14s/batch]generate:  67%|██████▋   | 22/33 [02:06<01:04,  5.84s/batch]generate:  70%|██████▉   | 23/33 [02:11<00:57,  5.76s/batch]generate:  73%|███████▎  | 24/33 [02:18<00:54,  6.09s/batch]generate:  76%|███████▌  | 25/33 [02:25<00:50,  6.34s/batch]generate:  79%|███████▉  | 26/33 [02:31<00:42,  6.06s/batch]generate:  82%|████████▏ | 27/33 [02:35<00:33,  5.60s/batch]generate:  85%|████████▍ | 28/33 [02:41<00:28,  5.72s/batch]generate:  88%|████████▊ | 29/33 [02:48<00:24,  6.04s/batch]generate:  91%|█████████ | 30/33 [02:57<00:20,  6.92s/batch]generate:  94%|█████████▍| 31/33 [03:04<00:13,  6.96s/batch]generate:  97%|█████████▋| 32/33 [03:08<00:06,  6.21s/batch]generate: 100%|██████████| 33/33 [03:11<00:00,  5.17s/batch]generate: 100%|██████████| 33/33 [03:11<00:00,  5.81s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q6g64",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7292,
+  "ci95": [
+    0.7013,
+    0.7554
+  ],
+  "pred_exec_error_rate": 0.0629,
+  "gold_exec_errors": 0,
+  "wall_time_s": 191.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 36278,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 35.1,
+  "batched_generation_tps": 189.3,
+  "peak_memory_gb": 8.94
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q6g64 --out results/sweep_grpo/q6g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:36,  3.02s/batch]generate:   6%|▌         | 2/33 [00:07<01:54,  3.69s/batch]generate:   9%|▉         | 3/33 [00:10<01:50,  3.70s/batch]generate:  12%|█▏        | 4/33 [00:14<01:46,  3.68s/batch]generate:  15%|█▌        | 5/33 [00:18<01:44,  3.72s/batch]generate:  18%|█▊        | 6/33 [00:22<01:47,  3.97s/batch]generate:  21%|██        | 7/33 [00:25<01:34,  3.62s/batch]generate:  24%|██▍       | 8/33 [00:28<01:27,  3.50s/batch]generate:  27%|██▋       | 9/33 [00:31<01:19,  3.29s/batch]generate:  30%|███       | 10/33 [00:34<01:13,  3.18s/batch]generate:  33%|███▎      | 11/33 [00:37<01:09,  3.17s/batch]generate:  36%|███▋      | 12/33 [00:41<01:08,  3.27s/batch]generate:  39%|███▉      | 13/33 [00:43<01:01,  3.07s/batch]generate:  42%|████▏     | 14/33 [00:47<01:02,  3.29s/batch]generate:  45%|████▌     | 15/33 [00:51<01:04,  3.57s/batch]generate:  48%|████▊     | 16/33 [00:56<01:05,  3.83s/batch]generate:  52%|█████▏    | 17/33 [01:04<01:21,  5.08s/batch]generate:  55%|█████▍    | 18/33 [01:13<01:33,  6.20s/batch]generate:  58%|█████▊    | 19/33 [01:19<01:26,  6.20s/batch]generate:  61%|██████    | 20/33 [01:22<01:09,  5.38s/batch]generate:  64%|██████▎   | 21/33 [01:25<00:53,  4.48s/batch]generate:  67%|██████▋   | 22/33 [01:28<00:45,  4.17s/batch]generate:  70%|██████▉   | 23/33 [01:32<00:41,  4.13s/batch]generate:  73%|███████▎  | 24/33 [01:38<00:40,  4.50s/batch]generate:  76%|███████▌  | 25/33 [01:43<00:37,  4.64s/batch]generate:  79%|███████▉  | 26/33 [01:47<00:30,  4.43s/batch]generate:  82%|████████▏ | 27/33 [01:50<00:24,  4.09s/batch]generate:  85%|████████▍ | 28/33 [01:54<00:20,  4.02s/batch]generate:  88%|████████▊ | 29/33 [01:59<00:17,  4.31s/batch]generate:  91%|█████████ | 30/33 [02:05<00:15,  5.03s/batch]generate:  94%|█████████▍| 31/33 [02:11<00:10,  5.09s/batch]generate:  97%|█████████▋| 32/33 [02:14<00:04,  4.54s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  3.73s/batch]generate: 100%|██████████| 33/33 [02:16<00:00,  4.13s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q6g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7215,
+  "ci95": [
+    0.6934,
+    0.7479
+  ],
+  "pred_exec_error_rate": 0.0706,
+  "gold_exec_errors": 0,
+  "wall_time_s": 136.2,
+  "prompt_tokens": 397463,
+  "generation_tokens": 36423,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 35.2,
+  "batched_generation_tps": 267.4,
+  "peak_memory_gb": 8.86
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q4g64 --out results/sweep_grpo/q4g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:02<01:34,  2.95s/batch]generate:   6%|▌         | 2/33 [00:06<01:46,  3.45s/batch]generate:   9%|▉         | 3/33 [00:10<01:44,  3.49s/batch]generate:  12%|█▏        | 4/33 [00:13<01:40,  3.46s/batch]generate:  15%|█▌        | 5/33 [00:17<01:39,  3.54s/batch]generate:  18%|█▊        | 6/33 [00:20<01:36,  3.56s/batch]generate:  21%|██        | 7/33 [00:23<01:24,  3.26s/batch]generate:  24%|██▍       | 8/33 [00:26<01:19,  3.19s/batch]generate:  27%|██▋       | 9/33 [00:29<01:13,  3.05s/batch]generate:  30%|███       | 10/33 [00:32<01:10,  3.08s/batch]generate:  33%|███▎      | 11/33 [00:35<01:06,  3.02s/batch]generate:  36%|███▋      | 12/33 [00:38<01:05,  3.10s/batch]generate:  39%|███▉      | 13/33 [00:41<00:57,  2.90s/batch]generate:  42%|████▏     | 14/33 [00:44<00:58,  3.09s/batch]generate:  45%|████▌     | 15/33 [00:48<01:01,  3.40s/batch]generate:  48%|████▊     | 16/33 [00:53<01:03,  3.75s/batch]generate:  52%|█████▏    | 17/33 [01:00<01:18,  4.90s/batch]generate:  55%|█████▍    | 18/33 [01:08<01:27,  5.81s/batch]generate:  58%|█████▊    | 19/33 [01:14<01:21,  5.83s/batch]generate:  61%|██████    | 20/33 [01:18<01:06,  5.11s/batch]generate:  64%|██████▎   | 21/33 [01:20<00:51,  4.31s/batch]generate:  67%|██████▋   | 22/33 [01:23<00:43,  3.99s/batch]generate:  70%|██████▉   | 23/33 [01:27<00:39,  3.98s/batch]generate:  73%|███████▎  | 24/33 [01:32<00:38,  4.23s/batch]generate:  76%|███████▌  | 25/33 [01:37<00:34,  4.32s/batch]generate:  79%|███████▉  | 26/33 [01:40<00:29,  4.16s/batch]generate:  82%|████████▏ | 27/33 [01:44<00:23,  3.93s/batch]generate:  85%|████████▍ | 28/33 [01:47<00:18,  3.72s/batch]generate:  88%|████████▊ | 29/33 [01:52<00:16,  4.01s/batch]generate:  91%|█████████ | 30/33 [01:59<00:15,  5.05s/batch]generate:  94%|█████████▍| 31/33 [02:04<00:10,  5.10s/batch]generate:  97%|█████████▋| 32/33 [02:08<00:04,  4.51s/batch]generate: 100%|██████████| 33/33 [02:09<00:00,  3.67s/batch]generate: 100%|██████████| 33/33 [02:09<00:00,  3.93s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6364,
+  "ci95": [
+    0.6066,
+    0.6651
+  ],
+  "pred_exec_error_rate": 0.1422,
+  "gold_exec_errors": 0,
+  "wall_time_s": 129.8,
+  "prompt_tokens": 397463,
+  "generation_tokens": 38050,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.8,
+  "batched_generation_tps": 293.1,
+  "peak_memory_gb": 8.43
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q4g64 --out results/sweep_grpo/q4g64-adapter --limit 1034 --seed 0 --adapter-path adapters/grpo_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:17,  4.31s/batch]generate:   6%|▌         | 2/33 [00:10<02:46,  5.36s/batch]generate:   9%|▉         | 3/33 [00:15<02:40,  5.34s/batch]generate:  12%|█▏        | 4/33 [00:20<02:30,  5.18s/batch]generate:  15%|█▌        | 5/33 [00:26<02:34,  5.53s/batch]generate:  18%|█▊        | 6/33 [00:32<02:33,  5.68s/batch]generate:  21%|██        | 7/33 [00:36<02:14,  5.16s/batch]generate:  24%|██▍       | 8/33 [00:41<02:04,  4.96s/batch]generate:  27%|██▋       | 9/33 [00:45<01:51,  4.65s/batch]generate:  30%|███       | 10/33 [00:50<01:47,  4.66s/batch]generate:  33%|███▎      | 11/33 [00:54<01:41,  4.60s/batch]generate:  36%|███▋      | 12/33 [00:59<01:36,  4.62s/batch]generate:  39%|███▉      | 13/33 [01:02<01:27,  4.36s/batch]generate:  42%|████▏     | 14/33 [01:08<01:27,  4.58s/batch]generate:  45%|████▌     | 15/33 [01:14<01:30,  5.04s/batch]generate:  48%|████▊     | 16/33 [01:20<01:32,  5.44s/batch]generate:  52%|█████▏    | 17/33 [01:31<01:52,  7.05s/batch]generate:  55%|█████▍    | 18/33 [01:42<02:02,  8.17s/batch]generate:  58%|█████▊    | 19/33 [01:49<01:52,  8.01s/batch]generate:  61%|██████    | 20/33 [01:54<01:32,  7.10s/batch]generate:  64%|██████▎   | 21/33 [01:58<01:12,  6.04s/batch]generate:  67%|██████▋   | 22/33 [02:03<01:03,  5.78s/batch]generate:  70%|██████▉   | 23/33 [02:11<01:03,  6.34s/batch]generate:  73%|███████▎  | 24/33 [02:17<00:57,  6.44s/batch]generate:  76%|███████▌  | 25/33 [02:24<00:51,  6.44s/batch]generate:  79%|███████▉  | 26/33 [02:29<00:42,  6.10s/batch]generate:  82%|████████▏ | 27/33 [02:34<00:33,  5.66s/batch]generate:  85%|████████▍ | 28/33 [02:37<00:25,  5.00s/batch]generate:  88%|████████▊ | 29/33 [02:43<00:21,  5.34s/batch]generate:  91%|█████████ | 30/33 [02:53<00:19,  6.53s/batch]generate:  94%|█████████▍| 31/33 [03:00<00:13,  6.74s/batch]generate:  97%|█████████▋| 32/33 [03:04<00:06,  6.02s/batch]generate: 100%|██████████| 33/33 [03:07<00:00,  4.99s/batch]generate: 100%|██████████| 33/33 [03:07<00:00,  5.67s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q4g64",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6741,
+  "ci95": [
+    0.6449,
+    0.702
+  ],
+  "pred_exec_error_rate": 0.0948,
+  "gold_exec_errors": 0,
+  "wall_time_s": 187.2,
+  "prompt_tokens": 397463,
+  "generation_tokens": 38902,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 37.6,
+  "batched_generation_tps": 207.8,
+  "peak_memory_gb": 8.51
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q4g64 --out results/sweep_grpo/q4g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:02<01:33,  2.94s/batch]generate:   6%|▌         | 2/33 [00:06<01:50,  3.57s/batch]generate:   9%|▉         | 3/33 [00:10<01:45,  3.52s/batch]generate:  12%|█▏        | 4/33 [00:14<01:43,  3.55s/batch]generate:  15%|█▌        | 5/33 [00:17<01:43,  3.68s/batch]generate:  18%|█▊        | 6/33 [00:22<01:43,  3.83s/batch]generate:  21%|██        | 7/33 [00:24<01:30,  3.50s/batch]generate:  24%|██▍       | 8/33 [00:27<01:24,  3.37s/batch]generate:  27%|██▋       | 9/33 [00:30<01:16,  3.17s/batch]generate:  30%|███       | 10/33 [00:33<01:12,  3.16s/batch]generate:  33%|███▎      | 11/33 [00:36<01:09,  3.14s/batch]generate:  36%|███▋      | 12/33 [00:40<01:06,  3.18s/batch]generate:  39%|███▉      | 13/33 [00:42<00:59,  2.97s/batch]generate:  42%|████▏     | 14/33 [00:46<00:59,  3.13s/batch]generate:  45%|████▌     | 15/33 [00:50<01:02,  3.45s/batch]generate:  48%|████▊     | 16/33 [00:54<01:03,  3.75s/batch]generate:  52%|█████▏    | 17/33 [01:02<01:18,  4.89s/batch]generate:  55%|█████▍    | 18/33 [01:10<01:26,  5.79s/batch]generate:  58%|█████▊    | 19/33 [01:15<01:18,  5.61s/batch]generate:  61%|██████    | 20/33 [01:18<01:04,  4.93s/batch]generate:  64%|██████▎   | 21/33 [01:21<00:50,  4.19s/batch]generate:  67%|██████▋   | 22/33 [01:24<00:43,  3.91s/batch]generate:  70%|██████▉   | 23/33 [01:29<00:42,  4.20s/batch]generate:  73%|███████▎  | 24/33 [01:34<00:39,  4.36s/batch]generate:  76%|███████▌  | 25/33 [01:38<00:35,  4.42s/batch]generate:  79%|███████▉  | 26/33 [01:42<00:29,  4.20s/batch]generate:  82%|████████▏ | 27/33 [01:45<00:23,  3.92s/batch]generate:  85%|████████▍ | 28/33 [01:48<00:17,  3.50s/batch]generate:  88%|████████▊ | 29/33 [01:52<00:15,  3.84s/batch]generate:  91%|█████████ | 30/33 [01:59<00:13,  4.61s/batch]generate:  94%|█████████▍| 31/33 [02:04<00:09,  4.73s/batch]generate:  97%|█████████▋| 32/33 [02:07<00:04,  4.22s/batch]generate: 100%|██████████| 33/33 [02:08<00:00,  3.45s/batch]generate: 100%|██████████| 33/33 [02:08<00:00,  3.91s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.677,
+  "ci95": [
+    0.6479,
+    0.7048
+  ],
+  "pred_exec_error_rate": 0.1054,
+  "gold_exec_errors": 0,
+  "wall_time_s": 128.9,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39213,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 37.9,
+  "batched_generation_tps": 304.2,
+  "peak_memory_gb": 8.43
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q3g64 --out results/sweep_grpo/q3g64-base --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:09,  4.04s/batch]generate:   6%|▌         | 2/33 [00:08<02:08,  4.16s/batch]generate:   9%|▉         | 3/33 [00:12<02:03,  4.12s/batch]generate:  12%|█▏        | 4/33 [00:15<01:53,  3.92s/batch]generate:  15%|█▌        | 5/33 [00:20<01:55,  4.13s/batch]generate:  18%|█▊        | 6/33 [00:24<01:52,  4.18s/batch]generate:  21%|██        | 7/33 [00:27<01:37,  3.76s/batch]generate:  24%|██▍       | 8/33 [00:30<01:28,  3.54s/batch]generate:  27%|██▋       | 9/33 [00:33<01:22,  3.45s/batch]generate:  30%|███       | 10/33 [00:36<01:16,  3.31s/batch]generate:  33%|███▎      | 11/33 [00:39<01:10,  3.19s/batch]generate:  36%|███▋      | 12/33 [00:43<01:07,  3.22s/batch]generate:  39%|███▉      | 13/33 [00:45<01:00,  3.04s/batch]generate:  42%|████▏     | 14/33 [00:49<01:00,  3.16s/batch]generate:  45%|████▌     | 15/33 [00:53<01:03,  3.53s/batch]generate:  48%|████▊     | 16/33 [00:58<01:05,  3.83s/batch]generate:  52%|█████▏    | 17/33 [01:05<01:19,  4.95s/batch]generate:  55%|█████▍    | 18/33 [01:13<01:25,  5.70s/batch]generate:  58%|█████▊    | 19/33 [01:18<01:17,  5.53s/batch]generate:  61%|██████    | 20/33 [01:21<01:03,  4.90s/batch]generate:  64%|██████▎   | 21/33 [01:24<00:50,  4.20s/batch]generate:  67%|██████▋   | 22/33 [01:27<00:42,  3.88s/batch]generate:  70%|██████▉   | 23/33 [01:31<00:40,  4.00s/batch]generate:  73%|███████▎  | 24/33 [01:36<00:37,  4.17s/batch]generate:  76%|███████▌  | 25/33 [01:41<00:36,  4.52s/batch]generate:  79%|███████▉  | 26/33 [01:45<00:30,  4.31s/batch]generate:  82%|████████▏ | 27/33 [01:48<00:24,  4.09s/batch]generate:  85%|████████▍ | 28/33 [01:51<00:17,  3.56s/batch]generate:  88%|████████▊ | 29/33 [01:55<00:15,  3.88s/batch]generate:  91%|█████████ | 30/33 [02:02<00:14,  4.76s/batch]generate:  94%|█████████▍| 31/33 [02:08<00:09,  4.91s/batch]generate:  97%|█████████▋| 32/33 [02:11<00:04,  4.35s/batch]generate: 100%|██████████| 33/33 [02:12<00:00,  3.53s/batch]generate: 100%|██████████| 33/33 [02:12<00:00,  4.02s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3733,
+  "ci95": [
+    0.3443,
+    0.4032
+  ],
+  "pred_exec_error_rate": 0.3868,
+  "gold_exec_errors": 0,
+  "wall_time_s": 132.7,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39251,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 38.0,
+  "batched_generation_tps": 295.8,
+  "peak_memory_gb": 8.21
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-q3g64 --out results/sweep_grpo/q3g64-adapter --limit 1034 --seed 0 --adapter-path adapters/grpo_r16
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:04<02:35,  4.85s/batch]generate:   6%|▌         | 2/33 [00:10<02:36,  5.06s/batch]generate:   9%|▉         | 3/33 [00:15<02:36,  5.22s/batch]generate:  12%|█▏        | 4/33 [00:21<02:42,  5.61s/batch]generate:  15%|█▌        | 5/33 [00:27<02:37,  5.62s/batch]generate:  18%|█▊        | 6/33 [00:34<02:42,  6.01s/batch]generate:  21%|██        | 7/33 [00:40<02:36,  6.01s/batch]generate:  24%|██▍       | 8/33 [00:44<02:17,  5.51s/batch]generate:  27%|██▋       | 9/33 [00:49<02:04,  5.21s/batch]generate:  30%|███       | 10/33 [00:53<01:53,  4.94s/batch]generate:  33%|███▎      | 11/33 [00:57<01:45,  4.81s/batch]generate:  36%|███▋      | 12/33 [01:02<01:40,  4.79s/batch]generate:  39%|███▉      | 13/33 [01:08<01:40,  5.04s/batch]generate:  42%|████▏     | 14/33 [01:13<01:34,  4.95s/batch]generate:  45%|████▌     | 15/33 [01:20<01:42,  5.71s/batch]generate:  48%|████▊     | 16/33 [01:26<01:40,  5.89s/batch]generate:  52%|█████▏    | 17/33 [01:38<02:00,  7.51s/batch]generate:  55%|█████▍    | 18/33 [01:48<02:05,  8.35s/batch]generate:  58%|█████▊    | 19/33 [01:55<01:51,  7.99s/batch]generate:  61%|██████    | 20/33 [02:03<01:42,  7.88s/batch]generate:  64%|██████▎   | 21/33 [02:06<01:18,  6.56s/batch]generate:  67%|██████▋   | 22/33 [02:11<01:04,  5.91s/batch]generate:  70%|██████▉   | 23/33 [02:17<00:59,  5.95s/batch]generate:  73%|███████▎  | 24/33 [02:23<00:55,  6.13s/batch]generate:  76%|███████▌  | 25/33 [02:30<00:49,  6.24s/batch]generate:  79%|███████▉  | 26/33 [02:35<00:41,  5.98s/batch]generate:  82%|████████▏ | 27/33 [02:40<00:34,  5.69s/batch]generate:  85%|████████▍ | 28/33 [02:43<00:24,  4.97s/batch]generate:  88%|████████▊ | 29/33 [02:50<00:22,  5.56s/batch]generate:  91%|█████████ | 30/33 [02:59<00:19,  6.49s/batch]generate:  94%|█████████▍| 31/33 [03:06<00:13,  6.75s/batch]generate:  97%|█████████▋| 32/33 [03:11<00:06,  6.02s/batch]generate: 100%|██████████| 33/33 [03:13<00:00,  4.97s/batch]generate: 100%|██████████| 33/33 [03:13<00:00,  5.87s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "adapter_path": "adapters/grpo_r16",
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.4236,
+  "ci95": [
+    0.3938,
+    0.4539
+  ],
+  "pred_exec_error_rate": 0.3443,
+  "gold_exec_errors": 0,
+  "wall_time_s": 193.6,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39391,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 38.1,
+  "batched_generation_tps": 203.5,
+  "peak_memory_gb": 8.3
+}
+$ /Users/hudsonwhipple/Personal_Projects/shrinkwrap-sql/.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q3g64 --out results/sweep_grpo/q3g64-merged --limit 1034 --seed 0
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:03<01:38,  3.08s/batch]generate:   6%|▌         | 2/33 [00:06<01:41,  3.28s/batch]generate:   9%|▉         | 3/33 [00:10<01:53,  3.78s/batch]generate:  12%|█▏        | 4/33 [00:15<01:56,  4.01s/batch]generate:  15%|█▌        | 5/33 [00:18<01:49,  3.91s/batch]generate:  18%|█▊        | 6/33 [00:23<01:48,  4.02s/batch]generate:  21%|██        | 7/33 [00:26<01:35,  3.67s/batch]generate:  24%|██▍       | 8/33 [00:30<01:35,  3.83s/batch]generate:  27%|██▋       | 9/33 [00:33<01:25,  3.58s/batch]generate:  30%|███       | 10/33 [00:36<01:18,  3.41s/batch]generate:  33%|███▎      | 11/33 [00:39<01:12,  3.30s/batch]generate:  36%|███▋      | 12/33 [00:42<01:09,  3.30s/batch]generate:  39%|███▉      | 13/33 [00:45<01:01,  3.05s/batch]generate:  42%|████▏     | 14/33 [00:48<00:59,  3.13s/batch]generate:  45%|████▌     | 15/33 [00:52<01:02,  3.49s/batch]generate:  48%|████▊     | 16/33 [00:57<01:03,  3.75s/batch]generate:  52%|█████▏    | 17/33 [01:04<01:18,  4.93s/batch]generate:  55%|█████▍    | 18/33 [01:12<01:25,  5.68s/batch]generate:  58%|█████▊    | 19/33 [01:17<01:15,  5.40s/batch]generate:  61%|██████    | 20/33 [01:20<01:02,  4.82s/batch]generate:  64%|██████▎   | 21/33 [01:22<00:49,  4.11s/batch]generate:  67%|██████▋   | 22/33 [01:26<00:42,  3.90s/batch]generate:  70%|██████▉   | 23/33 [01:30<00:40,  4.08s/batch]generate:  73%|███████▎  | 24/33 [01:35<00:38,  4.24s/batch]generate:  76%|███████▌  | 25/33 [01:40<00:34,  4.34s/batch]generate:  79%|███████▉  | 26/33 [01:43<00:29,  4.17s/batch]generate:  82%|████████▏ | 27/33 [01:47<00:23,  3.93s/batch]generate:  85%|████████▍ | 28/33 [01:49<00:17,  3.45s/batch]generate:  88%|████████▊ | 29/33 [01:54<00:16,  4.05s/batch]generate:  91%|█████████ | 30/33 [02:01<00:14,  4.77s/batch]generate:  94%|█████████▍| 31/33 [02:06<00:09,  4.87s/batch]generate:  97%|█████████▋| 32/33 [02:09<00:04,  4.29s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.49s/batch]generate: 100%|██████████| 33/33 [02:11<00:00,  3.97s/batch]
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.4381,
+  "ci95": [
+    0.4081,
+    0.4685
+  ],
+  "pred_exec_error_rate": 0.3085,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39136,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 37.8,
+  "batched_generation_tps": 298.5,
+  "peak_memory_gb": 8.21
+}
+       bf16-base  EX 0.705  [0.676, 0.732]
+    bf16-adapter  EX 0.720  [0.691, 0.746]
+      q8g64-base  EX 0.707  [0.678, 0.734]
+   q8g64-adapter  EX 0.725  [0.697, 0.752]
+    q8g64-merged  EX 0.723  [0.695, 0.750]
+      q6g64-base  EX 0.706  [0.677, 0.733]
+   q6g64-adapter  EX 0.729  [0.701, 0.755]
+    q6g64-merged  EX 0.722  [0.693, 0.748]
+      q4g64-base  EX 0.636  [0.607, 0.665]
+   q4g64-adapter  EX 0.674  [0.645, 0.702]
+    q4g64-merged  EX 0.677  [0.648, 0.705]
+      q3g64-base  EX 0.373  [0.344, 0.403]
+   q3g64-adapter  EX 0.424  [0.394, 0.454]
+    q3g64-merged  EX 0.438  [0.408, 0.469]
+Wrote results/sweep_grpo/summary.csv
+[Fri 20:19] done   sweep-grpo in 36 min
+[Fri 20:19] start  quant-grpo-gptq-q3: quantize --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --method gptq --bits 3 --calib-samples 64 --out models/Qwen3-1.7B-grpo-gptq-q3g64
+GPTQ with 64 calibration sequences (24,843 tokens)
+  block 1/28 quantized
+  block 2/28 quantized
+  block 3/28 quantized
+  block 4/28 quantized
+  block 5/28 quantized
+  block 6/28 quantized
+  block 7/28 quantized
+  block 8/28 quantized
+  block 9/28 quantized
+  block 10/28 quantized
+  block 11/28 quantized
+  block 12/28 quantized
+  block 13/28 quantized
+  block 14/28 quantized
+  block 15/28 quantized
+  block 16/28 quantized
+  block 17/28 quantized
+  block 18/28 quantized
+  block 19/28 quantized
+  block 20/28 quantized
+  block 21/28 quantized
+  block 22/28 quantized
+  block 23/28 quantized
+  block 24/28 quantized
+  block 25/28 quantized
+  block 26/28 quantized
+  block 27/28 quantized
+  block 28/28 quantized
+Saved models/Qwen3-1.7B-grpo-gptq-q3g64 in 346s
+[Fri 20:24] done   quant-grpo-gptq-q3 in 5 min
+[Fri 20:24] start  eval-grpo-gptq-q3: evaluate models/Qwen3-1.7B-grpo-gptq-q3g64 results/grpo_gptq_q3g64
+generate:   0%|          | 0/33 [00:00<?, ?batch/s]generate:   3%|▎         | 1/33 [00:02<01:34,  2.95s/batch]generate:   6%|▌         | 2/33 [00:06<01:47,  3.48s/batch]generate:   9%|▉         | 3/33 [00:10<01:47,  3.57s/batch]generate:  12%|█▏        | 4/33 [00:16<02:07,  4.39s/batch]generate:  15%|█▌        | 5/33 [00:19<01:52,  4.00s/batch]generate:  18%|█▊        | 6/33 [00:22<01:41,  3.75s/batch]generate:  21%|██        | 7/33 [00:25<01:28,  3.41s/batch]generate:  24%|██▍       | 8/33 [00:28<01:24,  3.38s/batch]generate:  27%|██▋       | 9/33 [00:31<01:14,  3.12s/batch]generate:  30%|███       | 10/33 [00:34<01:15,  3.30s/batch]generate:  33%|███▎      | 11/33 [00:37<01:10,  3.19s/batch]generate:  36%|███▋      | 12/33 [00:41<01:07,  3.22s/batch]generate:  39%|███▉      | 13/33 [00:43<00:59,  2.95s/batch]generate:  42%|████▏     | 14/33 [00:47<00:59,  3.13s/batch]generate:  45%|████▌     | 15/33 [00:51<01:01,  3.42s/batch]generate:  48%|████▊     | 16/33 [00:55<01:04,  3.80s/batch]generate:  52%|█████▏    | 17/33 [01:03<01:20,  5.02s/batch]generate:  55%|█████▍    | 18/33 [01:11<01:29,  5.95s/batch]generate:  58%|█████▊    | 19/33 [01:17<01:20,  5.74s/batch]generate:  61%|██████    | 20/33 [01:20<01:05,  5.03s/batch]generate:  64%|██████▎   | 21/33 [01:22<00:50,  4.20s/batch]generate:  67%|██████▋   | 22/33 [01:26<00:45,  4.10s/batch]generate:  70%|██████▉   | 23/33 [01:30<00:40,  4.00s/batch]generate:  73%|███████▎  | 24/33 [01:34<00:36,  4.11s/batch]generate:  76%|███████▌  | 25/33 [01:39<00:34,  4.28s/batch]generate:  79%|███████▉  | 26/33 [01:42<00:28,  4.06s/batch]generate:  82%|████████▏ | 27/33 [01:45<00:22,  3.70s/batch]generate:  85%|████████▍ | 28/33 [01:48<00:16,  3.27s/batch]generate:  88%|████████▊ | 29/33 [01:52<00:15,  3.75s/batch]generate:  91%|█████████ | 30/33 [01:58<00:13,  4.35s/batch]generate:  94%|█████████▍| 31/33 [02:03<00:08,  4.46s/batch]generate:  97%|█████████▋| 32/33 [02:06<00:03,  3.99s/batch]generate: 100%|██████████| 33/33 [02:08<00:00,  3.34s/batch]generate: 100%|██████████| 33/33 [02:08<00:00,  3.88s/batch]
+{
+  "model": "models/Qwen3-1.7B-grpo-gptq-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6838,
+  "ci95": [
+    0.6548,
+    0.7114
+  ],
+  "pred_exec_error_rate": 0.0938,
+  "gold_exec_errors": 0,
+  "wall_time_s": 128.2,
+  "prompt_tokens": 397463,
+  "generation_tokens": 37486,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 36.3,
+  "batched_generation_tps": 292.5,
+  "peak_memory_gb": 10.88
+}
+[Fri 20:27] done   eval-grpo-gptq-q3 in 2 min
+
+== fusing the adapter (should be about 0)
+examples:        1034
+       mine_r16: 0.705
+      sft_fused: 0.705
+difference:      +0.000  (95% CI -0.006 to +0.006)
+only b correct:  5
+only a correct:  5
+
+== SFT gain, bf16
+examples:        1034
+baseline_dev1034: 0.589
+       mine_r16: 0.705
+difference:      +0.116  (95% CI +0.086 to +0.146)
+only b correct:  190
+only a correct:  70
+
+== SFT gain, your 4-bit RTN
+examples:        1034
+  rtnreal_q4g64: 0.578
+sft_rtnreal_q4g64: 0.655
+difference:      +0.076  (95% CI +0.047 to +0.105)
+only b correct:  157
+only a correct:  78
+
+== SFT gain, your 3-bit GPTQ
+examples:        1034
+     gptq_q3g64: 0.505
+ sft_gptq_q3g64: 0.649
+difference:      +0.144  (95% CI +0.112 to +0.176)
+only b correct:  223
+only a correct:  74
+
+== SFT gain, your 3-bit RTN
+examples:        1034
+  rtnreal_q3g64: 0.147
+sft_rtnreal_q3g64: 0.335
+difference:      +0.188  (95% CI +0.157 to +0.219)
+only b correct:  249
+only a correct:  55
+
+== cost of your 4-bit RTN, SFT model
+examples:        1034
+      sft_fused: 0.705
+sft_rtnreal_q4g64: 0.655
+difference:      -0.050  (95% CI -0.071 to -0.031)
+only b correct:  30
+only a correct:  82
+
+== cost of your 3-bit GPTQ, SFT model
+examples:        1034
+      sft_fused: 0.705
+ sft_gptq_q3g64: 0.649
+difference:      -0.056  (95% CI -0.077 to -0.035)
+only b correct:  38
+only a correct:  96
+
+== GPTQ vs RTN at 3 bits, base
+examples:        1034
+  rtnreal_q3g64: 0.147
+     gptq_q3g64: 0.505
+difference:      +0.358  (95% CI +0.327 to +0.389)
+only b correct:  388
+only a correct:  18
+
+== GPTQ vs RTN at 3 bits, SFT
+examples:        1034
+sft_rtnreal_q3g64: 0.335
+ sft_gptq_q3g64: 0.649
+difference:      +0.314  (95% CI +0.283 to +0.345)
+only b correct:  350
+only a correct:  25
+
+== GRPO gain over SFT, bf16
+examples:        1034
+      bf16-base: 0.705
+   bf16-adapter: 0.720
+difference:      +0.015  (95% CI -0.002 to +0.031)
+only b correct:  45
+only a correct:  30
+
+== GRPO gain, MLX 4-bit, fused
+examples:        1034
+     q4g64-base: 0.636
+   q4g64-merged: 0.677
+difference:      +0.041  (95% CI +0.023 to +0.059)
+only b correct:  65
+only a correct:  23
+
+== GRPO gain, your 3-bit GPTQ
+examples:        1034
+ sft_gptq_q3g64: 0.649
+grpo_gptq_q3g64: 0.684
+difference:      +0.035  (95% CI +0.012 to +0.059)
+only b correct:  99
+only a correct:  63
+[Fri 20:27] finished. Failed steps: none

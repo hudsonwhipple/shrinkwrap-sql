@@ -1,0 +1,23 @@
+{
+  "model": "models/Qwen3-1.7B-rtnreal-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.147,
+  "ci95": [
+    0.1267,
+    0.1699
+  ],
+  "pred_exec_error_rate": 0.6557,
+  "gold_exec_errors": 0,
+  "wall_time_s": 361.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 240811,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 232.9,
+  "batched_generation_tps": 666.6,
+  "peak_memory_gb": 10.55
+}

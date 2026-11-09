@@ -1,0 +1,96 @@
+
+== fusing the adapter (should be about 0)
+examples:        1034
+       mine_r16: 0.705
+      sft_fused: 0.705
+difference:      +0.000  (95% CI -0.006 to +0.006)
+only b correct:  5
+only a correct:  5
+
+== SFT gain, bf16
+examples:        1034
+baseline_dev1034: 0.589
+       mine_r16: 0.705
+difference:      +0.116  (95% CI +0.086 to +0.146)
+only b correct:  190
+only a correct:  70
+
+== SFT gain, your 4-bit RTN
+examples:        1034
+  rtnreal_q4g64: 0.578
+sft_rtnreal_q4g64: 0.655
+difference:      +0.076  (95% CI +0.047 to +0.105)
+only b correct:  157
+only a correct:  78
+
+== SFT gain, your 3-bit GPTQ
+examples:        1034
+     gptq_q3g64: 0.505
+ sft_gptq_q3g64: 0.649
+difference:      +0.144  (95% CI +0.112 to +0.176)
+only b correct:  223
+only a correct:  74
+
+== SFT gain, your 3-bit RTN
+examples:        1034
+  rtnreal_q3g64: 0.147
+sft_rtnreal_q3g64: 0.335
+difference:      +0.188  (95% CI +0.157 to +0.219)
+only b correct:  249
+only a correct:  55
+
+== cost of your 4-bit RTN, SFT model
+examples:        1034
+      sft_fused: 0.705
+sft_rtnreal_q4g64: 0.655
+difference:      -0.050  (95% CI -0.071 to -0.031)
+only b correct:  30
+only a correct:  82
+
+== cost of your 3-bit GPTQ, SFT model
+examples:        1034
+      sft_fused: 0.705
+ sft_gptq_q3g64: 0.649
+difference:      -0.056  (95% CI -0.077 to -0.035)
+only b correct:  38
+only a correct:  96
+
+== GPTQ vs RTN at 3 bits, base
+examples:        1034
+  rtnreal_q3g64: 0.147
+     gptq_q3g64: 0.505
+difference:      +0.358  (95% CI +0.327 to +0.389)
+only b correct:  388
+only a correct:  18
+
+== GPTQ vs RTN at 3 bits, SFT
+examples:        1034
+sft_rtnreal_q3g64: 0.335
+ sft_gptq_q3g64: 0.649
+difference:      +0.314  (95% CI +0.283 to +0.345)
+only b correct:  350
+only a correct:  25
+
+== GRPO gain over SFT, bf16
+examples:        1034
+      bf16-base: 0.705
+   bf16-adapter: 0.720
+difference:      +0.015  (95% CI -0.002 to +0.031)
+only b correct:  45
+only a correct:  30
+
+== GRPO gain, MLX 4-bit, fused
+examples:        1034
+     q4g64-base: 0.636
+   q4g64-merged: 0.677
+difference:      +0.041  (95% CI +0.023 to +0.059)
+only b correct:  65
+only a correct:  23
+
+== GRPO gain, your 3-bit GPTQ
+examples:        1034
+ sft_gptq_q3g64: 0.649
+grpo_gptq_q3g64: 0.684
+difference:      +0.035  (95% CI +0.012 to +0.059)
+only b correct:  99
+only a correct:  63
