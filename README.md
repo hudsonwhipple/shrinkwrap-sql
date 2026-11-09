@@ -159,6 +159,44 @@ to flip a choice.
 (see above); and GRPO ran only 100 steps. By the end, about 2.4 of each step's 4 questions taught
 nothing because all 8 samples got the same reward, so a longer run needs harder questions.
 
+## How this compares with published results
+
+Published execution accuracy on the same split (Spider dev, 1,034 questions):
+
+| System | Size | Spider dev EX | Beyond a plain schema prompt and one greedy answer |
+|---|---|---|---|
+| **This project: Qwen3-1.7B base** | 1.7B | **0.589** | — |
+| **This project: + LoRA SFT** | 1.7B | **0.705** | — |
+| **This project: + GRPO** | 1.7B | **0.720** | — |
+| **This project: + GRPO, MLX 4-bit, 0.97 GB** | 1.7B | **0.677** | — |
+| [CodeS-1B](https://arxiv.org/abs/2402.16347), fine-tuned | 1B | 0.779 | 21.5 GB of SQL-focused pretraining, schema filtering, database values in the prompt, 4-beam search keeping the first query that runs |
+| [SQL-R1](https://arxiv.org/abs/2504.08600)-3B, RL | 3B | 0.781 | code base model (Qwen2.5-Coder), majority vote over 8 samples |
+| CodeS-3B, fine-tuned | 3B | 0.834 | as CodeS-1B |
+| GPT-4, few-shot | — | 0.768 | few-shot examples |
+| [DAIL-SQL](https://arxiv.org/abs/2308.15363) + GPT-4 + self-consistency | — | 0.836 | retrieved examples, voting; 86.6% on the test set, first on the official leaderboard when it closed in February 2024 |
+| CodeS-7B, fine-tuned | 7B | 0.854 | as CodeS-1B |
+| SQL-R1-7B, RL | 7B | 0.876 | as SQL-R1-3B; the best dev result found |
+
+Numbers are from the CodeS paper's Table 5 (including the GPT-4 and DAIL-SQL rows) and SQL-R1's Table 1.
+On the test set the best systems reach about 88–89% (e.g. [OmniSQL](https://github.com/RUCKBReasoning/OmniSQL)-7B,
+87.9% with greedy decoding). Papers that report Spider dev with test-suite accuracy (OmniSQL, the TS
+columns in CodeS) aren't comparable with the numbers here; it runs 5–9 points lower (CodeS-1B: 0.779
+EX, 0.722 TS).
+
+The GRPO model is about 6 points behind CodeS-1B and SQL-R1-3B, and 16 behind the best result
+overall. The setups differ in ways that mostly favor the published systems:
+
+- **No database values in the prompt.** CodeS and OmniSQL add representative values for each column
+  and values that match the question, which helps with literals (`'France'` or `'FR'`?). Here the
+  prompt has only the `CREATE TABLE` statements (`evaluate.py --rows-per-table` adds sample rows).
+- **One greedy answer.** Most of the published systems choose among several candidates. 7.3% of the GRPO
+  model's queries fail to execute, and keeping the first candidate that runs could recover some of them.
+- **Less SQL data and a general-purpose model.** Training here uses Spider's 6,452 examples on
+  Qwen3-1.7B; CodeS and SQL-R1 start from code models and add far more SQL data (CodeS's 21.5 GB of
+  pretraining; OmniSQL's 2.5M synthetic examples).
+
+None of the papers above study what their gains keep under quantization, which is this project's focus.
+
 ## Data license and citation
 
 Spider is CC BY-SA 4.0. Cite Yu et al., "Spider: A Large-Scale Human-Labeled Dataset for Complex
