@@ -3,7 +3,7 @@ MODEL ?= Qwen/Qwen3-1.7B
 ADAPTER ?= adapters/sft_r16
 LIMIT ?= 200
 
-.PHONY: setup data test exercises gold-check baseline sft-data train eval-sft compare sweep
+.PHONY: setup data test exercises gold-check baseline sft-data train eval-sft compare sweep figures
 
 setup:
 	python3.13 -m venv .venv
@@ -38,3 +38,6 @@ compare:
 
 sweep:
 	$(PY) scripts/quant_sweep.py --model $(MODEL) --adapter-path $(ADAPTER) --limit 300
+
+figures:
+	$(PY) scripts/make_figures.py
