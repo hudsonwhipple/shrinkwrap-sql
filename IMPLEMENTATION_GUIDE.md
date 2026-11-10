@@ -13,8 +13,9 @@ a tiny in-memory model.
 | 3 | Group-wise RTN quantization, then real low-bit layers (3d) | `src/shrinkwrap/quant.py`, `src/shrinkwrap/calibrate.py` | `tests/exercises/test_quant.py` | `scripts/quantize_model.py --method rtn`, with `--real` for 3d |
 | 4 | GPTQ | `src/shrinkwrap/gptq.py` | `tests/exercises/test_gptq.py` | `scripts/quantize_model.py --method gptq` |
 | 5 | GRPO advantages, log-probs, loss | `src/shrinkwrap/grpo.py` | `tests/exercises/test_grpo.py` | `scripts/train_grpo.py` |
+| 6 | Token margins and flips under quantization | `src/shrinkwrap/margins.py` | `tests/exercises/test_margins.py` | `scripts/margin_analysis.py` |
 
-Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1.
+Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1, and 6 analyzes the models that 2 and 5 produce.
 
 ## How the loop works
 
@@ -376,6 +377,83 @@ the SFT model's sweep. Are RL gains more or less fragile under quantization than
 why the KL penalty and what k3 estimates; why `--updates-per-step 1` makes the ratio exactly 1
 (and why the gradient is still right); reward hacking, with an example you saw.
 
+## 6. Margins: why quantization changes some answers (`src/shrinkwrap/margins.py`)
+
+**Idea.** Greedy decoding takes the top-scoring token at every step. Quantizing the weights nudges
+every logit, and the chosen token changes only where a nudge reorders the top two. So two things
+decide how fragile a model is: how big its **margins** are (the gap between the winner and the
+runner-up), and how big the **nudges** are. The README's finding 4 guesses that GRPO helps through
+the first: it sharpens the output distribution, so margins grow. This exercise measures both, so you
+can say which it is, or that it is neither.
+
+The measurement uses teacher forcing. The full-precision model writes its greedy answer, then both
+models score that same answer token by token, so at every position you compare what each model would
+pick *given the same prefix*. An answer changes exactly when at least one position flips: everything
+before the first flip is identical, and the first flip changes the next token. That makes an answer
+only as robust as its smallest margin.
+
+**Steps.**
+- **6a `top2_margin`:** the top token, the runner-up and the gap between them. The gap is the same in
+  logits and in log-probabilities, so it is a log-odds: a margin of 1 means the winner is about 2.7
+  times as likely as the runner-up. Break ties the way `mx.argmax` does, and cast only the two values
+  you picked to float32.
+- **6b `completion_logits`:** one forward pass over the prompt and the answer; keep the rows that
+  score the answer's tokens. It is the same off-by-one as Exercise 5b: position i scores token i + 1.
+- **6c `position_stats`:** margin, flipped, and the gap shift, which is the nudge: how far the other
+  model moved the gap between the reference's top two tokens.
+- **6d `flip_rate_by_margin`:** group positions by margin and count how many flipped. NumPy is fine.
+
+**Run.** Each `run` should take about 15 minutes (my estimate from a 24-question trial): the reference
+model answers all 1,034 dev questions, then every model scores every answer.
+```bash
+.venv/bin/python scripts/margin_analysis.py run --ref models/Qwen3-1.7B-mine_r16-fused \
+    --other q4=models/Qwen3-1.7B-mine_r16-fused-q4g64 q3=models/Qwen3-1.7B-mine_r16-fused-q3g64 \
+    --out results/margins/sft
+.venv/bin/python scripts/margin_analysis.py run --ref models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused \
+    --other q4=models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q4g64 \
+            q3=models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q3g64 \
+    --out results/margins/grpo
+.venv/bin/python scripts/margin_analysis.py compare results/margins/sft/q4.json results/margins/grpo/q4.json
+```
+Add `--limit 24` for a 30-second trial run. Each run writes `<out>/<name>.json` (the summary) and
+`<out>/<name>.jsonl` (every answer's per-token margins, flips and gap shifts).
+
+**Check it before you trust it.** With a correct implementation:
+- A model compared with itself (`--other self=<the --ref path>`) has no flips and no gap shift.
+- `reference_agreement` is above 99%: the reference model, scoring its own answer in one pass, picks
+  the token it generated. My reference solution got 99.7% on 24 questions; the rest are near-ties that
+  batched generation resolved the other way. If it is much lower, your rows are misaligned with the
+  tokens.
+- Margins come in steps of 1/8 or 1/16. The model computes in bf16, which keeps 8 significant bits,
+  so logits near 20 are 0.125 apart. Exact ties (a margin of 0) are real.
+- The flip rate falls steeply as the margin grows. If it is flat, your rows are misaligned with the
+  tokens.
+
+I ran my reference solution on 24 questions only, to check the script. The full run and what it shows
+are yours.
+
+**What to look for,** in this order:
+1. Does the margin predict flips at all? The flip rate per bin should fall as the margin grows.
+2. Does GRPO have fewer small margins than SFT? Compare the share of tokens with a margin below 1,
+   and each answer's weakest margin.
+3. At the same margin, does GRPO flip less often? Compare the per-bin flip rates and the spread of
+   the gap shift.
+
+`compare` puts 2 and 3 together. It works out the flip rate GRPO would have with its own margins but
+SFT's flip rate at each margin (direct standardization). If that lands near GRPO's real flip rate,
+margins account for the difference and the README's guess holds. If it lands near SFT's, margins
+account for none of it, and quantization simply disturbs the GRPO weights less. Either result is
+worth reporting. Then repeat for the base model, and with your GPTQ model as `--other`.
+
+One caveat: a flip changes the answer's text, not necessarily whether it is correct, because two
+different queries can return the same rows. To tie flips to accuracy, join the `.jsonl` rows with an
+evaluation's rows on `idx`.
+
+**Be ready to explain:** why teacher forcing instead of comparing the two models' free-running
+outputs token by token; why an answer's smallest margin matters more than its average; why the logit
+gap is a log-odds; what standardization can and can't show (the bins are coarse, and margin is not
+the only thing that differs between two models); why the margins come in steps.
+
 ## Stretch goals
 
 - Make GPTQ real as well: have `gptq_quantize` also return its codes, scales and biases, then reuse
@@ -385,3 +463,5 @@ why the KL penalty and what k3 estimates; why `--updates-per-step 1` makes the r
 - AWQ, DoRA (`fine_tune_type: dora` in mlx_lm, then your own), LoRA+ (separate learning rates for A and B).
 - Replace mlx_lm's trainer with your own training loop.
 - Repeat the key results on a second task (e.g. JSON extraction) to show they generalize.
+- Add a margin chart to `scripts/make_figures.py`: flip rate by margin for SFT and GRPO, from
+  `results/margins/`.

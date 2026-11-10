@@ -259,11 +259,13 @@ src/shrinkwrap/losses.py     exercise 2: masked SFT loss
 src/shrinkwrap/quant.py      exercise 3: group-wise RTN quantization, fake and real
 src/shrinkwrap/gptq.py       exercise 4: GPTQ
 src/shrinkwrap/grpo.py       exercise 5: GRPO
+src/shrinkwrap/margins.py    exercise 6: token margins and flips under quantization
 
 scripts/train_sft.py         LoRA SFT with your LoRA + loss (or mlx_lm's, for comparison)
 scripts/quantize_model.py    quantize with your RTN (fake or real) or GPTQ, save for evaluation
 scripts/train_grpo.py        GRPO with your LoRA + GRPO math
 scripts/quant_sweep.py       real MLX quantization sweep across pipelines and bit widths
+scripts/margin_analysis.py   which tokens quantization flips, by margin (exercise 6)
 scripts/speed_bench.py       single-stream generation speed of each model format
 scripts/overnight.sh         every experiment behind the results, unattended and resumable
 scripts/make_figures.py      the README's charts, drawn from results/
