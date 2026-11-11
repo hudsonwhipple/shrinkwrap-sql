@@ -1,0 +1,68 @@
+{
+  "ref": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused",
+  "other": "models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused-q3g64",
+  "answers": 1034,
+  "tokens": 36076,
+  "reference_agreement": 0.99872,
+  "token": {
+    "median_margin": 8.5,
+    "share_margin_below_1": 0.03825,
+    "flip_rate": 0.07082,
+    "gap_shift_mean": -1.2982,
+    "gap_shift_std": 2.941
+  },
+  "answer": {
+    "median_weakest_margin": 0.625,
+    "share_weakest_margin_below_1": 0.6441,
+    "flip_rate": 0.80077
+  },
+  "edges": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    4,
+    8
+  ],
+  "token_bins": {
+    "counts": [
+      243,
+      341,
+      796,
+      1687,
+      3819,
+      9428,
+      19762
+    ],
+    "flip_rates": [
+      0.55144,
+      0.47507,
+      0.51005,
+      0.3687,
+      0.14402,
+      0.05675,
+      0.00739
+    ]
+  },
+  "answer_bins": {
+    "counts": [
+      205,
+      198,
+      263,
+      214,
+      147,
+      7,
+      0
+    ],
+    "flip_rates": [
+      0.96098,
+      0.92424,
+      0.89734,
+      0.71028,
+      0.38776,
+      0.42857,
+      null
+    ]
+  }
+}

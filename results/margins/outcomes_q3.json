@@ -1,0 +1,77 @@
+{
+  "runs": {
+    "sft": {
+      "margins": "results/margins/sft/q3.jsonl",
+      "ref_eval": "results/sft_fused.jsonl",
+      "other_eval": "results/sweep_sft/q3g64-merged.jsonl",
+      "answers": 1034,
+      "flipped": 866,
+      "text_changed": 865,
+      "unflipped_same_text": 0.95238,
+      "unflipped_lost": 2,
+      "unflipped_gained": 0,
+      "flipped_lost": 359,
+      "flipped_gained": 18,
+      "accuracy_change_from_flipped": -0.32979,
+      "accuracy_change_from_unflipped": -0.00193,
+      "accuracy_change": -0.33172
+    },
+    "grpo": {
+      "margins": "results/margins/grpo/q3.jsonl",
+      "ref_eval": "results/sweep_grpo/bf16-adapter.jsonl",
+      "other_eval": "results/sweep_grpo/q3g64-merged.jsonl",
+      "answers": 1034,
+      "flipped": 828,
+      "text_changed": 825,
+      "unflipped_same_text": 0.96602,
+      "unflipped_lost": 0,
+      "unflipped_gained": 1,
+      "flipped_lost": 312,
+      "flipped_gained": 20,
+      "accuracy_change_from_flipped": -0.2824,
+      "accuracy_change_from_unflipped": 0.00097,
+      "accuracy_change": -0.28143
+    }
+  },
+  "difference": {
+    "a": "sft",
+    "b": "grpo",
+    "iters": 10000,
+    "seed": 0,
+    "flip_share_difference": {
+      "value": -0.03675,
+      "ci95": [
+        -0.05416,
+        -0.01934
+      ]
+    },
+    "damage_per_flip_difference": {
+      "value": -0.04111,
+      "ci95": [
+        -0.0738,
+        -0.00876
+      ]
+    },
+    "loss_difference": {
+      "value": 0.04739,
+      "ci95": [
+        0.02031,
+        0.07447
+      ]
+    },
+    "loss_difference_from_flips": {
+      "value": 0.01372,
+      "ci95": [
+        0.00722,
+        0.02033
+      ]
+    },
+    "loss_difference_from_damage": {
+      "value": 0.03367,
+      "ci95": [
+        0.00719,
+        0.06073
+      ]
+    }
+  }
+}

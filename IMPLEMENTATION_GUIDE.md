@@ -403,8 +403,8 @@ only as robust as its smallest margin.
   model moved the gap between the reference's top two tokens.
 - **6d `flip_rate_by_margin`:** group positions by margin and count how many flipped. NumPy is fine.
 
-**Run.** Each `run` should take about 15 minutes (my estimate from a 24-question trial): the reference
-model answers all 1,034 dev questions, then every model scores every answer.
+**Run.** Each `run` takes about 7 minutes: the reference model answers all 1,034 dev questions, then
+every model scores every answer.
 ```bash
 .venv/bin/python scripts/margin_analysis.py run --ref models/Qwen3-1.7B-mine_r16-fused \
     --other q4=models/Qwen3-1.7B-mine_r16-fused-q4g64 q3=models/Qwen3-1.7B-mine_r16-fused-q3g64 \
@@ -445,14 +445,32 @@ margins account for the difference and the README's guess holds. If it lands nea
 account for none of it, and quantization simply disturbs the GRPO weights less. Either result is
 worth reporting. Then repeat for the base model, and with your GPTQ model as `--other`.
 
-One caveat: a flip changes the answer's text, not necessarily whether it is correct, because two
-different queries can return the same rows. To tie flips to accuracy, join the `.jsonl` rows with an
-evaluation's rows on `idx`.
+**Tie flips to accuracy.** A flip changes an answer's text, not necessarily whether it is correct,
+because two different queries can return the same rows. `outcomes` joins each run's flips with the
+evaluations of the same questions (the reference model's and the quantized model's `.jsonl`):
+```bash
+.venv/bin/python scripts/margin_analysis.py outcomes --out results/margins/outcomes_q4.json \
+    --run sft  results/margins/sft/q4.jsonl  results/sft_fused.jsonl               results/sweep_sft/q4g64-merged.jsonl \
+    --run grpo results/margins/grpo/q4.jsonl results/sweep_grpo/bf16-adapter.jsonl results/sweep_grpo/q4g64-merged.jsonl
+```
+It answers two more questions:
+
+4. Do flips account for the accuracy change? Answers with no flipped token should keep the same text
+   in the evaluation and almost never change correctness. If they don't, the margin run and the
+   evaluations disagree about what the model wrote.
+5. When an answer does flip, how often does it break? A model's loss is the share of its answers that
+   flip times the net damage per flipped answer (right-to-wrong minus wrong-to-right). With two runs,
+   `outcomes` splits the difference in loss between those two factors, averaging the two orders in
+   which you could swap them, and puts a paired bootstrap 95% CI on each part.
+
+Margins can only explain the first factor. If most of the difference sits in the second, the
+interesting question is no longer how often a model's answers change but what happens after one does.
 
 **Be ready to explain:** why teacher forcing instead of comparing the two models' free-running
 outputs token by token; why an answer's smallest margin matters more than its average; why the logit
 gap is a log-odds; what standardization can and can't show (the bins are coarse, and margin is not
-the only thing that differs between two models); why the margins come in steps.
+the only thing that differs between two models); why the margins come in steps; why a split into two
+factors depends on the order you swap them in, and what averaging the orders does.
 
 ## Stretch goals
 

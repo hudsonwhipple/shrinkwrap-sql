@@ -33,8 +33,15 @@ def top2_margin(logits: mx.array) -> tuple[mx.array, mx.array, mx.array]:
 
     Memory tip: V is ~152K. Cast the two values you picked to float32, not the whole array.
     """
-    # TODO(6a)
-    raise NotImplementedError("Exercise 6a: top2_margin")
+    top1 = mx.argmax(logits, axis=-1)
+    # Blank the winner so the next argmax is the runner-up (same lowest-id tie rule).
+    masked = mx.put_along_axis(
+        logits, top1[..., None], mx.array(-float("inf"), dtype=logits.dtype), axis=-1
+    )
+    top2 = mx.argmax(masked, axis=-1)
+    v1 = mx.take_along_axis(logits, top1[..., None], axis=-1).squeeze(-1).astype(mx.float32)
+    v2 = mx.take_along_axis(logits, top2[..., None], axis=-1).squeeze(-1).astype(mx.float32)
+    return v1 - v2, top1, top2
 
 
 def completion_logits(model: nn.Module, tokens: list[int] | mx.array, prompt_len: int) -> mx.array:
@@ -50,8 +57,14 @@ def completion_logits(model: nn.Module, tokens: list[int] | mx.array, prompt_len
 
     `model(x)` takes (B, T) ids and returns (B, T, V) logits, where position i scores token i + 1.
     """
-    # TODO(6b)
-    raise NotImplementedError("Exercise 6b: completion_logits")
+    tokens = mx.array(tokens) if not isinstance(tokens, mx.array) else tokens
+    t = int(tokens.shape[0])
+    if not 1 <= prompt_len < t:
+        raise ValueError(f"need 1 <= prompt_len < T, got prompt_len={prompt_len}, T={t}")
+    # Drop the last token: it is only a target. Position i scores token i + 1, so the rows that
+    # score the completion start at prompt_len - 1.
+    logits = model(tokens[None, :-1])[0]
+    return logits[prompt_len - 1 :]
 
 
 def position_stats(ref_logits: mx.array, other_logits: mx.array) -> dict[str, mx.array]:
@@ -68,8 +81,15 @@ def position_stats(ref_logits: mx.array, other_logits: mx.array) -> dict[str, mx
                    margin + gap_shift < 0 the other model prefers top2 to top1, so the position is
                    flipped. (A flip to some third token can happen without that.)
     """
-    # TODO(6c)
-    raise NotImplementedError("Exercise 6c: position_stats")
+    margin, top1, top2 = top2_margin(ref_logits)
+    other_top = mx.argmax(other_logits, axis=-1)
+    other_v1 = mx.take_along_axis(other_logits, top1[..., None], axis=-1).squeeze(-1).astype(mx.float32)
+    other_v2 = mx.take_along_axis(other_logits, top2[..., None], axis=-1).squeeze(-1).astype(mx.float32)
+    return {
+        "margin": margin,
+        "flipped": other_top != top1,
+        "gap_shift": (other_v1 - other_v2) - margin,
+    }
 
 
 def flip_rate_by_margin(margins: np.ndarray, flipped: np.ndarray, edges: list[float]) -> tuple[np.ndarray, np.ndarray]:
@@ -85,5 +105,18 @@ def flip_rate_by_margin(margins: np.ndarray, flipped: np.ndarray, edges: list[fl
     The same function works one level up: pass each answer's smallest margin and whether any of its
     tokens flipped.
     """
-    # TODO(6d)
-    raise NotImplementedError("Exercise 6d: flip_rate_by_margin")
+    margins = np.asarray(margins)
+    flipped = np.asarray(flipped)
+    if margins.shape[0] != flipped.shape[0]:
+        raise ValueError(f"margins and flipped differ in length: {margins.shape[0]} vs {flipped.shape[0]}")
+    # digitize against interior edges: bin i is edges[i] <= m < edges[i+1], last bin open-ended.
+    bins = np.digitize(margins, edges[1:])
+    n_bins = len(edges)
+    counts = np.zeros(n_bins, dtype=int)
+    rates = np.full(n_bins, np.nan, dtype=float)
+    for i in range(n_bins):
+        mask = bins == i
+        counts[i] = int(mask.sum())
+        if counts[i] > 0:
+            rates[i] = float(flipped[mask].mean())
+    return counts, rates

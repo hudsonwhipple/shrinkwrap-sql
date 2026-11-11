@@ -1,0 +1,68 @@
+{
+  "ref": "models/Qwen3-1.7B-mine_r16-fused",
+  "other": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "answers": 1034,
+  "tokens": 35334,
+  "reference_agreement": 0.99847,
+  "token": {
+    "median_margin": 6.125,
+    "share_margin_below_1": 0.06843,
+    "flip_rate": 0.08171,
+    "gap_shift_mean": -0.6006,
+    "gap_shift_std": 2.5165
+  },
+  "answer": {
+    "median_weakest_margin": 0.375,
+    "share_weakest_margin_below_1": 0.78143,
+    "flip_rate": 0.83752
+  },
+  "edges": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    4,
+    8
+  ],
+  "token_bins": {
+    "counts": [
+      470,
+      613,
+      1335,
+      2211,
+      5927,
+      13054,
+      11724
+    ],
+    "flip_rates": [
+      0.57234,
+      0.5677,
+      0.49888,
+      0.28223,
+      0.11574,
+      0.02084,
+      0.00188
+    ]
+  },
+  "answer_bins": {
+    "counts": [
+      343,
+      225,
+      240,
+      176,
+      50,
+      0,
+      0
+    ],
+    "flip_rates": [
+      0.95918,
+      0.95111,
+      0.89167,
+      0.52273,
+      0.34,
+      null,
+      null
+    ]
+  }
+}
