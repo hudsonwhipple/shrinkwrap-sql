@@ -9,3 +9,4 @@ models/
 adapters/
 results/**/*.jsonl
 results/overnight/*.done
+results/variants/done/

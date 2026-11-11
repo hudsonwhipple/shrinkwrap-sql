@@ -18,19 +18,19 @@
     },
     "grpo": {
       "margins": "results/margins/grpo/q3.jsonl",
-      "ref_eval": "results/sweep_grpo/bf16-adapter.jsonl",
+      "ref_eval": "results/grpo_fused.jsonl",
       "other_eval": "results/sweep_grpo/q3g64-merged.jsonl",
       "answers": 1034,
       "flipped": 828,
-      "text_changed": 825,
-      "unflipped_same_text": 0.96602,
-      "unflipped_lost": 0,
-      "unflipped_gained": 1,
-      "flipped_lost": 312,
-      "flipped_gained": 20,
-      "accuracy_change_from_flipped": -0.2824,
-      "accuracy_change_from_unflipped": 0.00097,
-      "accuracy_change": -0.28143
+      "text_changed": 824,
+      "unflipped_same_text": 0.98058,
+      "unflipped_lost": 1,
+      "unflipped_gained": 0,
+      "flipped_lost": 315,
+      "flipped_gained": 18,
+      "accuracy_change_from_flipped": -0.28723,
+      "accuracy_change_from_unflipped": -0.00097,
+      "accuracy_change": -0.2882
     }
   },
   "difference": {
@@ -46,31 +46,31 @@
       ]
     },
     "damage_per_flip_difference": {
-      "value": -0.04111,
+      "value": -0.03507,
       "ci95": [
-        -0.0738,
-        -0.00876
+        -0.06682,
+        -0.00328
       ]
     },
     "loss_difference": {
-      "value": 0.04739,
+      "value": 0.04255,
       "ci95": [
-        0.02031,
-        0.07447
+        0.01547,
+        0.06963
       ]
     },
     "loss_difference_from_flips": {
-      "value": 0.01372,
+      "value": 0.01383,
       "ci95": [
-        0.00722,
-        0.02033
+        0.00729,
+        0.02046
       ]
     },
     "loss_difference_from_damage": {
-      "value": 0.03367,
+      "value": 0.02873,
       "ci95": [
-        0.00719,
-        0.06073
+        0.00271,
+        0.05494
       ]
     }
   }

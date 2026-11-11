@@ -59,11 +59,11 @@ def load() -> dict:
         return float(speed[fmt]["generation_tps"])
 
     return {
-        # MLX's quantizer; adapters fused before quantizing. Fusing is lossless (0.705 both ways), so
-        # the bf16 GRPO point is its adapter run.
+        # MLX's quantizer; adapters fused before quantizing. Every bf16 point is the fused model, the one
+        # its quantized versions are made from.
         "base": [acc("baseline_dev1034.json")] + sweep(sft_sweep, "base"),
         "sft": [acc("sft_fused.json")] + sweep(sft_sweep, "merged"),
-        "grpo": [100 * float(grpo_sweep["bf16-adapter"]["execution_accuracy"])] + sweep(grpo_sweep, "merged"),
+        "grpo": [acc("grpo_fused.json")] + sweep(grpo_sweep, "merged"),
         "gptq": [acc("gptq_q3g64.json"), acc("sft_gptq_q3g64.json"), acc("grpo_gptq_q3g64.json")],
         # The SFT model: speed and accuracy, fused then quantized vs the adapter on a quantized base.
         "fused_tps": [tps("bf16-fused")] + [tps(f"mlx-q{b}-fused") for b in (8, 6, 4, 3)],

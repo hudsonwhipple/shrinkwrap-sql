@@ -77,6 +77,9 @@ step sweep-sft $PY scripts/quant_sweep.py --adapter-path adapters/mine_r16 --lim
 #    GRPO result.
 step grpo       grpo
 step sweep-grpo $PY scripts/quant_sweep.py --model $SFT --adapter-path $GRPO --limit 1034 --out results/sweep_grpo
+#    The fused GRPO model at full precision. Its quantized versions are made from it, so it is the one to
+#    measure their cost against. (The sweep's bf16-adapter run differs from it by a few answers.)
+step eval-grpo-fused evaluate $GRPO_FUSED results/grpo_fused
 
 # 5. Your GPTQ on the GRPO model: MLX's 3-bit RTN mostly breaks models, so this is the 3-bit point
 #    worth comparing with the SFT model's (~10 min).
@@ -97,7 +100,9 @@ compare() {
   compare "cost of your 3-bit GPTQ, SFT model"      results/sft_fused.jsonl         results/sft_gptq_q3g64.jsonl
   compare "GPTQ vs RTN at 3 bits, base"             results/rtnreal_q3g64.jsonl     results/gptq_q3g64.jsonl
   compare "GPTQ vs RTN at 3 bits, SFT"              results/sft_rtnreal_q3g64.jsonl results/sft_gptq_q3g64.jsonl
-  compare "GRPO gain over SFT, bf16"                results/sweep_grpo/bf16-base.jsonl  results/sweep_grpo/bf16-adapter.jsonl
+  compare "GRPO gain over SFT, bf16, adapter"       results/sweep_grpo/bf16-base.jsonl  results/sweep_grpo/bf16-adapter.jsonl
+  compare "GRPO gain over SFT, bf16, fused"         results/sft_fused.jsonl             results/grpo_fused.jsonl
+  compare "cost of MLX 4-bit, GRPO model"           results/grpo_fused.jsonl            results/sweep_grpo/q4g64-merged.jsonl
   compare "GRPO gain, MLX 4-bit, fused"             results/sweep_grpo/q4g64-base.jsonl results/sweep_grpo/q4g64-merged.jsonl
   compare "GRPO gain, your 3-bit GPTQ"              results/sft_gptq_q3g64.jsonl    results/grpo_gptq_q3g64.jsonl
 } 2>&1 | tee "$DONE/comparisons.txt"

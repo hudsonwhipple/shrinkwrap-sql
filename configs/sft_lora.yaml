@@ -24,7 +24,7 @@ lr_schedule:
   arguments: [2.0e-4, 800, 2.0e-6]
 
 batch_size: 4
-grad_accumulation_steps: 2   # effective batch of 8; 800 iters is about one epoch
+grad_accumulation_steps: 2   # effective batch of 8; 800 iters is 3,200 examples, about half an epoch
 iters: 800
 max_seq_length: 2560         # longest Spider train example is ~2.3K tokens; truncation would cut off the answer
 grad_checkpoint: true        # trades compute for memory; needed for 3-4B models on 24 GB
