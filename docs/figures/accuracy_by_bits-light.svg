@@ -1061,7 +1061,7 @@ z
     </g>
    </g>
    <g id="line2d_22">
-    <path d="M 107.214545 122.565732 
+    <path d="M 107.214545 120.95662 
 L 189.687273 121.642859 
 L 272.16 122.092463 
 L 354.632727 132.622683 
@@ -1081,7 +1081,7 @@ z
 " style="stroke: #ffffff; stroke-width: 1.5"/>
     </defs>
     <g clip-path="url(#pc965ca75c2)">
-     <use xlink:href="#m48cb8ae3df" x="107.214545" y="122.565732" style="fill: #1baf7a; stroke: #ffffff; stroke-width: 1.5"/>
+     <use xlink:href="#m48cb8ae3df" x="107.214545" y="120.95662" style="fill: #1baf7a; stroke: #ffffff; stroke-width: 1.5"/>
      <use xlink:href="#m48cb8ae3df" x="189.687273" y="121.642859" style="fill: #1baf7a; stroke: #ffffff; stroke-width: 1.5"/>
      <use xlink:href="#m48cb8ae3df" x="272.16" y="122.092463" style="fill: #1baf7a; stroke: #ffffff; stroke-width: 1.5"/>
      <use xlink:href="#m48cb8ae3df" x="354.632727" y="132.622683" style="fill: #1baf7a; stroke: #ffffff; stroke-width: 1.5"/>
@@ -1102,12 +1102,12 @@ z
     </g>
    </g>
    <g id="text_18">
-    <!-- 72.0% -->
-    <g style="fill: #52514e" transform="translate(70.229624 120.075982) scale(0.095 -0.095)">
+    <!-- 72.6% -->
+    <g style="fill: #52514e" transform="translate(70.229624 118.46687) scale(0.095 -0.095)">
      <use xlink:href="#HelveticaNeue-1e"/>
      <use xlink:href="#HelveticaNeue-19" transform="translate(55.59375 0)"/>
      <use xlink:href="#HelveticaNeue-15" transform="translate(111.1875 0)"/>
-     <use xlink:href="#HelveticaNeue-17" transform="translate(138.984375 0)"/>
+     <use xlink:href="#HelveticaNeue-1d" transform="translate(138.984375 0)"/>
      <use xlink:href="#HelveticaNeue-c" transform="translate(194.578125 0)"/>
     </g>
    </g>

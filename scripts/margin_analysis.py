@@ -11,7 +11,7 @@
     .venv/bin/python scripts/margin_analysis.py compare results/margins/sft/q4.json results/margins/grpo/q4.json
     .venv/bin/python scripts/margin_analysis.py outcomes --out results/margins/outcomes_q4.json \\
         --run sft  results/margins/sft/q4.jsonl  results/sft_fused.jsonl               results/sweep_sft/q4g64-merged.jsonl \\
-        --run grpo results/margins/grpo/q4.jsonl results/sweep_grpo/bf16-adapter.jsonl results/sweep_grpo/q4g64-merged.jsonl
+        --run grpo results/margins/grpo/q4.jsonl results/grpo_fused.jsonl               results/sweep_grpo/q4g64-merged.jsonl
 
 `run` has the reference model answer every dev question greedily, exactly as the evaluation does. Then
 the reference model and each other model score that same answer token by token, and your Exercise 6
@@ -25,7 +25,8 @@ the difference in flip rate the margins account for.
 
 `outcomes` ties flips to accuracy. A flip changes an answer's text, not necessarily whether it is right,
 so it joins each run's flips with two evaluations of the same questions (the reference model's and the
-other model's .jsonl from shrinkwrap.evaluate) and counts what happened to the flipped answers. With two
+other model's .jsonl from shrinkwrap.evaluate) and counts what happened to the flipped answers. The
+reference evaluation must be of the same fused model as `run --ref`, not of its adapter on the base. With two
 runs it also splits the difference in lost accuracy into "fewer answers flip" and "a flip does less
 damage", with paired bootstrap 95% CIs.
 """

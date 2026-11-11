@@ -1,0 +1,34 @@
+# Control for the GRPO result: the same extra training, without RL (GRPO's own optimizer settings: only the loss differs).
+#
+# GRPO seed 0 took 100 AdamW steps at a constant 1e-5 on 400 training questions, 4 per step, with a new
+# rank-16 LoRA on every layer of the fused SFT model. This run matches the steps, the questions and the
+# adapter, and swaps the RL loss for the SFT loss on the gold answers to those same 400 questions.
+#   python scripts/prepare_control_data.py        # writes data/sft_grpo_s0
+#   python scripts/train_sft.py --config configs/sft_more_lr1e-5.yaml
+
+model: models/Qwen3-1.7B-mine_r16-fused
+train: true
+data: data/sft_grpo_s0
+fine_tune_type: lora
+mask_prompt: true
+num_layers: -1
+lora_parameters:
+  rank: 16
+  scale: 2.0
+  dropout: 0.0
+
+optimizer: adamw
+learning_rate: 1.0e-5        # constant: no lr_schedule, as in train_grpo.py
+
+batch_size: 4                # 4 questions per step
+grad_accumulation_steps: 1   # one optimizer step per batch
+iters: 100                   # 100 batches of 4: each of the 400 questions exactly once
+max_seq_length: 2560
+grad_checkpoint: true
+
+steps_per_report: 10
+steps_per_eval: 100
+val_batches: 25
+save_every: 100
+adapter_path: adapters/sftmore_lr1e-5
+seed: 0

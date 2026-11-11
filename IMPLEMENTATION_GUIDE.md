@@ -14,8 +14,9 @@ a tiny in-memory model.
 | 4 | GPTQ | `src/shrinkwrap/gptq.py` | `tests/exercises/test_gptq.py` | `scripts/quantize_model.py --method gptq` |
 | 5 | GRPO advantages, log-probs, loss | `src/shrinkwrap/grpo.py` | `tests/exercises/test_grpo.py` | `scripts/train_grpo.py` |
 | 6 | Token margins and flips under quantization | `src/shrinkwrap/margins.py` | `tests/exercises/test_margins.py` | `scripts/margin_analysis.py` |
+| 7 | A random-change control for the GRPO result | `src/shrinkwrap/controls.py` | `tests/exercises/test_controls.py` | `scripts/seeds_and_controls.sh` |
 
-Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1, and 6 analyzes the models that 2 and 5 produce.
+Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1, 6 analyzes the models that 2 and 5 produce, and 7 checks whether what 5 and 6 found holds up.
 
 ## How the loop works
 
@@ -447,11 +448,15 @@ worth reporting. Then repeat for the base model, and with your GPTQ model as `--
 
 **Tie flips to accuracy.** A flip changes an answer's text, not necessarily whether it is correct,
 because two different queries can return the same rows. `outcomes` joins each run's flips with the
-evaluations of the same questions (the reference model's and the quantized model's `.jsonl`):
+evaluations of the same questions (the reference model's and the quantized model's `.jsonl`). The
+reference evaluation has to be of the fused model that `run --ref` used. Running the GRPO adapter
+unfused scores 0.720 and the fused model 0.726, with 66 answers different, so the first command
+evaluates the fused one:
 ```bash
+.venv/bin/python -m shrinkwrap.evaluate --model models/Qwen3-1.7B-mine_r16-fused-grpo_r16-fused --limit 1034 --out results/grpo_fused
 .venv/bin/python scripts/margin_analysis.py outcomes --out results/margins/outcomes_q4.json \
     --run sft  results/margins/sft/q4.jsonl  results/sft_fused.jsonl               results/sweep_sft/q4g64-merged.jsonl \
-    --run grpo results/margins/grpo/q4.jsonl results/sweep_grpo/bf16-adapter.jsonl results/sweep_grpo/q4g64-merged.jsonl
+    --run grpo results/margins/grpo/q4.jsonl results/grpo_fused.jsonl               results/sweep_grpo/q4g64-merged.jsonl
 ```
 It answers two more questions:
 
@@ -471,6 +476,89 @@ outputs token by token; why an answer's smallest margin matters more than its av
 gap is a log-odds; what standardization can and can't show (the bins are coarse, and margin is not
 the only thing that differs between two models); why the margins come in steps; why a split into two
 factors depends on the order you swap them in, and what averaging the orders does.
+
+## 7. Seeds and controls: does the GRPO result hold up? (`src/shrinkwrap/controls.py`)
+
+**Idea.** Findings 4 and 5 in the README rest on one GRPO run. Three things could produce the same
+numbers without RL having anything to do with it:
+
+1. **Luck.** Another seed draws different training questions and different samples. So: three more
+   GRPO seeds.
+2. **More training.** The SFT run took 800 batches of 4, about half of Spider's training set, and
+   never trained on its six held-out validation databases. GRPO then trained on 400 more questions
+   drawn from all of it. Maybe any 100 extra steps would do the same. So: 100 more steps on GRPO
+   seed 0's exact 400 questions, with the SFT loss on the gold answers in place of RL.
+3. **A lucky nudge.** Rounding to 4 bits is touchy: any small change to the weights moves some values
+   across a rounding boundary and changes some answers. Maybe 4 points is what a change of that size
+   does in any direction. So: a random change the same size as GRPO's in every layer, five times.
+
+Only the third needs code from you. The GRPO adapter is small: its update has a total norm of 0.98
+(before the scale of 2), against 14.6 for the SFT adapter, spread over 196 layers that each change by
+0.035 to 0.114.
+
+**Steps.**
+- **7a `lora_update_norm`:** the size of one layer's change, the Frobenius norm of `lora_a @ lora_b`.
+  You can get it from two rank-by-rank matrices without building the product. MLX's float32 matmul on
+  this Mac's GPU is only accurate to about 3 significant digits (see the docstring), which is fine
+  here but worth knowing about.
+- **7b `random_adapter_like`:** for every layer, draw a random `lora_a` and `lora_b` and rescale them
+  so the layer changes by exactly as much as the original's. A layer that didn't change must stay
+  unchanged, and the seed must decide the result.
+
+`scripts/make_random_adapter.py` (provided) loads the GRPO adapter, calls your function, checks every
+layer's size against NumPy float64, and saves the result in the same format, so fusing, evaluating
+and the margin analysis treat it like a trained adapter.
+
+**Run.** About 5 hours and 60 GB of disk in `models/variants/`, which you can delete afterwards.
+```bash
+mkdir -p results/variants && nohup scripts/seeds_and_controls.sh > results/variants/run.log 2>&1 &
+tail -f results/variants/run.log                 # Ctrl-C stops watching, not the run
+DRY_RUN=1 scripts/seeds_and_controls.sh          # list the steps without running anything
+ONLY=random_s1 scripts/seeds_and_controls.sh     # one variant, about 14 minutes
+.venv/bin/python scripts/variants_summary.py     # the comparison table, at any point during the run
+```
+Each variant is an adapter fused into the SFT model and put through the same steps: evaluate at full
+precision, quantize to 4 and 3 bits with MLX, evaluate both, and run the margin analysis.
+
+| Variant | What it is |
+|---|---|
+| `grpo_s0` | the GRPO adapter you already have, for a like-for-like row |
+| `sftmore_lr1e-5` | control 2 with GRPO's optimizer settings, so only the loss differs |
+| `sftmore_lr2e-4` | control 2 at the SFT run's learning rate, 20 times higher: "just train SFT longer" |
+| `random_s1` to `random_s5` | control 3 |
+| `grpo_s1` to `grpo_s3` | three more GRPO seeds, about 43 minutes of training each |
+
+The run is resumable, and a failed step doesn't stop the rest. Until 7a and 7b are implemented, the
+`random_s*` steps fail and everything else still runs.
+
+**Check it before you trust it.**
+- The `grpo_s0` row should read 0.726 at full precision, 0.677 at 4 bits and 0.438 at 3. The 4-bit
+  and 3-bit numbers are the ones `overnight.sh` got. The full-precision one is 0.006 higher than the
+  0.720 from running the adapter unfused: fusing rounds the update into bf16 weights, which changed
+  66 answers (13 became right, 6 became wrong). That is the size of effect a tiny numerical change
+  can have, and the reason for the random-change control. Compare quantized models with the fused
+  model they were made from, never with the adapter run.
+- `make_random_adapter.py` prints the original's and the random adapter's total size; they should
+  agree to about 0.1%.
+- At full precision a random change this small should barely move accuracy. If it moves by points,
+  the "small change" is not small and the control means something different.
+
+**What to look for** in `variants_summary.py`'s table. The column that carries the claim is "kept
+through 4-bit": how much less accuracy a variant loses going to 4 bits than the SFT model does.
+1. **Seeds.** Is it positive for every GRPO seed, and how wide is the range?
+2. **Random changes.** Their range is the yardstick. A GRPO effect inside it is noise.
+3. **More SFT.** If these keep as much through 4 bits as GRPO does, the effect comes from extra
+   training on those questions and not from RL.
+4. **Flips and damage.** Finding 5 said GRPO's advantage is mostly that a changed answer breaks less
+   often. Does that hold across seeds, and do the controls show it too?
+
+Whatever comes out goes in the README, including a result that takes finding 4 away.
+
+**Be ready to explain:** why match the size layer by layer and not in total; why a random low-rank
+change and not Gaussian noise on every weight; why the control uses GRPO's exact questions; why
+compare the change from full precision to 4 bits instead of the two 4-bit accuracies; what the random
+control can't rule out (it matches size, not direction); what none of this measures (every variant
+sits on the same SFT model, so SFT's own run-to-run variance is still unknown).
 
 ## Stretch goals
 

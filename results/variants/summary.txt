@@ -1,0 +1,13 @@
+Accuracy on 1034 dev questions; differences are in points with paired 95% CIs.
+
+variant     bf16  4-bit  3-bit |  gain over SFT at bf16             at 4-bit             at 3-bit |   kept through 4-bit        through 3-bit
+sft        0.705  0.636  0.373 |                                                                  |                                          
+grpo_s0    0.726  0.677  0.438 |      +2.1 [+0.6, +3.7]    +4.1 [+2.3, +5.8]    +6.5 [+4.2, +8.8] |    +1.9 [-0.2, +4.1]    +4.4 [+1.6, +7.1]
+
+variant    answers changed, 4-bit  net damage per change |  answers changed, 3-bit  net damage per change
+sft                         49.2%                  14.1% |                   83.8%                  39.4%
+grpo_s0                     43.9%                  10.4% |                   80.1%                  35.9%
+
+GRPO seeds (n=1)       gain at bf16    +2.1 (+2.1 to +2.1) | gain at 4-bit    +4.1 (+4.1 to +4.1) | kept through 4-bit    +1.9 (+1.9 to +1.9) | through 3-bit    +4.4 (+4.4 to +4.4)
+
+Wrote results/variants/summary.json and summary.csv
