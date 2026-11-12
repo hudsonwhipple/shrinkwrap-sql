@@ -12,7 +12,9 @@ from shrinkwrap.controls import lora_update_norm, random_adapter_like
 def explicit_norm(a: mx.array, b: mx.array) -> float:
     """The norm the slow way in NumPy float64, so these tests don't lean on your lora_update_norm or on
     MLX's GPU matmul, which is only accurate to about 3 significant digits."""
-    return float(np.linalg.norm(np.array(a, dtype=np.float64) @ np.array(b, dtype=np.float64)))
+    # Through float32 first: the cast is exact, and NumPy can't read bfloat16.
+    a, b = (np.array(x.astype(mx.float32), dtype=np.float64) for x in (a, b))
+    return float(np.linalg.norm(a @ b))
 
 
 def make_adapter(seed: int = 0) -> dict[str, mx.array]:
@@ -56,6 +58,17 @@ def test_lora_update_norm_is_not_just_the_product_of_the_two_norms():
     a = mx.array([[1.0, 0.0], [0.0, 0.0]])
     b = mx.array([[0.0, 0.0], [0.0, 1.0]])
     assert lora_update_norm(a, b).item() == 0.0
+
+
+@pytest.mark.parametrize("dtype", [mx.float16, mx.bfloat16])
+def test_lora_update_norm_does_its_arithmetic_in_float32(dtype):
+    # float16 stops at 65504. For halves this size the entries of A.T @ A and of B @ B.T are about 512,
+    # and their product is about 262144, so multiplying in the input's dtype gives infinity.
+    mx.random.seed(0)
+    a, b = mx.random.normal((512, 4)).astype(dtype), mx.random.normal((4, 512)).astype(dtype)
+    norm = lora_update_norm(a, b)
+    assert norm.dtype == mx.float32
+    assert math.isclose(norm.item(), explicit_norm(a, b), rel_tol=5e-3), "cast to float32 before the matmuls, not after"
 
 
 # ---- 7b: random_adapter_like ----
@@ -121,3 +134,37 @@ def test_a_layer_needs_both_halves(missing):
     del adapter[missing]
     with pytest.raises(ValueError):
         random_adapter_like(adapter, seed=1)
+
+
+@pytest.mark.parametrize("extra", [{"model.layers.0.q.m": (48,)}, {"lora_a": (64, 4), "lora_b": (4, 48)}], ids=["dora-m", "no-layer-name"])
+def test_a_key_that_is_neither_half_is_an_error(extra):
+    # For example a DoRA adapter's "<layer>.m". Dropping it would break "same keys", and copying it
+    # would carry a trained tensor into a control that is meant to be random. A bare "lora_a" with no
+    # layer in front can't be written back under the same name either.
+    adapter = make_adapter()
+    adapter.update({k: mx.ones(shape) for k, shape in extra.items()})
+    with pytest.raises(ValueError):
+        random_adapter_like(adapter, seed=1)
+
+
+@pytest.mark.parametrize("dtype", [mx.float16, mx.bfloat16])
+def test_a_half_precision_adapter_is_matched_too(dtype):
+    # One layer big enough that the norm of the random draw overflows float16 (see the 7a test). A
+    # scale of target / infinity is 0, which would return an all-zero adapter without any error.
+    mx.random.seed(0)
+    a_key, b_key = "model.layers.0.q.lora_a", "model.layers.0.q.lora_b"
+    adapter = {a_key: (mx.random.normal((512, 4)) * 0.3).astype(dtype), b_key: (mx.random.normal((4, 512)) * 0.05).astype(dtype)}
+    out = random_adapter_like(adapter, seed=1)
+    assert out[a_key].dtype == dtype and out[b_key].dtype == dtype
+    want, got = explicit_norm(adapter[a_key], adapter[b_key]), explicit_norm(out[a_key], out[b_key])
+    assert math.isclose(got, want, rel_tol=1e-2), f"{got} vs {want}: draw and rescale in float32, cast when storing"
+
+
+def test_the_callers_random_stream_is_left_alone():
+    adapter = make_adapter()
+    mx.random.seed(123)
+    random_adapter_like(adapter, seed=1)
+    after = mx.random.normal((3,))
+    mx.random.seed(123)
+    expected = mx.random.normal((3,))
+    assert mx.array_equal(after, expected).item(), "pass an explicit key to mx.random.normal instead of calling mx.random.seed"

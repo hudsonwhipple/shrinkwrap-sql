@@ -500,10 +500,14 @@ Only the third needs code from you. The GRPO adapter is small: its update has a 
 - **7a `lora_update_norm`:** the size of one layer's change, the Frobenius norm of `lora_a @ lora_b`.
   You can get it from two rank-by-rank matrices without building the product. MLX's float32 matmul on
   this Mac's GPU is only accurate to about 3 significant digits (see the docstring), which is fine
-  here but worth knowing about.
+  here but worth knowing about. Cast the inputs to float32 before multiplying: float16 stops at
+  65504, and on a full-size layer the intermediate values pass it and the norm comes out as infinity.
 - **7b `random_adapter_like`:** for every layer, draw a random `lora_a` and `lora_b` and rescale them
   so the layer changes by exactly as much as the original's. A layer that didn't change must stay
-  unchanged, and the seed must decide the result.
+  unchanged, and the seed must decide the result. Three things the obvious version gets wrong:
+  draw and rescale in float32 and cast to the adapter's dtype only when storing (otherwise a float16
+  adapter comes back as all zeros, with no error); raise a `ValueError` for a key that is neither
+  half; and pass an explicit key to `mx.random.normal` so the caller's random stream isn't reset.
 
 `scripts/make_random_adapter.py` (provided) loads the GRPO adapter, calls your function, checks every
 layer's size against NumPy float64, and saves the result in the same format, so fusing, evaluating
