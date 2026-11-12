@@ -10,12 +10,18 @@ For each variant (an adapter fused into the SFT model) it reports, on the full d
 Differences come with paired bootstrap 95% CIs over questions. The groups at the end give the mean and
 range over GRPO seeds and over random controls. The random controls' range is the yardstick: a GRPO
 effect has to clear it to count.
+
+The last table is the test itself: the GRPO seeds' average minus each control's. Its CI is over
+questions with the models held fixed. Its p is over seeds: of every way to relabel the GRPO seeds and
+the random controls, the share that gives a difference at least as large. Section 7 of the guide says
+which of these numbers decide the claim, and that was written down before the run.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import itertools
 import json
 import sys
 from pathlib import Path
@@ -29,6 +35,8 @@ PRECISIONS = ("bf16", "q4", "q3")
 # The SFT model's own runs, made earlier by overnight.sh and section 6 of the guide.
 SFT_EVALS = {"bf16": "results/sft_fused.jsonl", "q4": "results/sweep_sft/q4g64-merged.jsonl", "q3": "results/sweep_sft/q3g64-merged.jsonl"}
 SFT_MARGINS = {"q4": "results/margins/sft/q4.jsonl", "q3": "results/margins/sft/q3.jsonl"}
+# The per-question quantities the GRPO seeds and the controls are compared on.
+METRICS = (("gain_bf16", "gain at bf16"), ("gain_q4", "gain at 4-bit"), ("kept_q4", "kept through 4-bit"), ("kept_q3", "kept through 3-bit"))
 
 
 def matches(path: str | Path) -> dict[int, bool]:
@@ -39,6 +47,32 @@ def mean_ci(values: np.ndarray, resamples: np.ndarray) -> dict:
     """Mean of a per-question quantity with a paired bootstrap 95% CI. resamples: (iters, n) question indices."""
     lo, hi = np.percentile(values[resamples].mean(axis=1), [2.5, 97.5])
     return {"value": round(float(values.mean()), 5), "ci95": [round(float(lo), 5), round(float(hi), 5)]}
+
+
+def group_difference(a: list[np.ndarray], b: list[np.ndarray], resamples: np.ndarray) -> dict:
+    """Group a's average of a per-question quantity minus group b's, with two kinds of uncertainty.
+
+    a, b: one array per variant, each with one value per question.
+    ci95 resamples questions and holds the variants fixed: would these models differ on other
+    questions? p_seeds relabels the variants instead: over every way of splitting them into groups
+    of these sizes, the share with a difference at least as large as the real one. It is one-sided,
+    and None when there are fewer than 20 splits, because then it could not go below 0.05.
+    """
+    out = mean_ci(np.mean(a, axis=0) - np.mean(b, axis=0), resamples)
+    means = np.array([v.mean() for v in (*a, *b)])
+    splits = list(itertools.combinations(range(len(means)), len(a)))
+
+    def gap(first: tuple[int, ...]) -> float:
+        in_a = np.zeros(len(means), dtype=bool)
+        in_a[list(first)] = True
+        return float(means[in_a].mean() - means[~in_a].mean())
+
+    out["n"] = [len(a), len(b)]
+    out["p_seeds"] = None
+    if len(splits) >= 20:
+        observed = gap(tuple(range(len(a))))
+        out["p_seeds"] = round(sum(gap(s) >= observed - 1e-12 for s in splits) / len(splits), 4)
+    return out
 
 
 def flips(margins: str | Path, ref_eval: str | Path, other_eval: str | Path) -> dict:
@@ -57,10 +91,14 @@ def describe(name: str, evals: dict[str, str], margins: dict[str, str], sft: dic
         right[p] = np.array([m[i] for i in ids], dtype=float)
     row: dict = {"variant": name, "accuracy": {p: round(float(right[p].mean()), 4) for p in PRECISIONS}, "_right": right}
     if sft is not None:
-        row["gain"] = {p: mean_ci(right[p] - sft[p], resamples) for p in PRECISIONS}
+        per_question = {f"gain_{p}": right[p] - sft[p] for p in PRECISIONS}
         for p in ("q4", "q3"):
             # (variant's change going to p bits) minus (the SFT model's change), question by question.
-            row[f"kept_{p}"] = mean_ci((right[p] - right["bf16"]) - (sft[p] - sft["bf16"]), resamples)
+            per_question[f"kept_{p}"] = (right[p] - right["bf16"]) - (sft[p] - sft["bf16"])
+        row["gain"] = {p: mean_ci(per_question[f"gain_{p}"], resamples) for p in PRECISIONS}
+        for p in ("q4", "q3"):
+            row[f"kept_{p}"] = mean_ci(per_question[f"kept_{p}"], resamples)
+        row["_per_question"] = per_question
     for p in ("q4", "q3"):
         if Path(margins[p]).exists():
             row[f"flips_{p}"] = flips(margins[p], evals["bf16"], evals[p])
@@ -128,12 +166,34 @@ def main() -> None:
 
         print(f"{label + f' (n={len(members)})':22s} gain at bf16 {rng('gain_bf16'):>22} | gain at 4-bit {rng('gain_q4'):>22} | "
               f"kept through 4-bit {rng('kept_q4'):>22} | through 3-bit {rng('kept_q3'):>22}")
+
+    # The test: the GRPO seeds' average minus each control's. The random changes are one group; the
+    # two "more SFT" runs are different treatments, so each is compared on its own.
+    grpo = [r for r in rows if r["variant"].startswith("grpo_s")]
+    controls = [("random changes", [r for r in rows if r["variant"].startswith("random_s")])]
+    controls += [(r["variant"], [r]) for r in rows if r["variant"].startswith("sftmore_")]
+    comparisons = {}
+    for label, members in controls:
+        if grpo and members:
+            comparisons[label] = {key: group_difference([r["_per_question"][key] for r in grpo], [r["_per_question"][key] for r in members], resamples)
+                                  for key, _ in METRICS}
+    if comparisons:
+        def cell(x: dict) -> str:
+            return pts(x) + ("" if x["p_seeds"] is None else f" p={x['p_seeds']:.3f}")
+
+        print(f"\nGRPO seeds (n={len(grpo)}) minus each control, in points. The CI is over questions; p is over seeds.")
+        print(f"{'control':24s} " + " ".join(f"{name:>30}" for _, name in METRICS))
+        for label, stats in comparisons.items():
+            n = stats[METRICS[0][0]]["n"][1]
+            print(f"{label + (f' (n={n})' if n > 1 else ''):24s} " + " ".join(f"{cell(stats[key]):>30}" for key, _ in METRICS))
     if skipped:
         print(f"\nNot finished yet, so left out: {', '.join(skipped)}")
 
     for r in rows:
         del r["_right"]
-    (args.dir / "summary.json").write_text(json.dumps({"questions": len(ids), "iters": args.iters, "variants": rows, "groups": groups}, indent=2))
+        r.pop("_per_question", None)
+    (args.dir / "summary.json").write_text(json.dumps(
+        {"questions": len(ids), "iters": args.iters, "variants": rows, "groups": groups, "comparisons": comparisons}, indent=2))
     with (args.dir / "summary.csv").open("w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["variant", "acc_bf16", "acc_q4", "acc_q3", "gain_bf16", "gain_q4", "gain_q4_lo", "gain_q4_hi", "gain_q3",

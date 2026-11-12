@@ -10,3 +10,6 @@ adapters/
 results/**/*.jsonl
 results/overnight/*.done
 results/variants/done/
+
+# The pid of a run in progress (scripts/seeds_and_controls.sh)
+results/variants/.pid
