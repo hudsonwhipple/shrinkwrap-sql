@@ -100,7 +100,8 @@ def _columns(db_path: str | Path) -> dict[str, list[str]]:
 def missing_column(row: dict, db_path: str | Path) -> dict | None:
     """For a "no such column" failure, what the query asked for and what the database has.
 
-    Returns None for any other row. Otherwise a dict with:
+    Returns None for any other row, and for an error that has the phrase but names no column in
+    SQLite's "no such column: NAME" form. Otherwise a dict with:
       name:       the name as SQLite reported it, e.g. "T1.age"
       column:     the column part, e.g. "age"
       in_tables:  tables that do have a column of that name, ignoring case. Not empty means the query
@@ -110,7 +111,12 @@ def missing_column(row: dict, db_path: str | Path) -> dict | None:
     """
     if failure_kind(row) != "no such column":
         return None
-    name = re.search(r"no such column:\s*(.+)$", row["pred_error"]).group(1).strip()
+    # failure_kind goes by the phrase alone, so the name still has to be found. DOTALL because SQLite
+    # repeats the name as the query wrote it, line breaks included.
+    found = re.search(r"no such column:\s*(\S.*)", row["pred_error"], re.DOTALL)
+    if found is None:
+        return None
+    name = found.group(1).strip()
     column = name.rsplit(".", 1)[-1].strip('"`[]')
     schema = _columns(db_path)
     in_tables = sorted(t for t, cols in schema.items() if column.lower() in (c.lower() for c in cols))

@@ -67,6 +67,27 @@ def test_missing_column_tells_a_wrong_table_from_a_name_that_exists_nowhere(scor
     assert all(missing_column(rows[i], tiny_db) is None for i in (0, 1, 4))
 
 
+def test_missing_column_reads_a_name_that_runs_over_two_lines(tiny_db):
+    # SQLite repeats the name as written, so a bracketed name with a line break in it gives a two-line
+    # error. Reading only up to the first line end found nothing and raised AttributeError.
+    (row,) = score([example(tiny_db, 0, "q", "SELECT name FROM singer")], [fenced("SELECT [stage\nname] FROM singer")])
+    assert row["pred_error"].endswith("no such column: stage\nname") and failure_kind(row) == "no such column"
+    found = missing_column(row, tiny_db)
+    assert found["name"] == "stage\nname" and found["column"] == "stage\nname" and found["in_tables"] == []
+    assert found["closest"] == "name"
+
+
+@pytest.mark.parametrize("error", [
+    'OperationalError: near "no such column": syntax error',  # mentions the phrase, names nothing
+    "OperationalError: no such column",  # no name after it
+    "OperationalError: no such column:   ",
+])
+def test_missing_column_gives_none_when_the_error_does_not_name_a_column(tiny_db, error):
+    row = {"match": False, "pred_error": error}
+    assert failure_kind(row) == "no such column"  # the kind goes by the phrase alone
+    assert missing_column(row, tiny_db) is None
+
+
 # ---- the two checks in generate ----
 
 
