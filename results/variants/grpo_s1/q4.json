@@ -1,0 +1,23 @@
+{
+  "model": "models/variants/grpo_s1-q4g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.6634,
+  "ci95": [
+    0.6341,
+    0.6916
+  ],
+  "pred_exec_error_rate": 0.1122,
+  "gold_exec_errors": 0,
+  "wall_time_s": 137.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 41122,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.8,
+  "batched_generation_tps": 300.0,
+  "peak_memory_gb": 8.43
+}

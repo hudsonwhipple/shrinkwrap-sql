@@ -1,0 +1,68 @@
+{
+  "ref": "models/variants/random_s5",
+  "other": "models/variants/random_s5-q4g64",
+  "answers": 1034,
+  "tokens": 35450,
+  "reference_agreement": 0.99814,
+  "token": {
+    "median_margin": 6.125,
+    "share_margin_below_1": 0.06866,
+    "flip_rate": 0.02347,
+    "gap_shift_mean": 0.2497,
+    "gap_shift_std": 0.9789
+  },
+  "answer": {
+    "median_weakest_margin": 0.375,
+    "share_weakest_margin_below_1": 0.77853,
+    "flip_rate": 0.49516
+  },
+  "edges": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    4,
+    8
+  ],
+  "token_bins": {
+    "counts": [
+      479,
+      626,
+      1329,
+      2163,
+      5926,
+      13153,
+      11774
+    ],
+    "flip_rates": [
+      0.42589,
+      0.35144,
+      0.16102,
+      0.06889,
+      0.00692,
+      0.0003,
+      0.0
+    ]
+  },
+  "answer_bins": {
+    "counts": [
+      346,
+      233,
+      226,
+      181,
+      48,
+      0,
+      0
+    ],
+    "flip_rates": [
+      0.78324,
+      0.61373,
+      0.38938,
+      0.0442,
+      0.04167,
+      null,
+      null
+    ]
+  }
+}

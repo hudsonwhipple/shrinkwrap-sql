@@ -1,0 +1,23 @@
+{
+  "model": "models/variants/random_s3-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3665,
+  "ci95": [
+    0.3377,
+    0.3964
+  ],
+  "pred_exec_error_rate": 0.3868,
+  "gold_exec_errors": 0,
+  "wall_time_s": 139.0,
+  "prompt_tokens": 397463,
+  "generation_tokens": 40857,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 39.5,
+  "batched_generation_tps": 294.0,
+  "peak_memory_gb": 8.21
+}
