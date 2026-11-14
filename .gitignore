@@ -8,9 +8,8 @@ data/
 models/
 adapters/
 results/**/*.jsonl
-results/overnight/*.done
-results/variants/done/
-
-# The weight-edit experiment: keep its record, skip run logs that repeat the summaries
+# ...except the weight-edit experiment's record. Its run logs only repeat the summaries.
 !results/weight_edit/ledger.jsonl
 results/weight_edit/logs/
+results/overnight/*.done
+results/variants/done/
