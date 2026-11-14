@@ -15,8 +15,9 @@ a tiny in-memory model.
 | 5 | GRPO advantages, log-probs, loss | `src/shrinkwrap/grpo.py` | `tests/exercises/test_grpo.py` | `scripts/train_grpo.py` |
 | 6 | Token margins and flips under quantization | `src/shrinkwrap/margins.py` | `tests/exercises/test_margins.py` | `scripts/margin_analysis.py` |
 | 7 | A random-change control for the GRPO result | `src/shrinkwrap/controls.py` | `tests/exercises/test_controls.py` | `scripts/seeds_and_controls.sh` |
+| 8 | nothing: an experiment run under rules fixed in advance | `src/shrinkwrap/weight_edit/` | `tests/weight_edit/` | `scripts/weight_edit/dev_test.py` |
 
-Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1, 6 analyzes the models that 2 and 5 produce, and 7 checks whether what 5 and 6 found holds up.
+Do them in order: 2 needs 1 to train with, 4 builds on 3, and 5 needs 1, 6 analyzes the models that 2 and 5 produce, and 7 checks whether what 5 and 6 found holds up. 8 is not an exercise: read it after 3 and 7.
 
 ## How the loop works
 
@@ -559,6 +560,71 @@ change and not Gaussian noise on every weight; why the control uses GRPO's exact
 compare the change from full precision to 4 bits instead of the two 4-bit accuracies; what the random
 control can't rule out (it matches size, not direction); what none of this measures (every variant
 sits on the same SFT model, so SFT's own run-to-run variance is still unknown).
+
+## 8. Weight edit: an experiment, not an exercise (`src/shrinkwrap/weight_edit/`)
+
+**Idea.** Sections 1 to 7 change the model by training it or by rounding it. This one asks whether
+an LLM can improve it by reading the weights and writing a few of them directly, with no gradients.
+The idea is from [Sparks of Weight-Space Programming](https://rikiyat.github.io/blog/weight-space-programming/)
+(November 2026), where a 0.016% edit removed a looping habit from a small model and took its
+MATH-500 score from 7.9% to 48.1%, and where no edit moved a model without that habit by more than
+about a point.
+
+There is nothing to implement. Claude ran it, under rules written before the first forward pass:
+practice questions only, a budget of 6,400 sequences, one frozen edit, one dev test against random
+controls. Your part is to read it critically.
+
+**What happened.**
+- The MLX 3-bit model starts aliased queries with `T2` where the full-precision model writes `T1`,
+  then lists its tables as if it had written `T1`. That breaks most of its join queries.
+- Its own computation still prefers `T1`. The flip comes from two weights of the embedding table,
+  which Qwen3 also uses as its output layer. Each sat halfway between two levels, they were rounded
+  in opposite directions, and they sit on a coordinate where the final stream is about 45 times its
+  average size.
+- Moving those two weights to their other neighbouring level removes the behaviour on dev (417
+  answers start with `T2` before, 14 after) and takes accuracy from 0.373 to 0.391.
+- **It failed the test.** The gain over the unedited model has a CI above zero (+0.1 to +3.4). The
+  gain over five random two-weight changes does not (−0.3 to +3.1). Most repaired answers were still
+  wrong for other reasons.
+
+**Read it in this order.**
+1. `docs/weight_edit/PROTOCOL.md`: the rules, and what counts as working.
+2. `results/weight_edit/ledger.jsonl`: every forward pass, hypothesis and decision, in order.
+3. `docs/weight_edit/RESULTS.md`: the diagnosis, the edit and the test.
+4. `trace.py` and `reround.py`: a forward pass written out step by step so each head's output can be
+   kept, and the change of one stored code with the model's own quantizer.
+
+**Check it before you trust it.**
+```bash
+.venv/bin/python -m pytest tests/weight_edit        # 85 tests, about a second
+```
+Look at the two weights yourself:
+```python
+import mlx.core as mx
+
+full = mx.load("models/Qwen3-1.7B-mine_r16-fused/model.safetensors")["model.embed_tokens.weight"]
+q3 = mx.load("models/Qwen3-1.7B-mine_r16-fused-q3g64/model.safetensors")
+rows = mx.array([16, 17])  # the tokens "1" and "2"
+stored = mx.dequantize(*(q3[f"model.embed_tokens.{k}"][rows] for k in ("weight", "scales", "biases")), group_size=64, bits=3)
+print(full[rows][:, 425], stored[:, 425])   # 0.0405 and 0.0332 at full precision; 0.0530 and 0.0225 stored
+```
+The first went up by 0.47 of a step and the second down by 0.48. `apply_reround.py` rebuilds the
+edited model from `results/weight_edit/edits/alias_reround.json` and compares the saved file with
+the original tensor by tensor: 703 of 704 identical, two codes changed.
+
+**What it adds to the earlier sections.**
+- Exercise 3 keeps the embedding at full precision and `mlx_lm convert` does not. Here is one
+  thing that costs: at 3 bits every token's logit picks up an offset of up to a logit. The second
+  stretch goal below asks you to measure that cost.
+- Exercise 7's lesson again: each random two-weight change altered 113 to 120 of the 1,034 dev
+  answers. Without those controls, +1.7 points with a CI above zero would have looked like a result.
+
+**Be ready to explain:** why a token's row of the embedding decides its logit; why one coordinate of
+the stream can outweigh two thousand others; how rounding each weight to its nearest level can be
+right for every weight and wrong for a pair; why the edit goes back through `mx.quantize` and what
+"same format and size" buys; why the practice questions come from databases the model never trained
+on; why a pass on the first condition and a fail on the second is reported as a fail; what the edit
+would have needed to pass.
 
 ## Stretch goals
 
