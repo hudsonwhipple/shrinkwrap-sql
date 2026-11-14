@@ -1,0 +1,11 @@
+{
+  "name": "alias_reround",
+  "target": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "reference": "models/Qwen3-1.7B-mine_r16-fused",
+  "layer": "model.embed_tokens",
+  "reason": "The 3-bit model writes T2 where the full-precision model writes T1 as the first alias. Its own computation still prefers T1; the flip comes from the output rows for the tokens '1' (row 16) and '2' (row 17). On coordinate 425, where the final residual stream is about 45 times a typical coordinate, both weights sat almost halfway between two levels and were rounded in opposite directions. Each is moved to its other neighbouring level.",
+  "changes": [
+    {"row": 16, "column": 425, "step": -1},
+    {"row": 17, "column": 425, "step": 1}
+  ]
+}

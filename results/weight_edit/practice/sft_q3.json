@@ -1,0 +1,27 @@
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "purpose": "baseline: the unedited SFT model at MLX 3-bit, all practice questions",
+  "n": 548,
+  "execution_accuracy": 0.2263,
+  "ci95": [
+    0.1932,
+    0.2631
+  ],
+  "kinds": {
+    "right": 124,
+    "wrong result": 169,
+    "no such column": 222,
+    "no such table": 16,
+    "syntax error": 6,
+    "ambiguous column": 5,
+    "other error": 6
+  },
+  "missing_column": {
+    "real column, wrong table": 172,
+    "not in the database": 41,
+    "close to a real name": 9
+  },
+  "left_open": 3,
+  "budget_spent": 1644,
+  "budget": 6400
+}

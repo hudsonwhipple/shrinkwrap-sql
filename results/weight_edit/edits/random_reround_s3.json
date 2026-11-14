@@ -1,0 +1,17 @@
+{
+  "name": "random_reround_s3",
+  "target": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "reference": "models/Qwen3-1.7B-mine_r16-fused",
+  "layer": "model.embed_tokens",
+  "reason": "Control for alias_reround: the same two rows, one weight in each moved to its other neighbouring level, at a column drawn at random.",
+  "random": {
+    "rows": [
+      16,
+      17
+    ],
+    "seed": 3,
+    "exclude": [
+      425
+    ]
+  }
+}

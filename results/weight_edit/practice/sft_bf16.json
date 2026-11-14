@@ -1,0 +1,27 @@
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused",
+  "purpose": "baseline: the unedited SFT model at full precision, all practice questions",
+  "n": 548,
+  "execution_accuracy": 0.5237,
+  "ci95": [
+    0.4819,
+    0.5652
+  ],
+  "kinds": {
+    "right": 287,
+    "wrong result": 160,
+    "no such column": 90,
+    "no such table": 3,
+    "syntax error": 1,
+    "ambiguous column": 3,
+    "other error": 4
+  },
+  "missing_column": {
+    "real column, wrong table": 67,
+    "not in the database": 20,
+    "close to a real name": 3
+  },
+  "left_open": 1,
+  "budget_spent": 548,
+  "budget": 6400
+}

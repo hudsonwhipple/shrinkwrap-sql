@@ -1,0 +1,720 @@
+{
+  "model": "models/Qwen3-1.7B-mine_r16-fused-q3g64",
+  "other": "models/Qwen3-1.7B-mine_r16-fused",
+  "purpose": "diagnosis: what each part of the 3-bit model adds to logit(1) - logit(2) after 'SELECT T'",
+  "questions": 32,
+  "own_writes_2": 32,
+  "other_writes_1": 32,
+  "mean_logit_1_minus_2": {
+    "own": -1.0391,
+    "other": 0.5352
+  },
+  "budget_spent": 1708,
+  "budget": 6400,
+  "entries": [
+    {
+      "idx": 541,
+      "db_id": "store_1",
+      "question": "A list of the top 10 countries by average invoice size. List country name and average invoice size.",
+      "tokens": 939,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.625,
+        "from_parts": -0.6485,
+        "embedding": 0.0011,
+        "heads_total": 0.3314,
+        "mlps_total": -0.981
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.5778,
+        "embedding": 0.001,
+        "heads_total": 0.1241,
+        "mlps_total": 0.4527
+      }
+    },
+    {
+      "idx": 5677,
+      "db_id": "dorm_1",
+      "question": "What is the first name of the students who are in age 20 to 25 and living in PHL city?",
+      "tokens": 327,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -1.0796,
+        "embedding": 0.001,
+        "heads_total": 0.4196,
+        "mlps_total": -1.5002
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.562,
+        "embedding": 0.001,
+        "heads_total": 0.3416,
+        "mlps_total": 0.2194
+      }
+    },
+    {
+      "idx": 3316,
+      "db_id": "college_1",
+      "question": "What are the first names, office locations, and departments of all instructors, and also what are the descriptions of the courses they teach?",
+      "tokens": 572,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.625,
+        "from_parts": -0.5506,
+        "embedding": 0.001,
+        "heads_total": 0.8035,
+        "mlps_total": -1.3551
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.75,
+        "from_parts": 0.7409,
+        "embedding": 0.001,
+        "heads_total": 0.457,
+        "mlps_total": 0.2829
+      }
+    },
+    {
+      "idx": 3177,
+      "db_id": "college_1",
+      "question": "What is the first and last name of the professor in biology department?",
+      "tokens": 559,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.125,
+        "from_parts": -1.0169,
+        "embedding": 0.001,
+        "heads_total": 0.5148,
+        "mlps_total": -1.5326
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.5006,
+        "embedding": 0.001,
+        "heads_total": 0.315,
+        "mlps_total": 0.1846
+      }
+    },
+    {
+      "idx": 4999,
+      "db_id": "soccer_2",
+      "question": "What are the names of all the players who received a yes during tryouts, and also what are the names of their colleges?",
+      "tokens": 270,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.375,
+        "from_parts": -1.3428,
+        "embedding": 0.001,
+        "heads_total": 0.3491,
+        "mlps_total": -1.6928
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.4292,
+        "embedding": 0.001,
+        "heads_total": 0.1131,
+        "mlps_total": 0.3152
+      }
+    },
+    {
+      "idx": 3292,
+      "db_id": "college_1",
+      "question": "What is the first name of the professor who is teaching CIS-220 and QM-261?",
+      "tokens": 569,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.625,
+        "from_parts": -1.6539,
+        "embedding": 0.0009,
+        "heads_total": 0.2413,
+        "mlps_total": -1.8962
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.4276,
+        "embedding": 0.001,
+        "heads_total": 0.3269,
+        "mlps_total": 0.0998
+      }
+    },
+    {
+      "idx": 5018,
+      "db_id": "soccer_2",
+      "question": "Which college has any student who is a goalie and succeeded in the tryout.",
+      "tokens": 260,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.125,
+        "from_parts": -1.0949,
+        "embedding": 0.0009,
+        "heads_total": 0.7773,
+        "mlps_total": -1.8731
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3278,
+        "embedding": 0.001,
+        "heads_total": 0.1418,
+        "mlps_total": 0.185
+      }
+    },
+    {
+      "idx": 558,
+      "db_id": "store_1",
+      "question": "What are the first and last names of the customers with the 10 cheapest invoices?",
+      "tokens": 935,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.75,
+        "from_parts": -0.7426,
+        "embedding": 0.001,
+        "heads_total": 0.2881,
+        "mlps_total": -1.0317
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.5908,
+        "embedding": 0.001,
+        "heads_total": 0.1612,
+        "mlps_total": 0.4286
+      }
+    },
+    {
+      "idx": 3239,
+      "db_id": "college_1",
+      "question": "Find the name of the department that offers the largest number of credits of all classes.",
+      "tokens": 562,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.375,
+        "from_parts": -1.3435,
+        "embedding": 0.001,
+        "heads_total": 0.7186,
+        "mlps_total": -2.063
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.4519,
+        "embedding": 0.0009,
+        "heads_total": 0.2688,
+        "mlps_total": 0.1821
+      }
+    },
+    {
+      "idx": 605,
+      "db_id": "store_1",
+      "question": "Which employee manage most number of peoples? List employee's first and last name, and number of people report to that employee.",
+      "tokens": 942,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.875,
+        "from_parts": -0.8065,
+        "embedding": 0.001,
+        "heads_total": 0.3915,
+        "mlps_total": -1.199
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.6309,
+        "embedding": 0.001,
+        "heads_total": 0.1547,
+        "mlps_total": 0.4752
+      }
+    },
+    {
+      "idx": 3180,
+      "db_id": "college_1",
+      "question": "What are the first names and birthdates of the professors in charge of ACCT-211?",
+      "tokens": 566,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.25,
+        "from_parts": -1.2838,
+        "embedding": 0.001,
+        "heads_total": 0.3645,
+        "mlps_total": -1.6493
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.4782,
+        "embedding": 0.001,
+        "heads_total": 0.3133,
+        "mlps_total": 0.1639
+      }
+    },
+    {
+      "idx": 5727,
+      "db_id": "dorm_1",
+      "question": "How many students live in each city and what are their average ages?",
+      "tokens": 315,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.875,
+        "from_parts": -0.839,
+        "embedding": 0.001,
+        "heads_total": 0.5678,
+        "mlps_total": -1.4078
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.875,
+        "from_parts": 0.7728,
+        "embedding": 0.001,
+        "heads_total": 0.4587,
+        "mlps_total": 0.3131
+      }
+    },
+    {
+      "idx": 5676,
+      "db_id": "dorm_1",
+      "question": "Find the first name of students living in city PHL whose age is between 20 and 25.",
+      "tokens": 324,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.25,
+        "from_parts": -1.3049,
+        "embedding": 0.001,
+        "heads_total": 0.3003,
+        "mlps_total": -1.6062
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.5574,
+        "embedding": 0.001,
+        "heads_total": 0.352,
+        "mlps_total": 0.2044
+      }
+    },
+    {
+      "idx": 583,
+      "db_id": "store_1",
+      "question": "List the name of albums that are released by aritist whose name has 'Led'",
+      "tokens": 935,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.25,
+        "from_parts": -1.2348,
+        "embedding": 0.0009,
+        "heads_total": 0.4278,
+        "mlps_total": -1.6635
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.125,
+        "from_parts": 0.0557,
+        "embedding": 0.0009,
+        "heads_total": -0.3364,
+        "mlps_total": 0.3911
+      }
+    },
+    {
+      "idx": 5005,
+      "db_id": "soccer_2",
+      "question": "What are the states of the colleges where students who tried out for the striker position attend?",
+      "tokens": 262,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.875,
+        "from_parts": -0.9494,
+        "embedding": 0.0009,
+        "heads_total": 0.781,
+        "mlps_total": -1.7314
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3764,
+        "embedding": 0.001,
+        "heads_total": -0.0826,
+        "mlps_total": 0.458
+      }
+    },
+    {
+      "idx": 2284,
+      "db_id": "entrepreneur",
+      "question": "Return the dates of birth for entrepreneurs who have either the investor Simon Woodroffe or Peter Jones.",
+      "tokens": 184,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.375,
+        "from_parts": -1.3164,
+        "embedding": 0.001,
+        "heads_total": 0.2191,
+        "mlps_total": -1.5366
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.512,
+        "embedding": 0.001,
+        "heads_total": 0.1397,
+        "mlps_total": 0.3714
+      }
+    },
+    {
+      "idx": 5704,
+      "db_id": "dorm_1",
+      "question": "Find the name of dorms which have TV Lounge but no Study Room as amenity.",
+      "tokens": 319,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -1.0374,
+        "embedding": 0.001,
+        "heads_total": 0.4288,
+        "mlps_total": -1.4671
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.75,
+        "from_parts": 0.7176,
+        "embedding": 0.0009,
+        "heads_total": 0.1083,
+        "mlps_total": 0.6084
+      }
+    },
+    {
+      "idx": 1909,
+      "db_id": "school_finance",
+      "question": "List the name, IHSAA Football Class, and Mascot of the schools that have more than 6000 of budgeted amount or were founded before 2003, in the order of percent of total invested budget and total budgeted budget.",
+      "tokens": 317,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.5,
+        "from_parts": -0.4599,
+        "embedding": 0.001,
+        "heads_total": 0.391,
+        "mlps_total": -0.8519
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.75,
+        "from_parts": 0.7635,
+        "embedding": 0.001,
+        "heads_total": 0.2782,
+        "mlps_total": 0.4843
+      }
+    },
+    {
+      "idx": 5757,
+      "db_id": "dorm_1",
+      "question": "What are the first names of all students who live in the dorm with the most amenities?",
+      "tokens": 319,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.125,
+        "from_parts": -1.076,
+        "embedding": 0.001,
+        "heads_total": 0.6072,
+        "mlps_total": -1.6842
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.6481,
+        "embedding": 0.001,
+        "heads_total": 0.4329,
+        "mlps_total": 0.2143
+      }
+    },
+    {
+      "idx": 5718,
+      "db_id": "dorm_1",
+      "question": "List name of all amenities which Anonymous Donor Hall has, and sort the results in alphabetic order.",
+      "tokens": 322,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -0.999,
+        "embedding": 0.001,
+        "heads_total": 0.2544,
+        "mlps_total": -1.2544
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.4105,
+        "embedding": 0.0009,
+        "heads_total": 0.154,
+        "mlps_total": 0.2556
+      }
+    },
+    {
+      "idx": 4996,
+      "db_id": "soccer_2",
+      "question": "Find the states where have some college students in tryout and their decisions are yes.",
+      "tokens": 261,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.875,
+        "from_parts": -0.8255,
+        "embedding": 0.0009,
+        "heads_total": 0.7498,
+        "mlps_total": -1.5763
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.5809,
+        "embedding": 0.001,
+        "heads_total": 0.129,
+        "mlps_total": 0.451
+      }
+    },
+    {
+      "idx": 5758,
+      "db_id": "dorm_1",
+      "question": "Find the name and capacity of the dorm with least number of amenities.",
+      "tokens": 315,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.75,
+        "from_parts": -0.781,
+        "embedding": 0.001,
+        "heads_total": 0.246,
+        "mlps_total": -1.028
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.75,
+        "from_parts": 0.7632,
+        "embedding": 0.0009,
+        "heads_total": 0.2057,
+        "mlps_total": 0.5566
+      }
+    },
+    {
+      "idx": 5756,
+      "db_id": "dorm_1",
+      "question": "Find the first name of students who are living in the dorm that has most number of amenities.",
+      "tokens": 320,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -0.9746,
+        "embedding": 0.001,
+        "heads_total": 0.6111,
+        "mlps_total": -1.5867
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.6348,
+        "embedding": 0.001,
+        "heads_total": 0.4065,
+        "mlps_total": 0.2273
+      }
+    },
+    {
+      "idx": 593,
+      "db_id": "store_1",
+      "question": "Find the full name of employee who supported the most number of customers.",
+      "tokens": 931,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -0.9669,
+        "embedding": 0.0011,
+        "heads_total": 0.6152,
+        "mlps_total": -1.5832
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3934,
+        "embedding": 0.001,
+        "heads_total": 0.0093,
+        "mlps_total": 0.3831
+      }
+    },
+    {
+      "idx": 5002,
+      "db_id": "soccer_2",
+      "question": "Find the name and hours of the students whose tryout decision is yes.",
+      "tokens": 259,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -1.0066,
+        "embedding": 0.001,
+        "heads_total": 0.2857,
+        "mlps_total": -1.2933
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.5458,
+        "embedding": 0.001,
+        "heads_total": 0.0678,
+        "mlps_total": 0.477
+      }
+    },
+    {
+      "idx": 545,
+      "db_id": "store_1",
+      "question": "Find out the top 10 customers by total number of orders. List customers' first and last name and the number of total orders.",
+      "tokens": 945,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.375,
+        "from_parts": -0.3257,
+        "embedding": 0.001,
+        "heads_total": 0.757,
+        "mlps_total": -1.0837
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.625,
+        "from_parts": 0.6391,
+        "embedding": 0.001,
+        "heads_total": 0.1739,
+        "mlps_total": 0.4642
+      }
+    },
+    {
+      "idx": 5742,
+      "db_id": "dorm_1",
+      "question": "Find the first name of students who are living in the Smith Hall.",
+      "tokens": 315,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.25,
+        "from_parts": -1.1921,
+        "embedding": 0.001,
+        "heads_total": 0.4241,
+        "mlps_total": -1.6172
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.5,
+        "from_parts": 0.5746,
+        "embedding": 0.001,
+        "heads_total": 0.3418,
+        "mlps_total": 0.2318
+      }
+    },
+    {
+      "idx": 5751,
+      "db_id": "dorm_1",
+      "question": "What are the names of the amenities that Smith Hall has?",
+      "tokens": 313,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.25,
+        "from_parts": -1.168,
+        "embedding": 0.001,
+        "heads_total": 0.2264,
+        "mlps_total": -1.3954
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3642,
+        "embedding": 0.001,
+        "heads_total": 0.159,
+        "mlps_total": 0.2041
+      }
+    },
+    {
+      "idx": 5003,
+      "db_id": "soccer_2",
+      "question": "What are the names and hours spent practicing of every student who received a yes at tryouts?",
+      "tokens": 263,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.375,
+        "from_parts": -1.2789,
+        "embedding": 0.001,
+        "heads_total": 0.2884,
+        "mlps_total": -1.5683
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3849,
+        "embedding": 0.001,
+        "heads_total": -0.1034,
+        "mlps_total": 0.4873
+      }
+    },
+    {
+      "idx": 3282,
+      "db_id": "college_1",
+      "question": "What is the last name of the professor whose office is located in DRE 102, and when were they hired?",
+      "tokens": 571,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.5,
+        "from_parts": -1.4909,
+        "embedding": 0.001,
+        "heads_total": 0.439,
+        "mlps_total": -1.9308
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.3474,
+        "embedding": 0.001,
+        "heads_total": 0.1978,
+        "mlps_total": 0.1486
+      }
+    },
+    {
+      "idx": 5759,
+      "db_id": "dorm_1",
+      "question": "What is the name and capacity of the dorm with the fewest amount of amenities?",
+      "tokens": 318,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -0.875,
+        "from_parts": -0.9496,
+        "embedding": 0.001,
+        "heads_total": 0.2554,
+        "mlps_total": -1.206
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.75,
+        "from_parts": 0.7223,
+        "embedding": 0.001,
+        "heads_total": 0.1738,
+        "mlps_total": 0.5476
+      }
+    },
+    {
+      "idx": 5752,
+      "db_id": "dorm_1",
+      "question": "Find the name of amenities Smith Hall dorm have. ordered the results by amenity names.",
+      "tokens": 319,
+      "own": {
+        "next": "2",
+        "logit_1_minus_2": -1.0,
+        "from_parts": -1.0296,
+        "embedding": 0.001,
+        "heads_total": 0.4005,
+        "mlps_total": -1.4311
+      },
+      "other": {
+        "next": "1",
+        "logit_1_minus_2": 0.375,
+        "from_parts": 0.4336,
+        "embedding": 0.001,
+        "heads_total": 0.1615,
+        "mlps_total": 0.2711
+      }
+    }
+  ]
+}
