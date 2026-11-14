@@ -33,7 +33,8 @@ with the gold query's result.
   <img alt="Line chart of Spider dev accuracy at bf16, 8, 6, 4 and 3 bits. Base model: 58.9, 58.6, 59.7, 55.6, 19.6 percent. LoRA SFT: 70.5, 70.7, 70.6, 63.6, 37.3. SFT plus GRPO: 72.6, 72.3, 72.2, 67.7, 43.8. From-scratch 3-bit GPTQ: 50.5, 64.9 and 68.4." src="docs/figures/accuracy_by_bits-light.svg">
 </picture>
 
-Full Spider dev set (1,034 questions), one training run per model. Brackets are paired 95% CIs.
+Full Spider dev set (1,034 questions). One training run per model, plus three more GRPO seeds and
+two controls behind the two GRPO results. Brackets are paired 95% CIs.
 
 - **Fine-tuning works.** LoRA SFT takes Qwen3-1.7B from 58.9% to 70.5% (+11.6 points [+8.6, +14.6]);
   GRPO on top of it reaches 72.0%, or 72.6% once its adapter is fused into the weights.
@@ -41,18 +42,20 @@ Full Spider dev set (1,034 questions), one training run per model. Brackets are 
   survives 4 bits (+8.0 [+5.0, +11.0]).
 - **Fuse first, then quantize.** That ties or beats running the adapter on a quantized model and
   generates 1.8–2.4× faster (at 4 bits, 218 against 97 tok/s).
-- **RL gains are no more fragile than SFT gains, and less fragile at 3 bits.** GRPO's edge over SFT
-  is +2.1 points at full precision [+0.6, +3.7], +4.1 at 4 bits [+2.3, +5.9] and +6.5 at 3 bits
-  [+4.3, +8.8]. That growth is established at 3 bits (+4.4 [+1.6, +7.1]) but not at 4 (+1.9
-  [−0.2, +4.1]).
-- **Why: fewer of GRPO's answers change under quantization.** 4 bits changes 49% of the SFT model's
-  answers and 44% of the GRPO model's (−5.3 points [−8.1, −2.4]). A changed GRPO answer also ends up
-  wrong less often (17% against 21%), but that part is established only at 3 bits.
+- **GRPO's gain is real, and nothing shows it surviving quantization better than SFT's.** Across four
+  seeds GRPO adds +1.3 to +2.4 points at full precision, and its 4-bit models stay ahead of a random
+  change of the same size (+2.2 [+0.9, +3.6]). But it loses as much on the way down: it keeps +0.1
+  points more through 4 bits than the random change does [−1.6, +1.8]. An earlier claim of more
+  robustness at 3 bits came from one run, and one of the four seeds ends up below SFT there.
+- **GRPO widens token margins on every seed, and that does not buy robustness.** The median margin
+  rises from 6.1 to between 7.9 and 8.6, but quantization also moves GRPO's scores more, so 4 bits
+  changes about as many answers: 44% to 52% across seeds, against 49% for SFT.
 - **3-bit GPTQ matches MLX's 4-bit accuracy** on the fine-tune (64.9% against 63.6%, no significant
   difference) and beats 3-bit RTN by 31 points. These GPTQ models are not packed yet, so they show
   3-bit accuracy without the size savings.
 - **Best deployable model:** GRPO, fused, MLX 4-bit: 67.7% in 0.97 GB at 218 tok/s, against 76 tok/s
-  and 3.44 GB at full precision.
+  and 3.44 GB at full precision. That is seed 0; the other three seeds score 63.4% to 67.4% at 4
+  bits.
 
 For scale, the best published result found on this split is 87.6% (a 7B model with voting over 8
 samples), and CodeS-1B reaches 77.9%; both use more data and richer prompts. See
@@ -91,7 +94,8 @@ LoRA and quantization.
 
 Everything is execution accuracy on the full Spider dev set (1,034 questions), and every difference is
 a paired bootstrap 95% CI from `shrinkwrap.compare`. Gold SQL against itself scores 1.000
-[0.996, 1.000], a harness sanity check. Each model is one training run with seed 0.
+[0.996, 1.000], a harness sanity check. Each model in the table is one training run with seed 0;
+findings 4 and 5 add three more GRPO seeds and two controls.
 `scripts/overnight.sh` reruns everything in about 2 h 40 min, and `scripts/speed_bench.py` the speed
 columns.
 
@@ -172,29 +176,65 @@ From-scratch RTN against MLX's: tied at 4 bits (+2.2 on the base, −0.4 to +4.8
 and 0.45 GB larger at 4 bits because the embedding stays bf16: Qwen3-1.7B shares it with the output
 layer, so all 0.62 GB of it is read for every generated token.
 
-### 4. Are RL gains more or less fragile under quantization than SFT gains? No more, and less at 3 bits
+### 4. Are RL gains more or less fragile under quantization than SFT gains? No evidence of a difference
 
-GRPO adds +2.1 points over SFT at full precision (+0.6 to +3.7), comparing the two fused models, and
-cuts queries that fail to execute from 9.2% to 6.9%. Quantized with MLX, its gain is +1.6 at 8 bits
-(−0.1 to +3.4), +1.5 at 6 (0.0 to +3.1), **+4.1 at 4** (+2.3 to +5.9) and +6.5 at 3 (+4.3 to +8.8).
-With the from-scratch 3-bit GPTQ it is +3.5 (+1.2 to +5.9).
+An earlier version of this section, based on one GRPO run, said the RL gain was more robust at 3
+bits. Three more seeds and two controls were then run against a rule fixed beforehand (section 7 of
+the [guide](IMPLEMENTATION_GUIDE.md)), and the claim did not hold.
 
-Whether the gain grows is a separate question from whether it is there. It compares what each model
-loses going from full precision to the quantized format:
+**GRPO does make the model better.** Across four seeds it adds +1.3 to +2.4 points over SFT at full
+precision, comparing fused models, and seed 0 cuts queries that fail to execute from 9.2% to 6.9%.
 
-| Format | Cost to SFT | Cost to GRPO | Extra that GRPO keeps |
+**Whether it loses less when quantized is a separate question.** "Kept" below is what a model loses
+going from full precision to the quantized format, set against what the SFT model loses, question by
+question. Positive means it lost less.
+
+| Model | bf16 | MLX 4-bit | MLX 3-bit | Gain over SFT at bf16 | Kept through 4-bit | Kept through 3-bit |
+|---|---|---|---|---|---|---|
+| SFT | 0.705 | 0.636 | 0.373 | | | |
+| GRPO, seed 0 | 0.726 | 0.677 | 0.438 | +2.1 (+0.6 to +3.7) | +1.9 (−0.2 to +4.1) | +4.4 (+1.6 to +7.1) |
+| GRPO, seed 1 | 0.724 | 0.663 | 0.431 | +1.9 (+0.2 to +3.6) | +0.8 (−1.5 to +3.1) | +3.9 (+0.9 to +6.9) |
+| GRPO, seed 2 | 0.729 | 0.674 | 0.457 | +2.4 (+0.7 to +4.2) | +1.4 (−1.0 to +3.7) | +5.9 (+2.9 to +8.9) |
+| GRPO, seed 3 | 0.718 | 0.634 | 0.348 | +1.3 (−0.7 to +3.1) | −1.5 (−4.0 to +1.1) | −3.8 (−6.7 to −0.9) |
+| Random change, five draws | 0.702 to 0.705 | 0.637 to 0.644 | 0.361 to 0.375 | −0.3 to 0.0 | +0.4 to +0.8 | −1.1 to +0.5 |
+| 100 more SFT steps | 0.708 | 0.648 | 0.400 | +0.3 (−1.1 to +1.6) | +0.9 (−1.1 to +2.8) | +2.4 (+0.1 to +4.6) |
+
+The two controls sit on the same SFT model that GRPO does:
+
+- **Random change:** an adapter that changes every layer by exactly as much as GRPO's does, in a
+  random direction. It shows what a change of that size does on its own.
+- **100 more SFT steps:** GRPO seed 0's exact 400 questions and optimizer settings, with the SFT loss
+  in place of RL. It shows what more training on those questions does on its own. The same run at
+  the SFT learning rate, 20 times higher, broke the model (0.427 at full precision).
+
+The test compares the average of the four GRPO seeds with the average of the five random changes.
+The claim holds only if the CI over questions excludes zero and the p over seeds is below 0.05.
+
+| GRPO seeds minus random changes | Points | 95% CI over questions | p over seeds |
 |---|---|---|---|
-| MLX 8-bit | +0.2 | −0.3 | −0.5 (−1.5 to +0.5) |
-| MLX 6-bit | +0.1 | −0.5 | −0.6 (−1.9 to +0.9) |
-| MLX 4-bit | −6.9 (−9.1 to −4.6) | −4.9 (−6.9 to −2.9) | +1.9 (−0.2 to +4.1) |
-| MLX 3-bit | −33.2 (−36.3 to −30.1) | −28.8 (−31.8 to −25.8) | **+4.4** (+1.6 to +7.1) |
-| From-scratch GPTQ 3-bit | −5.6 (−7.7 to −3.5) | −4.3 (−6.2 to −2.3) | +1.4 (−1.5 to +4.0) |
+| **Kept through 4-bit (the claim)** | **+0.1** | −1.6 to +1.8 | 0.48 |
+| Kept through 3-bit | +2.9 | +0.9 to +5.0 | 0.071 |
+| Accuracy at full precision | +2.1 | +0.8 to +3.5 | 0.008 |
+| Accuracy at 4 bits | +2.2 | +0.9 to +3.6 | 0.048 |
 
-So the RL gain is never more fragile than the SFT model it sits on, and it is clearly more robust
-only at MLX 3-bit. At 4 bits GRPO keeps 1.9 points more, with an interval that includes zero. Finding
-5 looks at why.
+- **At 4 bits there is nothing.** GRPO keeps +0.7 points on average and a random change keeps +0.6.
+  Every random change keeps a little, which says the SFT model's own 4-bit score sits slightly low
+  and any model near it does a little better.
+- **At 3 bits it depends on the seed.** Three seeds keep 3.9 to 5.9 points more than SFT. The fourth
+  keeps 3.8 less and ends below the SFT model, 0.348 against 0.373. The CI over questions excludes
+  zero and the p over seeds does not, so this fails too.
+- **The accuracy gain is what survives.** GRPO's models are about 2 points better at full precision
+  and about 2 points better at 4 bits. The 4-bit model inherits the gain and does not protect it.
+- **Extra SFT accounts for part of even that.** Against 100 more SFT steps on the same questions,
+  GRPO is ahead by +1.6 at full precision (+0.0 to +3.2) and +1.4 at 4 bits (−0.1 to +2.9), and keeps
+  −0.2 through 4 bits (−2.2 to +1.7).
 
-### 5. Why GRPO loses less: fewer of its answers change
+Seed 0 alone had pointed the other way, with +1.9 kept at 4 bits and +4.4 at 3. It was the best of
+the four seeds at 4 bits and the second best at 3. Only seed 0 was run in the other formats, and
+there it kept −0.5 at 8 bits (−1.5 to +0.5), −0.6 at 6 (−1.9 to +0.9) and +1.4 with the from-scratch
+3-bit GPTQ (−1.5 to +4.0).
+
+### 5. GRPO widens token margins on every seed, and quantization still changes as many answers
 
 Greedy decoding picks the top-scoring token at every step, so quantization changes an answer only
 where it reorders the top two. `scripts/margin_analysis.py` measures that directly. The
@@ -204,43 +244,50 @@ token's score is ahead of the runner-up's in the full-precision model) and wheth
 model would pick a different token there, a **flip**. An answer changes exactly when at least one of
 its tokens flips.
 
-| MLX quantizer | SFT, 4-bit | GRPO, 4-bit | SFT, 3-bit | GRPO, 3-bit |
+| | SFT | GRPO, four seeds | Random change, five draws | 100 more SFT steps |
 |---|---|---|---|---|
-| Tokens that flip | 2.31% | 2.05% | 8.17% | 7.08% |
-| Answers with a flipped token | 49.2% | 43.9% | 83.8% | 80.1% |
-| Flipped answers that go right → wrong | 20.8% | 17.0% | 41.5% | 38.0% |
-| Flipped answers that go wrong → right | 6.7% | 6.6% | 2.1% | 2.2% |
-| Accuracy change from flipped answers, in points | −7.0 | −4.5 | −33.0 | −28.7 |
+| Median token margin | 6.1 | 7.9 to 8.6 | 6.1 | 6.9 |
+| Tokens with a margin under 1 | 6.8% | 3.8% to 5.1% | 6.8% to 6.9% | 5.8% |
+| Spread of the shift in the top-two gap, 4-bit | 0.97 | 1.16 to 1.26 | 0.95 to 0.99 | 0.99 |
+| Tokens that flip, 4-bit | 2.31% | 2.05% to 2.54% | 2.23% to 2.35% | 2.30% |
+| Answers with a flipped token, 4-bit | 49.2% | 43.9% to 51.9% | 48.5% to 50.5% | 51.0% |
+| Net share of flipped answers that go wrong, 4-bit | 14.1% | 10.4% to 15.6% | 11.9% to 13.2% | 11.2% |
+| Tokens that flip, 3-bit | 8.17% | 6.87% to 7.71% | 8.00% to 8.08% | 7.55% |
+| Answers with a flipped token, 3-bit | 83.8% | 78.5% to 84.1% | 83.2% to 84.1% | 80.7% |
+| Net share of flipped answers that go wrong, 3-bit | 39.4% | 34.5% to 43.8% | 39.1% to 40.6% | 37.9% |
+
+The net share is flipped answers that go from right to wrong, minus those that go from wrong to
+right.
 
 - **Margins predict flips, and flips account for the accuracy change.** At 4 bits, 45% of the SFT
   model's tokens with a margin under 0.25 flip, against 0.02% of those between 4 and 8. Answers with
   no flipped token keep the same text in the evaluation 95–98% of the time, and at most 6 of them per
   run change correctness.
-- **GRPO does widen margins.** The median margin rises from 6.1 to 8.5, and tokens with a margin
-  below 1 fall from 6.8% to 3.8%. The training log pointed the same way: sampled accuracy on training
-  questions rose from about 51% to 70% while greedy dev accuracy rose 1.5 points.
-- **But quantization also moves GRPO's scores more,** so at the same margin it flips more often than
-  SFT. The spread of the shift in the top-two gap grows from 0.97 to 1.21 at 4 bits. Its margins
-  alone predict 1.36% of GRPO's tokens flipping; 2.05% do, against SFT's 2.31%.
-- **Fewer flips are the established part.** At 4 bits GRPO's flipped answers cost it 2.4 points less
-  than SFT's (0.3 to 4.5). Fewer answers flipping accounts for 0.7 of that (0.3 to 1.1). A flipped
-  answer ending up wrong less often accounts for the other 1.8, with an interval that includes zero
-  (−0.3 to +3.9). At 3 bits the difference is 4.3 points (1.5 to 7.0): 1.4 from fewer flips (0.7 to
-  2.0) and 2.9 from less damage per flip (0.3 to 5.5).
+- **GRPO widens margins, on all four seeds.** The median rises from 6.1 to between 7.9 and 8.6, and
+  tokens with a margin under 1 fall from 6.8% to between 3.8% and 5.1%. A random change of the same
+  size leaves both where they were.
+- **Quantization also moves GRPO's scores more, on all four seeds.** So at the same margin a GRPO
+  token flips more often: with a margin between 0.5 and 1, 15% of SFT's tokens flip at 4 bits and
+  23% to 26% of GRPO's. Margins alone would predict 1.4% to 1.7% of GRPO's tokens flipping; 2.1% to
+  2.5% do, against SFT's 2.3%.
+- **At 4 bits the two cancel.** GRPO's seeds change 44% to 52% of their answers, around SFT's 49%.
+  A changed answer goes wrong 10% to 16% of the time, around the 12% to 13% that follows a random
+  change. Seed 0 is the low end of both ranges, which is what an earlier version of this finding
+  reported as GRPO's advantage.
+- **At 3 bits fewer GRPO tokens flip on every seed, and that still does not settle the accuracy.**
+  Seed 3 changes as many answers as SFT does, and its changed answers go wrong more often (43.8%
+  against 39.4%).
 
-So wider margins are real, and the fewer flips they buy are about a third of GRPO's advantage. The
-rest would come from a flipped answer breaking less often, which shows at 3 bits and is not
-established at 4. A possible reason for it, not tested here: GRPO trains on its own sampled answers,
-so it has practice finishing a query after an unusual token, while SFT only ever continues from
-correct prefixes. Forcing the runner-up token at an answer's weakest position, with no quantization
-involved, would test that.
+So wider margins are a real and repeatable effect of GRPO, and under this quantizer they are not a
+route to robustness: the scores they separate are also pushed around more. Why quantization moves a
+GRPO model's scores more is not explained here.
 
 > [!NOTE]
-> **Limitations.** One seed per model, so run-to-run variance isn't measured; plain execution
-> accuracy (see above); and GRPO ran only 100 steps. By the end, about 2.4 of each step's 4 questions
-> taught nothing because all 8 samples got the same reward, so a longer run needs harder questions.
-> Findings 4 and 5 rest on a single GRPO run. Three more seeds and two controls are set up in
-> section 7 of the guide and have not been run yet.
+> **Limitations.** One SFT run, so its run-to-run variance isn't measured, and every GRPO seed and
+> control sits on that one SFT model; plain execution accuracy (see above); and GRPO ran only 100
+> steps. By the end, about 2.4 of each step's 4 questions taught nothing because all 8 samples got
+> the same reward, so a longer run needs harder questions. The random-change control matches the
+> size of GRPO's update and not its direction.
 
 ## How this compares with published results
 
