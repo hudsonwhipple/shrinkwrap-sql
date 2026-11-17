@@ -1,0 +1,23 @@
+{
+  "model": "models/variants/random_s4",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7021,
+  "ci95": [
+    0.6735,
+    0.7292
+  ],
+  "pred_exec_error_rate": 0.0919,
+  "gold_exec_errors": 0,
+  "wall_time_s": 124.5,
+  "prompt_tokens": 397463,
+  "generation_tokens": 35312,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 34.2,
+  "batched_generation_tps": 283.7,
+  "peak_memory_gb": 10.88
+}

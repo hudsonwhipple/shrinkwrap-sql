@@ -1,0 +1,23 @@
+{
+  "model": "models/variants/sftmore_lr2e-4-q3g64",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.2176,
+  "ci95": [
+    0.1935,
+    0.2438
+  ],
+  "pred_exec_error_rate": 0.5029,
+  "gold_exec_errors": 0,
+  "wall_time_s": 132.1,
+  "prompt_tokens": 397463,
+  "generation_tokens": 38537,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 37.3,
+  "batched_generation_tps": 291.7,
+  "peak_memory_gb": 8.26
+}

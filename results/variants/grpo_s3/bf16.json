@@ -1,0 +1,23 @@
+{
+  "model": "models/variants/grpo_s3",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.7176,
+  "ci95": [
+    0.6894,
+    0.7442
+  ],
+  "pred_exec_error_rate": 0.0638,
+  "gold_exec_errors": 0,
+  "wall_time_s": 131.3,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39463,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 38.2,
+  "batched_generation_tps": 300.6,
+  "peak_memory_gb": 10.88
+}

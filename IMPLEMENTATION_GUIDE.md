@@ -500,23 +500,29 @@ Only the third needs code from you. The GRPO adapter is small: its update has a 
 - **7a `lora_update_norm`:** the size of one layer's change, the Frobenius norm of `lora_a @ lora_b`.
   You can get it from two rank-by-rank matrices without building the product. MLX's float32 matmul on
   this Mac's GPU is only accurate to about 3 significant digits (see the docstring), which is fine
-  here but worth knowing about.
+  here but worth knowing about. Cast the inputs to float32 before multiplying: float16 stops at
+  65504, and on a full-size layer the intermediate values pass it and the norm comes out as infinity.
 - **7b `random_adapter_like`:** for every layer, draw a random `lora_a` and `lora_b` and rescale them
   so the layer changes by exactly as much as the original's. A layer that didn't change must stay
-  unchanged, and the seed must decide the result.
+  unchanged, and the seed must decide the result. Three things the obvious version gets wrong:
+  draw and rescale in float32 and cast to the adapter's dtype only when storing (otherwise a float16
+  adapter comes back as all zeros, with no error); raise a `ValueError` for a key that is neither
+  half; and pass an explicit key to `mx.random.normal` so the caller's random stream isn't reset.
 
 `scripts/make_random_adapter.py` (provided) loads the GRPO adapter, calls your function, checks every
 layer's size against NumPy float64, and saves the result in the same format, so fusing, evaluating
 and the margin analysis treat it like a trained adapter.
 
-**Run.** About 5 hours and 60 GB of disk in `models/variants/`, which you can delete afterwards.
+**Run.** About 5.5 hours and 60 GB of disk in `models/variants/`, which you can delete afterwards.
 ```bash
-mkdir -p results/variants && nohup scripts/seeds_and_controls.sh > results/variants/run.log 2>&1 &
+mkdir -p results/variants && nohup scripts/seeds_and_controls.sh >> results/variants/run.log 2>&1 &
 tail -f results/variants/run.log                 # Ctrl-C stops watching, not the run
 DRY_RUN=1 scripts/seeds_and_controls.sh          # list the steps without running anything
-ONLY=random_s1 scripts/seeds_and_controls.sh     # one variant, about 14 minutes
+ONLY=random_s1 scripts/seeds_and_controls.sh     # one variant, about 18 minutes; not while a run is going
 .venv/bin/python scripts/variants_summary.py     # the comparison table, at any point during the run
 ```
+The log starts with the git commit and the MLX versions that produced the results. Commit your code
+first, so that line names the exact code.
 Each variant is an adapter fused into the SFT model and put through the same steps: evaluate at full
 precision, quantize to 4 and 3 bits with MLX, evaluate both, and run the margin analysis.
 
@@ -528,8 +534,10 @@ precision, quantize to 4 and 3 bits with MLX, evaluate both, and run the margin 
 | `random_s1` to `random_s5` | control 3 |
 | `grpo_s1` to `grpo_s3` | three more GRPO seeds, about 43 minutes of training each |
 
-The run is resumable, and a failed step doesn't stop the rest. Until 7a and 7b are implemented, the
-`random_s*` steps fail and everything else still runs.
+The run is resumable: rerun the same command and finished steps are skipped. A failed step skips the
+rest of its own variant and the other variants carry on. That matters most for GRPO, which saves its
+adapter every 25 steps: a run that crashed at step 60 must not be evaluated as if it were a full seed.
+Only one run goes at a time; a second one exits with a message.
 
 **Check it before you trust it.**
 - The `grpo_s0` row should read 0.726 at full precision, 0.677 at 4 bits and 0.438 at 3. The 4-bit
@@ -551,6 +559,24 @@ through 4-bit": how much less accuracy a variant loses going to 4 bits than the 
    training on those questions and not from RL.
 4. **Flips and damage.** Finding 5 said GRPO's advantage is mostly that a changed answer breaks less
    often. Does that hold across seeds, and do the controls show it too?
+
+**The test, fixed before the run.** Decide what counts before you see the numbers, or any pattern in
+eleven rows will look like a finding. `variants_summary.py` ends with the GRPO seeds' average minus
+each control's, with two kinds of uncertainty:
+- a 95% CI over questions, with the models held fixed: would these models differ on other questions?
+- against the random changes, a p over seeds: of every way to relabel the nine variants as four GRPO
+  seeds and five controls (126 ways), the share with a difference at least as large. The smallest it
+  can be is 1/126, about 0.008, when every GRPO seed beats every control.
+
+The rule:
+1. **The claim** is that GRPO keeps more accuracy through 4-bit quantization than a random change of
+   the same size. It holds if, in the "kept through 4-bit" column against the random changes, the CI
+   excludes zero and p is below 0.05. Both, because they answer different questions.
+2. **It is an effect of RL** only if the same column's CI also excludes zero against each `sftmore`
+   run. If it doesn't, extra training on those questions explains it as well as RL does.
+3. **3 bits** is the same test at a second precision. Report it next to the 4-bit result, and don't
+   swap it in if the 4-bit test fails.
+4. If the claim fails, finding 4 becomes "no evidence that GRPO is more robust to quantization".
 
 Whatever comes out goes in the README, including a result that takes finding 4 away.
 

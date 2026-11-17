@@ -1,0 +1,68 @@
+{
+  "ref": "models/variants/sftmore_lr2e-4",
+  "other": "models/variants/sftmore_lr2e-4-q3g64",
+  "answers": 1034,
+  "tokens": 37881,
+  "reference_agreement": 0.9982,
+  "token": {
+    "median_margin": 5.75,
+    "share_margin_below_1": 0.07711,
+    "flip_rate": 0.07748,
+    "gap_shift_mean": -0.2733,
+    "gap_shift_std": 2.4727
+  },
+  "answer": {
+    "median_weakest_margin": 0.25,
+    "share_weakest_margin_below_1": 0.88104,
+    "flip_rate": 0.87137
+  },
+  "edges": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2,
+    4,
+    8
+  ],
+  "token_bins": {
+    "counts": [
+      544,
+      766,
+      1611,
+      3178,
+      6619,
+      13724,
+      11439
+    ],
+    "flip_rates": [
+      0.52757,
+      0.51436,
+      0.45562,
+      0.28194,
+      0.07448,
+      0.00911,
+      0.00052
+    ]
+  },
+  "answer_bins": {
+    "counts": [
+      395,
+      286,
+      230,
+      86,
+      37,
+      0,
+      0
+    ],
+    "flip_rates": [
+      0.95696,
+      0.93007,
+      0.84783,
+      0.66279,
+      0.13514,
+      null,
+      null
+    ]
+  }
+}
