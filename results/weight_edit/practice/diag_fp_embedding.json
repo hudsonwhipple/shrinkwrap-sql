@@ -1,0 +1,27 @@
+{
+  "model": "models/weight_edit/diag_fp_embedding",
+  "purpose": "diagnostic, not an edit: the 3-bit model with a full-precision embedding table, all practice questions",
+  "n": 548,
+  "execution_accuracy": 0.2664,
+  "ci95": [
+    0.2311,
+    0.305
+  ],
+  "kinds": {
+    "right": 146,
+    "wrong result": 209,
+    "no such column": 151,
+    "no such table": 19,
+    "syntax error": 1,
+    "ambiguous column": 6,
+    "other error": 16
+  },
+  "missing_column": {
+    "real column, wrong table": 97,
+    "not in the database": 48,
+    "close to a real name": 6
+  },
+  "left_open": 5,
+  "budget_spent": 3060,
+  "budget": 6400
+}

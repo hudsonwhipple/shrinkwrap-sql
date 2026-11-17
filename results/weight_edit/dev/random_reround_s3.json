@@ -1,0 +1,23 @@
+{
+  "model": "models/weight_edit/random_reround_s3",
+  "adapter_path": null,
+  "split": "dev",
+  "n": 1034,
+  "seed": 0,
+  "rows_per_table": 0,
+  "max_tokens": 256,
+  "execution_accuracy": 0.3752,
+  "ci95": [
+    0.3462,
+    0.4052
+  ],
+  "pred_exec_error_rate": 0.3878,
+  "gold_exec_errors": 0,
+  "wall_time_s": 146.8,
+  "prompt_tokens": 397463,
+  "generation_tokens": 39948,
+  "mean_prompt_tokens": 384.4,
+  "mean_generation_tokens": 38.6,
+  "batched_generation_tps": 272.1,
+  "peak_memory_gb": 8.21
+}

@@ -282,6 +282,29 @@ So wider margins are a real and repeatable effect of GRPO, and under this quanti
 route to robustness: the scores they separate are also pushed around more. Why quantization moves a
 GRPO model's scores more is not explained here.
 
+### 6. Can an LLM fix the 3-bit model by editing its weights? It found the cause of one failure, and the fix did not pass its test
+
+This is an experiment and not one of the exercises. Claude read the weights and activations of the
+MLX 3-bit SFT model and edited it directly, with no gradients, under
+[rules fixed in advance](docs/weight_edit/PROTOCOL.md): practice questions only, a budget of forward
+passes, one frozen edit and one dev test against random controls.
+
+The 3-bit model starts aliased queries with `T2` where the full-precision model writes `T1`, which
+puts the selected column on the wrong alias. The flip comes from two weights of the embedding table,
+each rounded across a near-tie. Moving those two to their other neighbouring level (2 of 1.72
+billion weights, same file size) removes it:
+
+| MLX 3-bit SFT model, full dev set | Accuracy | Aliased answers that start with `T2` | "No such column" errors |
+|---|---|---|---|
+| Unedited | 0.373 | 417 | 334 |
+| Two weights changed | 0.391 | 14 | 248 |
+| Five random two-weight changes | 0.374 to 0.380 | 418 to 422 | 330 to 335 |
+
+The gain over the unedited model is +1.7 (+0.1 to +3.4). The gain over the average random change is
++1.4 (−0.3 to +3.1), so by the rule set beforehand **the edit did not work**. It removed the
+behaviour it was aimed at, and most of the answers it repaired were still wrong for other reasons.
+The diagnosis, the edit and the full test are in [docs/weight_edit/RESULTS.md](docs/weight_edit/RESULTS.md).
+
 > [!NOTE]
 > **Limitations.** One SFT run, so its run-to-run variance isn't measured, and every GRPO seed and
 > control sits on that one SFT model; plain execution accuracy (see above); and GRPO ran only 100

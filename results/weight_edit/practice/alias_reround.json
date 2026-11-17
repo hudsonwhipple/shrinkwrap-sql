@@ -1,0 +1,27 @@
+{
+  "model": "models/weight_edit/alias_reround",
+  "purpose": "candidate alias_reround: two codes re-rounded in the 3-bit model, all practice questions",
+  "n": 548,
+  "execution_accuracy": 0.2482,
+  "ci95": [
+    0.2138,
+    0.286
+  ],
+  "kinds": {
+    "right": 136,
+    "wrong result": 203,
+    "no such column": 166,
+    "no such table": 22,
+    "syntax error": 7,
+    "ambiguous column": 6,
+    "other error": 8
+  },
+  "missing_column": {
+    "real column, wrong table": 108,
+    "not in the database": 46,
+    "close to a real name": 12
+  },
+  "left_open": 7,
+  "budget_spent": 2256,
+  "budget": 6400
+}

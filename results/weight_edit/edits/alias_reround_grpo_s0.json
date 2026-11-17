@@ -1,0 +1,19 @@
+{
+  "name": "alias_reround_grpo_s0",
+  "target": "models/variants/grpo_s0-q3g64",
+  "reference": "models/variants/grpo_s0",
+  "layer": "model.embed_tokens",
+  "reason": "The frozen edit applied unchanged to GRPO seed 0's 3-bit model, whose embedding table is bit for bit the SFT model's. Reported alongside the test, not part of the rule.",
+  "changes": [
+    {
+      "row": 16,
+      "column": 425,
+      "step": -1
+    },
+    {
+      "row": 17,
+      "column": 425,
+      "step": 1
+    }
+  ]
+}

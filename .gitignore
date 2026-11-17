@@ -8,6 +8,9 @@ data/
 models/
 adapters/
 results/**/*.jsonl
+# ...except the weight-edit experiment's record. Its run logs only repeat the summaries.
+!results/weight_edit/ledger.jsonl
+results/weight_edit/logs/
 results/overnight/*.done
 results/variants/done/
 
