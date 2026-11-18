@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from shrinkwrap.weight_edit.edits import dense_weight
-from shrinkwrap.weight_edit.probe import dense_rows, logit_direction
+from shrinkwrap.weight_edit.probe import continues_text, dense_rows, logit_direction
 from shrinkwrap.weight_edit.trace import trace
 
 TOKENS = [5, 17, 3, 88, 42, 42, 7, 61, 9, 30, 2, 55, 17, 4]
@@ -60,3 +60,26 @@ def test_the_direction_flips_sign_when_the_two_tokens_swap(tiny_model):
     assert np.allclose(logit_direction(model, x, 4, 9), -logit_direction(model, x, 9, 4))
     with pytest.raises(ValueError, match="one position"):
         logit_direction(model, np.zeros((2, 64)), 4, 9)
+
+
+# ---- continues_text ----
+
+
+class Pieces:
+    """A tokenizer whose tokens are these strings, by position."""
+
+    def __init__(self, *pieces: str):
+        self.pieces = pieces
+
+    def decode(self, ids) -> str:
+        return "".join(self.pieces[i] for i in ids)
+
+
+def test_a_token_that_spells_the_same_text_is_not_a_different_answer():
+    tok = Pieces("T1", ".", "FIRST", ".F", "IRST", ".L", " FROM", "")
+    answer = [0, 1, 2, 6]  # T1 . FIRST  FROM
+    assert continues_text(tok, answer, 1, 3)  # ".F" where the answer has "." then "FIRST": the same characters
+    assert continues_text(tok, answer, 1, 1)  # the answer's own token
+    assert not continues_text(tok, answer, 1, 5)  # ".L" changes the text
+    assert not continues_text(tok, answer, 2, 4)  # "IRST" is not what comes next after "T1."
+    assert not continues_text(tok, answer, 3, 7)  # a token that writes nothing (end of turn) stops the answer

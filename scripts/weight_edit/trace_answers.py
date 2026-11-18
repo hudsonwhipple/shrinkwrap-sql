@@ -9,6 +9,11 @@ followed by the reference's answer, and at every answer position the script keep
 write next and the final residual stream there. The first position where --model would write
 something else is where its own answer leaves the reference's.
 
+The answer is read back from its text, so its tokens need not be the ones the reference model
+produced. A position where --model's token spells the same text split differently is counted apart
+and is not a place where it leaves the answer. An answer with no tokens is skipped before anything
+is spent.
+
 The stored streams let the logits be recomputed later through other output rows (the full-precision
 ones, or edited ones) without another pass: logits = rows . (gain * stream / rms(stream)).
 
@@ -28,9 +33,22 @@ import numpy as np
 from shrinkwrap.weight_edit.answers import prompt_tokens
 from shrinkwrap.weight_edit.ledger import Ledger
 from shrinkwrap.weight_edit.practice import PracticeSet
+from shrinkwrap.weight_edit.probe import where_it_leaves
 from shrinkwrap.weight_edit.trace import trace
 
 OUT = Path("results/weight_edit/traces")
+
+
+def answers_to_read(rows: list[dict], tokenizer, limit: int) -> tuple[list[tuple[dict, list[int]]], list[int]]:
+    """The first `limit` rows of one fixed shuffle with their answers as tokens, and the idx of any left out.
+
+    A row is left out if its answer has no tokens: there is no position to read it at.
+    """
+    rows = list(rows)
+    random.Random(0).shuffle(rows)
+    picked = sorted(rows[:limit], key=lambda r: r["idx"])
+    jobs = [(r, tokenizer.encode(r["output"], add_special_tokens=False)) for r in picked]
+    return [(r, answer) for r, answer in jobs if answer], [r["idx"] for r, answer in jobs if not answer]
 
 
 def main() -> None:
@@ -49,22 +67,22 @@ def main() -> None:
     practice, ledger = PracticeSet.load(), Ledger()
     by_idx = {e.idx: e for e in practice.examples}
     rows = [json.loads(line) for line in Path(args.rows).read_text().splitlines()]
-    random.Random(0).shuffle(rows)
-    rows = sorted(rows[: args.limit], key=lambda r: r["idx"])
-    examples = [by_idx[r["idx"]] for r in rows]
 
     from mlx_lm import load
 
     model, tokenizer = load(args.model)
+    jobs, skipped = answers_to_read(rows, tokenizer, args.limit)
+    if not jobs:
+        raise SystemExit("None of these answers has any tokens to read; nothing was spent.")
+    examples = [by_idx[r["idx"]] for r, _ in jobs]
     practice.require(examples)
     ledger.spend(len(examples), model=args.model, purpose=args.purpose)
     out_dir.mkdir(parents=True)
     (out_dir / ".gitignore").write_text("*.npz\n")
 
     entries = []
-    for r, example in zip(rows, examples):
+    for (r, answer), example in zip(jobs, examples):
         prompt = prompt_tokens(tokenizer, example)
-        answer = tokenizer.encode(r["output"], add_special_tokens=False)
         tokens = prompt + answer
         # Position p predicts token p + 1, so these rows predict every answer token.
         kept = list(range(len(prompt) - 1, len(tokens) - 1))
@@ -72,10 +90,10 @@ def main() -> None:
         logits = np.array(tr.logits)
         top = np.argsort(-logits, axis=1)[:, :5]
         would_write = top[:, 0]
-        differs = np.flatnonzero(would_write != np.array(answer))
-        first = int(differs[0]) if len(differs) else None
+        differs, splits = where_it_leaves(tokenizer, answer, would_write.tolist())
+        first = differs[0] if differs else None
         entry = {"idx": r["idx"], "db_id": r["db_id"], "answer_tokens": len(answer), "reference_right": r["match"],
-                 "positions_that_differ": len(differs), "first": first}
+                 "positions_that_differ": len(differs), "same_text_split_differently": len(splits), "first": first}
         if first is not None:
             entry.update(before=tokenizer.decode(answer[max(0, first - 6) : first]), reference_token=tokenizer.decode([answer[first]]),
                          model_token=tokenizer.decode([int(would_write[first])]),
@@ -87,10 +105,11 @@ def main() -> None:
         del tr
         mx.clear_cache()
         if len(entries) % 16 == 0:
-            print(f"{len(entries)}/{len(rows)}", flush=True)
+            print(f"{len(entries)}/{len(jobs)}", flush=True)
 
     summary = {"model": args.model, "reference_rows": args.rows, "purpose": args.purpose, "questions": len(entries),
                "answers_the_model_would_leave": sum(e["first"] is not None for e in entries),
+               "skipped_empty_answers": skipped,
                "budget_spent": ledger.spent, "budget": ledger.cap, "entries": entries}
     (OUT / f"{args.name}.json").write_text(json.dumps(summary, indent=2))
     ledger.note("result", name=f"traces/{args.name}", questions=len(entries), answers_the_model_would_leave=summary["answers_the_model_would_leave"])

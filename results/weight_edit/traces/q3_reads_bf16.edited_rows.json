@@ -1,0 +1,2352 @@
+{
+  "traces": "results/weight_edit/traces/q3_reads_bf16",
+  "read_through": "models/weight_edit/alias_reround",
+  "reference": "models/Qwen3-1.7B-mine_r16-fused",
+  "answers": 256,
+  "positions": 10447,
+  "agrees_with_the_traced_models_own_next_token": 10270,
+  "positions_that_change_the_text": {
+    "rows": 666,
+    "reference": 600
+  },
+  "positions_that_only_split_it_differently": 40,
+  "answers_left": 219,
+  "first_wrong_token_put_wrong_by": {
+    "rows": 56,
+    "body": 163
+  },
+  "commonest": {
+    "rows": [
+      [
+        " T",
+        " DISTINCT",
+        10
+      ],
+      [
+        ".",
+        ".F",
+        5
+      ],
+      [
+        " first",
+        " DISTINCT",
+        4
+      ],
+      [
+        " ",
+        "1",
+        3
+      ],
+      [
+        " T",
+        " state",
+        2
+      ],
+      [
+        " ,",
+        " FROM",
+        2
+      ],
+      [
+        " Weight",
+        " min",
+        2
+      ],
+      [
+        "(M",
+        "(m",
+        2
+      ],
+      [
+        " sum",
+        " count",
+        2
+      ],
+      [
+        " invoices",
+        " IN",
+        1
+      ],
+      [
+        " ",
+        " =",
+        1
+      ],
+      [
+        " employees",
+        " support",
+        1
+      ]
+    ],
+    "body": [
+      [
+        " t",
+        " T",
+        6
+      ],
+      [
+        " \"",
+        " '",
+        5
+      ],
+      [
+        ".",
+        ".F",
+        5
+      ],
+      [
+        " t",
+        " DISTINCT",
+        4
+      ],
+      [
+        " ASC",
+        "\n",
+        3
+      ],
+      [
+        " artists",
+        " tracks",
+        3
+      ],
+      [
+        " Investor",
+        " T",
+        3
+      ],
+      [
+        " PROF",
+        " EMP",
+        3
+      ],
+      [
+        "(D",
+        "(*)",
+        3
+      ],
+      [
+        " JOIN",
+        " WHERE",
+        3
+      ],
+      [
+        "1",
+        "2",
+        3
+      ],
+      [
+        " Student",
+        " student",
+        3
+      ]
+    ]
+  },
+  "kinds": [
+    [
+      "different table, column or value",
+      "body",
+      72
+    ],
+    [
+      "an alias where the answer has none",
+      "body",
+      21
+    ],
+    [
+      "adds DISTINCT",
+      "rows",
+      15
+    ],
+    [
+      "same word, different case",
+      "body",
+      15
+    ],
+    [
+      "different aggregate or its argument",
+      "body",
+      14
+    ],
+    [
+      "different table, column or value",
+      "rows",
+      14
+    ],
+    [
+      "adds DISTINCT",
+      "body",
+      13
+    ],
+    [
+      "different clause structure",
+      "body",
+      10
+    ],
+    [
+      "ends the query",
+      "body",
+      8
+    ],
+    [
+      "different aggregate or its argument",
+      "rows",
+      8
+    ],
+    [
+      "same word, different case",
+      "rows",
+      8
+    ],
+    [
+      "no alias where the answer has one",
+      "rows",
+      6
+    ],
+    [
+      "quote style",
+      "body",
+      6
+    ],
+    [
+      "no alias where the answer has one",
+      "body",
+      4
+    ],
+    [
+      "different clause structure",
+      "rows",
+      3
+    ],
+    [
+      "ends the query",
+      "rows",
+      1
+    ],
+    [
+      "quote style",
+      "rows",
+      1
+    ]
+  ],
+  "entries": [
+    {
+      "idx": 539,
+      "first": 9,
+      "answer_token": " sum",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 540,
+      "first": 4,
+      "answer_token": " country",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 541,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 542,
+      "first": 4,
+      "answer_token": " country",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 546,
+      "first": null
+    },
+    {
+      "idx": 547,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 549,
+      "first": 4,
+      "answer_token": " T",
+      "written": " name",
+      "reference_rows_write": " name",
+      "put_wrong_by": "body",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 552,
+      "first": null
+    },
+    {
+      "idx": 554,
+      "first": 10,
+      "answer_token": " ASC",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 558,
+      "first": 43,
+      "answer_token": "0",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 559,
+      "first": 5,
+      "answer_token": "(total",
+      "written": "(T",
+      "reference_rows_write": "(T",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 561,
+      "first": 12,
+      "answer_token": " invoices",
+      "written": " IN",
+      "reference_rows_write": " invoices",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 563,
+      "first": 11,
+      "answer_token": " WHERE",
+      "written": " GROUP",
+      "reference_rows_write": " GROUP",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 564,
+      "first": 4,
+      "answer_token": " billing",
+      "written": " state",
+      "reference_rows_write": " state",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 565,
+      "first": 4,
+      "answer_token": " T",
+      "written": " state",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 567,
+      "first": 8,
+      "answer_token": " sum",
+      "written": " total",
+      "reference_rows_write": " total",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 570,
+      "first": 11,
+      "answer_token": " artists",
+      "written": " tracks",
+      "reference_rows_write": " tracks",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 571,
+      "first": 12,
+      "answer_token": " artists",
+      "written": " tracks",
+      "reference_rows_write": " tracks",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 575,
+      "first": 10,
+      "answer_token": " WHERE",
+      "written": " AS",
+      "reference_rows_write": " AS",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 576,
+      "first": 4,
+      "answer_token": " email",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 580,
+      "first": null
+    },
+    {
+      "idx": 581,
+      "first": 4,
+      "answer_token": " country",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 584,
+      "first": 13,
+      "answer_token": " artists",
+      "written": " tracks",
+      "reference_rows_write": " tracks",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 585,
+      "first": 12,
+      "answer_token": " employees",
+      "written": " support",
+      "reference_rows_write": " support",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 586,
+      "first": 12,
+      "answer_token": " employees",
+      "written": " support",
+      "reference_rows_write": " support",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 587,
+      "first": 4,
+      "answer_token": " title",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 589,
+      "first": 4,
+      "answer_token": " first",
+      "written": " DISTINCT",
+      "reference_rows_write": " first",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 590,
+      "first": 4,
+      "answer_token": " first",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 591,
+      "first": 10,
+      "answer_token": " ",
+      "written": " =",
+      "reference_rows_write": " ",
+      "put_wrong_by": "rows",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 593,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 594,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 595,
+      "first": 13,
+      "answer_token": " \"",
+      "written": " '",
+      "reference_rows_write": " '",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 599,
+      "first": 4,
+      "answer_token": " first",
+      "written": " DISTINCT",
+      "reference_rows_write": " first",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 601,
+      "first": 4,
+      "answer_token": " first",
+      "written": " DISTINCT",
+      "reference_rows_write": " first",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 602,
+      "first": 4,
+      "answer_token": " first",
+      "written": " DISTINCT",
+      "reference_rows_write": " first",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 605,
+      "first": 14,
+      "answer_token": " ,",
+      "written": " FROM",
+      "reference_rows_write": " ,",
+      "put_wrong_by": "rows",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 607,
+      "first": 12,
+      "answer_token": " employees",
+      "written": " support",
+      "reference_rows_write": " employees",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 608,
+      "first": 7,
+      "answer_token": " customers",
+      "written": " invoices",
+      "reference_rows_write": " customers",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 610,
+      "first": 8,
+      "answer_token": ")",
+      "written": " -",
+      "reference_rows_write": ")",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 614,
+      "first": 7,
+      "answer_token": " genres",
+      "written": " GEN",
+      "reference_rows_write": " GEN",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 616,
+      "first": null
+    },
+    {
+      "idx": 620,
+      "first": 4,
+      "answer_token": " milliseconds",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 622,
+      "first": 15,
+      "answer_token": " id",
+      "written": " name",
+      "reference_rows_write": " name",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 625,
+      "first": 19,
+      "answer_token": " title",
+      "written": " name",
+      "reference_rows_write": " name",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 627,
+      "first": 4,
+      "answer_token": " T",
+      "written": " title",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 628,
+      "first": 32,
+      "answer_token": ".id",
+      "written": ".title",
+      "reference_rows_write": ".title",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 630,
+      "first": 4,
+      "answer_token": " name",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 637,
+      "first": 13,
+      "answer_token": " ",
+      "written": "1",
+      "reference_rows_write": " ",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 642,
+      "first": 4,
+      "answer_token": " unit",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 643,
+      "first": 4,
+      "answer_token": " T",
+      "written": " name",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 645,
+      "first": 45,
+      "answer_token": " WHERE",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 648,
+      "first": 8,
+      "answer_token": " T",
+      "written": " name",
+      "reference_rows_write": " name",
+      "put_wrong_by": "body",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 1887,
+      "first": 8,
+      "answer_token": " LOCATION",
+      "written": " mascot",
+      "reference_rows_write": " location",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1888,
+      "first": null
+    },
+    {
+      "idx": 1889,
+      "first": null
+    },
+    {
+      "idx": 1890,
+      "first": null
+    },
+    {
+      "idx": 1891,
+      "first": null
+    },
+    {
+      "idx": 1893,
+      "first": null
+    },
+    {
+      "idx": 1897,
+      "first": 4,
+      "answer_token": " don",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 1898,
+      "first": 4,
+      "answer_token": " don",
+      "written": " DISTINCT",
+      "reference_rows_write": " don",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 1899,
+      "first": 7,
+      "answer_token": " don",
+      "written": " donor",
+      "reference_rows_write": " donor",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1901,
+      "first": 9,
+      "answer_token": " YEAR",
+      "written": " total",
+      "reference_rows_write": " total",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1902,
+      "first": 51,
+      "answer_token": " ",
+      "written": "2",
+      "reference_rows_write": "2",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1903,
+      "first": 5,
+      "answer_token": " don",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 1906,
+      "first": 14,
+      "answer_token": " budget",
+      "written": " end",
+      "reference_rows_write": " budget",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1907,
+      "first": 42,
+      "answer_token": " GROUP",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 1908,
+      "first": 7,
+      "answer_token": " school",
+      "written": " end",
+      "reference_rows_write": " end",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 1909,
+      "first": 12,
+      "answer_token": ".I",
+      "written": ".m",
+      "reference_rows_write": ".m",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 2264,
+      "first": null
+    },
+    {
+      "idx": 2269,
+      "first": null
+    },
+    {
+      "idx": 2270,
+      "first": null
+    },
+    {
+      "idx": 2271,
+      "first": 10,
+      "answer_token": " ASC",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 2276,
+      "first": 6,
+      "answer_token": " people",
+      "written": " entrepreneur",
+      "reference_rows_write": " entrepreneur",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 2277,
+      "first": 4,
+      "answer_token": " Weight",
+      "written": " min",
+      "reference_rows_write": " Weight",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 2278,
+      "first": 4,
+      "answer_token": " Weight",
+      "written": " min",
+      "reference_rows_write": " Weight",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 2280,
+      "first": 31,
+      "answer_token": " ORDER",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 2281,
+      "first": 5,
+      "answer_token": "(M",
+      "written": "(m",
+      "reference_rows_write": "(M",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 2282,
+      "first": 5,
+      "answer_token": "(M",
+      "written": "(m",
+      "reference_rows_write": "(M",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 2285,
+      "first": 4,
+      "answer_token": " Weight",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2289,
+      "first": 4,
+      "answer_token": " Investor",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2290,
+      "first": 4,
+      "answer_token": " Investor",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2292,
+      "first": 4,
+      "answer_token": " Investor",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 2293,
+      "first": null
+    },
+    {
+      "idx": 2294,
+      "first": 4,
+      "answer_token": " Name",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2297,
+      "first": 5,
+      "answer_token": " Investor",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2298,
+      "first": 4,
+      "answer_token": " Investor",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 2299,
+      "first": null
+    },
+    {
+      "idx": 2301,
+      "first": 4,
+      "answer_token": " Company",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 2302,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3173,
+      "first": 7,
+      "answer_token": " PROF",
+      "written": " EMP",
+      "reference_rows_write": " EMP",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3176,
+      "first": 7,
+      "answer_token": " CLASS",
+      "written": " PROF",
+      "reference_rows_write": " PROF",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3179,
+      "first": 6,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3180,
+      "first": 6,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3181,
+      "first": 28,
+      "answer_token": ".emp",
+      "written": ".prof",
+      "reference_rows_write": ".prof",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3182,
+      "first": 28,
+      "answer_token": ".emp",
+      "written": ".prof",
+      "reference_rows_write": ".prof",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3183,
+      "first": 15,
+      "answer_token": " \"",
+      "written": " '",
+      "reference_rows_write": " '",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 3186,
+      "first": 4,
+      "answer_token": " CRS",
+      "written": " cr",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3187,
+      "first": 4,
+      "answer_token": " DE",
+      "written": " dept",
+      "reference_rows_write": " dept",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3189,
+      "first": 8,
+      "answer_token": " DE",
+      "written": " dept",
+      "reference_rows_write": " dept",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3190,
+      "first": 11,
+      "answer_token": " WHERE",
+      "written": "\n",
+      "reference_rows_write": " WHERE",
+      "put_wrong_by": "rows",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 3191,
+      "first": 4,
+      "answer_token": " school",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3194,
+      "first": 15,
+      "answer_token": "_C",
+      "written": "_CODE",
+      "reference_rows_write": "_CODE",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3196,
+      "first": 4,
+      "answer_token": " school",
+      "written": " count",
+      "reference_rows_write": " dept",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3197,
+      "first": 4,
+      "answer_token": " school",
+      "written": " count",
+      "reference_rows_write": " count",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3198,
+      "first": 11,
+      "answer_token": " ,",
+      "written": " FROM",
+      "reference_rows_write": " ,",
+      "put_wrong_by": "rows",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3199,
+      "first": 4,
+      "answer_token": " T",
+      "written": " CLASS",
+      "reference_rows_write": " CLASS",
+      "put_wrong_by": "body",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 3201,
+      "first": 4,
+      "answer_token": " sum",
+      "written": " dept",
+      "reference_rows_write": " dept",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3202,
+      "first": 4,
+      "answer_token": " sum",
+      "written": " count",
+      "reference_rows_write": " sum",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3203,
+      "first": 5,
+      "answer_token": "(*)",
+      "written": "(D",
+      "reference_rows_write": "(*)",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3205,
+      "first": null
+    },
+    {
+      "idx": 3206,
+      "first": null
+    },
+    {
+      "idx": 3210,
+      "first": 8,
+      "answer_token": " dept",
+      "written": " prof",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3211,
+      "first": 8,
+      "answer_token": " emp",
+      "written": " CLASS",
+      "reference_rows_write": " CLASS",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3214,
+      "first": 4,
+      "answer_token": " school",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3215,
+      "first": 11,
+      "answer_token": " PROF",
+      "written": " professor",
+      "reference_rows_write": " professor",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3216,
+      "first": 11,
+      "answer_token": " PROF",
+      "written": " professor",
+      "reference_rows_write": " professor",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3217,
+      "first": null
+    },
+    {
+      "idx": 3219,
+      "first": 4,
+      "answer_token": " sum",
+      "written": " count",
+      "reference_rows_write": " sum",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3220,
+      "first": 4,
+      "answer_token": " dept",
+      "written": " St",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3226,
+      "first": 5,
+      "answer_token": "(D",
+      "written": "(*)",
+      "reference_rows_write": "(*)",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3227,
+      "first": null
+    },
+    {
+      "idx": 3228,
+      "first": 9,
+      "answer_token": "_SECTION",
+      "written": "_CODE",
+      "reference_rows_write": "_CODE",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3230,
+      "first": 8,
+      "answer_token": " CRS",
+      "written": " cr",
+      "reference_rows_write": " cr",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3231,
+      "first": null
+    },
+    {
+      "idx": 3232,
+      "first": null
+    },
+    {
+      "idx": 3233,
+      "first": 9,
+      "answer_token": " WHERE",
+      "written": " AS",
+      "reference_rows_write": " AS",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3237,
+      "first": 5,
+      "answer_token": "(c",
+      "written": "(C",
+      "reference_rows_write": "(C",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3239,
+      "first": 10,
+      "answer_token": " department",
+      "written": " DE",
+      "reference_rows_write": " DE",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3242,
+      "first": 7,
+      "answer_token": " EN",
+      "written": " STUD",
+      "reference_rows_write": " STUD",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3243,
+      "first": 7,
+      "answer_token": ".ST",
+      "written": ".st",
+      "reference_rows_write": ".st",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3246,
+      "first": 36,
+      "answer_token": " JOIN",
+      "written": " WHERE",
+      "reference_rows_write": " WHERE",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3249,
+      "first": 11,
+      "answer_token": " PROF",
+      "written": " prof",
+      "reference_rows_write": " PROF",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3250,
+      "first": 7,
+      "answer_token": " PROF",
+      "written": " EMP",
+      "reference_rows_write": " professor",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3253,
+      "first": 10,
+      "answer_token": " department",
+      "written": " DE",
+      "reference_rows_write": " DE",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3254,
+      "first": 4,
+      "answer_token": " T",
+      "written": " t",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3256,
+      "first": null
+    },
+    {
+      "idx": 3257,
+      "first": 35,
+      "answer_token": " JOIN",
+      "written": " WHERE",
+      "reference_rows_write": " WHERE",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3258,
+      "first": 35,
+      "answer_token": " JOIN",
+      "written": " WHERE",
+      "reference_rows_write": " WHERE",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3259,
+      "first": 10,
+      "answer_token": " WHERE",
+      "written": " ORDER",
+      "reference_rows_write": " ORDER",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 3264,
+      "first": 4,
+      "answer_token": " EMP",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3267,
+      "first": 4,
+      "answer_token": " t",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3269,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3270,
+      "first": 4,
+      "answer_token": " dept",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 3272,
+      "first": 4,
+      "answer_token": " dept",
+      "written": " count",
+      "reference_rows_write": " dept",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 3276,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3279,
+      "first": null
+    },
+    {
+      "idx": 3281,
+      "first": 6,
+      "answer_token": ".",
+      "written": ".emp",
+      "reference_rows_write": ".DE",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3284,
+      "first": 52,
+      "answer_token": " WHERE",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 3287,
+      "first": 7,
+      "answer_token": " PROF",
+      "written": " EMP",
+      "reference_rows_write": " EMP",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3292,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3293,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3294,
+      "first": 7,
+      "answer_token": ".st",
+      "written": ".ST",
+      "reference_rows_write": ".ST",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3297,
+      "first": null
+    },
+    {
+      "idx": 3299,
+      "first": 10,
+      "answer_token": " department",
+      "written": " STUD",
+      "reference_rows_write": " STUD",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3301,
+      "first": 4,
+      "answer_token": " ST",
+      "written": " St",
+      "reference_rows_write": " ST",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3304,
+      "first": 4,
+      "answer_token": " dept",
+      "written": " t",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 3306,
+      "first": 12,
+      "answer_token": "1",
+      "written": "2",
+      "reference_rows_write": "2",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3307,
+      "first": 6,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3309,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".prof",
+      "reference_rows_write": ".prof",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3311,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".prof",
+      "reference_rows_write": ".prof",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3313,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3314,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3315,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3316,
+      "first": 8,
+      "answer_token": "_F",
+      "written": "_L",
+      "reference_rows_write": "_L",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3321,
+      "first": 7,
+      "answer_token": ".prof",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3324,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".F",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3325,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3327,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3328,
+      "first": 7,
+      "answer_token": ".",
+      "written": ".F",
+      "reference_rows_write": ".",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3329,
+      "first": 8,
+      "answer_token": "_initial",
+      "written": "_high",
+      "reference_rows_write": "_high",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 3334,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 3335,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 3336,
+      "first": 4,
+      "answer_token": " t",
+      "written": " St",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 4945,
+      "first": null
+    },
+    {
+      "idx": 4947,
+      "first": 4,
+      "answer_token": " c",
+      "written": " avg",
+      "reference_rows_write": " avg",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 4948,
+      "first": null
+    },
+    {
+      "idx": 4952,
+      "first": 13,
+      "answer_token": " ",
+      "written": "1",
+      "reference_rows_write": " ",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4954,
+      "first": 7,
+      "answer_token": ".y",
+      "written": ".t",
+      "reference_rows_write": ".T",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4955,
+      "first": 7,
+      "answer_token": ".y",
+      "written": ".T",
+      "reference_rows_write": ".p",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4956,
+      "first": 10,
+      "answer_token": "1",
+      "written": "ry",
+      "reference_rows_write": "ry",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4965,
+      "first": 7,
+      "answer_token": " Try",
+      "written": " College",
+      "reference_rows_write": " College",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4966,
+      "first": 7,
+      "answer_token": ".training",
+      "written": ".T",
+      "reference_rows_write": ".T",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4967,
+      "first": 18,
+      "answer_token": " Training",
+      "written": " training",
+      "reference_rows_write": " training",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 4969,
+      "first": 5,
+      "answer_token": "(en",
+      "written": "(T",
+      "reference_rows_write": "(",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 4971,
+      "first": 4,
+      "answer_token": " p",
+      "written": " t",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 4972,
+      "first": 5,
+      "answer_token": "Name",
+      "written": "ID",
+      "reference_rows_write": "ID",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4973,
+      "first": 12,
+      "answer_token": " '%",
+      "written": " \"%",
+      "reference_rows_write": " '%",
+      "put_wrong_by": "rows",
+      "kind": "quote style"
+    },
+    {
+      "idx": 4974,
+      "first": 16,
+      "answer_token": " \"",
+      "written": " '",
+      "reference_rows_write": " '",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 4977,
+      "first": 14,
+      "answer_token": " ASC",
+      "written": "\n",
+      "reference_rows_write": "\n",
+      "put_wrong_by": "body",
+      "kind": "ends the query"
+    },
+    {
+      "idx": 4978,
+      "first": 13,
+      "answer_token": " ",
+      "written": "1",
+      "reference_rows_write": " ",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4981,
+      "first": 10,
+      "answer_token": " y",
+      "written": " HS",
+      "reference_rows_write": " (",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 4983,
+      "first": 10,
+      "answer_token": " College",
+      "written": " college",
+      "reference_rows_write": " College",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 4984,
+      "first": null
+    },
+    {
+      "idx": 4985,
+      "first": null
+    },
+    {
+      "idx": 4987,
+      "first": 4,
+      "answer_token": " c",
+      "written": " count",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 4988,
+      "first": 4,
+      "answer_token": " p",
+      "written": " min",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 4991,
+      "first": 4,
+      "answer_token": " c",
+      "written": " t",
+      "reference_rows_write": " t",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 4993,
+      "first": 14,
+      "answer_token": "(*)",
+      "written": "(state",
+      "reference_rows_write": "(*)",
+      "put_wrong_by": "rows",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 4997,
+      "first": 5,
+      "answer_token": " T",
+      "written": " state",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 4998,
+      "first": 45,
+      "answer_token": " \"",
+      "written": " '",
+      "reference_rows_write": " '",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 4999,
+      "first": 7,
+      "answer_token": "Name",
+      "written": "name",
+      "reference_rows_write": "name",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5001,
+      "first": 4,
+      "answer_token": " t",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5003,
+      "first": 11,
+      "answer_token": "1",
+      "written": "2",
+      "reference_rows_write": "2",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5005,
+      "first": 8,
+      "answer_token": " College",
+      "written": " college",
+      "reference_rows_write": " college",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5006,
+      "first": 4,
+      "answer_token": " t",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5007,
+      "first": 4,
+      "answer_token": " t",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5018,
+      "first": 8,
+      "answer_token": " FROM",
+      "written": " ,",
+      "reference_rows_write": " ,",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 5020,
+      "first": 7,
+      "answer_token": "Name",
+      "written": "ID",
+      "reference_rows_write": "Name",
+      "put_wrong_by": "rows",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5021,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5023,
+      "first": 10,
+      "answer_token": ".state",
+      "written": ".c",
+      "reference_rows_write": ".c",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5027,
+      "first": 4,
+      "answer_token": " t",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5029,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5034,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5036,
+      "first": 5,
+      "answer_token": "(D",
+      "written": "(*)",
+      "reference_rows_write": "(*)",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 5038,
+      "first": null
+    },
+    {
+      "idx": 5039,
+      "first": null
+    },
+    {
+      "idx": 5040,
+      "first": 15,
+      "answer_token": " max",
+      "written": " min",
+      "reference_rows_write": " min",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 5043,
+      "first": 26,
+      "answer_token": " \"",
+      "written": " '",
+      "reference_rows_write": " '",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 5045,
+      "first": 4,
+      "answer_token": " sum",
+      "written": " count",
+      "reference_rows_write": " count",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 5049,
+      "first": 9,
+      "answer_token": " enr",
+      "written": " state",
+      "reference_rows_write": " state",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5669,
+      "first": 13,
+      "answer_token": " '",
+      "written": " \"",
+      "reference_rows_write": " \"",
+      "put_wrong_by": "body",
+      "kind": "quote style"
+    },
+    {
+      "idx": 5671,
+      "first": null
+    },
+    {
+      "idx": 5674,
+      "first": 7,
+      "answer_token": " STUD",
+      "written": " Student",
+      "reference_rows_write": " Student",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5675,
+      "first": 4,
+      "answer_token": " F",
+      "written": " L",
+      "reference_rows_write": " L",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5678,
+      "first": null
+    },
+    {
+      "idx": 5679,
+      "first": null
+    },
+    {
+      "idx": 5681,
+      "first": null
+    },
+    {
+      "idx": 5682,
+      "first": null
+    },
+    {
+      "idx": 5683,
+      "first": null
+    },
+    {
+      "idx": 5686,
+      "first": 16,
+      "answer_token": " Student",
+      "written": " student",
+      "reference_rows_write": " student",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5695,
+      "first": null
+    },
+    {
+      "idx": 5700,
+      "first": 4,
+      "answer_token": " count",
+      "written": " DISTINCT",
+      "reference_rows_write": " DISTINCT",
+      "put_wrong_by": "body",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5701,
+      "first": 5,
+      "answer_token": "(D",
+      "written": "(*)",
+      "reference_rows_write": "(*)",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 5704,
+      "first": 15,
+      "answer_token": " Has",
+      "written": " Dorm",
+      "reference_rows_write": " Dorm",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5713,
+      "first": 4,
+      "answer_token": " city",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 5714,
+      "first": 11,
+      "answer_token": " STUD",
+      "written": " Student",
+      "reference_rows_write": " Student",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5719,
+      "first": 4,
+      "answer_token": " T",
+      "written": " DISTINCT",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "adds DISTINCT"
+    },
+    {
+      "idx": 5720,
+      "first": 4,
+      "answer_token": " gender",
+      "written": " count",
+      "reference_rows_write": " count",
+      "put_wrong_by": "body",
+      "kind": "different aggregate or its argument"
+    },
+    {
+      "idx": 5724,
+      "first": null
+    },
+    {
+      "idx": 5726,
+      "first": 16,
+      "answer_token": " Student",
+      "written": " student",
+      "reference_rows_write": " ",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5735,
+      "first": 11,
+      "answer_token": " WHERE",
+      "written": " GROUP",
+      "reference_rows_write": " GROUP",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 5737,
+      "first": 4,
+      "answer_token": " avg",
+      "written": " T",
+      "reference_rows_write": " T",
+      "put_wrong_by": "body",
+      "kind": "an alias where the answer has none"
+    },
+    {
+      "idx": 5739,
+      "first": 4,
+      "answer_token": " T",
+      "written": " dorm",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 5741,
+      "first": 4,
+      "answer_token": " T",
+      "written": " count",
+      "reference_rows_write": " T",
+      "put_wrong_by": "rows",
+      "kind": "no alias where the answer has one"
+    },
+    {
+      "idx": 5744,
+      "first": 10,
+      "answer_token": " Student",
+      "written": " student",
+      "reference_rows_write": " STUD",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5745,
+      "first": 10,
+      "answer_token": " Student",
+      "written": " student",
+      "reference_rows_write": " STUD",
+      "put_wrong_by": "body",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5747,
+      "first": 7,
+      "answer_token": " Lives",
+      "written": " Dorm",
+      "reference_rows_write": " Student",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5748,
+      "first": 7,
+      "answer_token": " Lives",
+      "written": " Student",
+      "reference_rows_write": " Student",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5750,
+      "first": 6,
+      "answer_token": ".am",
+      "written": ".d",
+      "reference_rows_write": ".d",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5751,
+      "first": 6,
+      "answer_token": ".am",
+      "written": ".A",
+      "reference_rows_write": ".A",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5754,
+      "first": 6,
+      "answer_token": ".am",
+      "written": ".A",
+      "reference_rows_write": ".d",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5755,
+      "first": 6,
+      "answer_token": ".am",
+      "written": ".A",
+      "reference_rows_write": ".A",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5758,
+      "first": 12,
+      "answer_token": "1",
+      "written": "2",
+      "reference_rows_write": "2",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    },
+    {
+      "idx": 5764,
+      "first": 12,
+      "answer_token": ".Age",
+      "written": ".age",
+      "reference_rows_write": ".Age",
+      "put_wrong_by": "rows",
+      "kind": "same word, different case"
+    },
+    {
+      "idx": 5766,
+      "first": 9,
+      "answer_token": " FROM",
+      "written": " ,",
+      "reference_rows_write": " ,",
+      "put_wrong_by": "body",
+      "kind": "different clause structure"
+    },
+    {
+      "idx": 5767,
+      "first": 6,
+      "answer_token": ".A",
+      "written": ".d",
+      "reference_rows_write": ".d",
+      "put_wrong_by": "body",
+      "kind": "different table, column or value"
+    }
+  ]
+}

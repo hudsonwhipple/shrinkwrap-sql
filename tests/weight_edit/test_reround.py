@@ -7,7 +7,7 @@ import pytest
 
 from shrinkwrap.quant import pack_codes
 from shrinkwrap.weight_edit.edits import dense_weight
-from shrinkwrap.weight_edit.reround import Reround, other_side, random_rerounds, reround, stored_codes
+from shrinkwrap.weight_edit.reround import GridWouldMove, Reround, other_side, random_rerounds, reround, stored_codes
 
 GROUP = 64
 
@@ -120,19 +120,37 @@ def test_a_move_away_from_the_full_precision_value_is_refused():
     assert all(np.array_equal(before[k], v) for k, v in stored(layer).items())
 
 
+def crafted():
+    """A 3-bit layer whose row 0 has its largest value at column 1, placed so that re-rounding it moves the grid.
+
+    The group runs from -0.4 to 0.27, so the quantizer's step is 0.1 and 0.27 is stored as 0.3. Moved
+    to 0.2 it is still the largest value, the range shrinks, and the quantizer picks a step of 0.08.
+    """
+    values = np.random.default_rng(0).uniform(-0.3, 0.1, size=(2, GROUP)).astype(np.float32)
+    values[0, 0], values[0, 1] = -0.4, 0.27
+    linear = nn.Linear(GROUP, 2, bias=False)
+    linear.weight = mx.array(values)
+    layer = nn.QuantizedLinear.from_linear(linear, group_size=GROUP, bits=3)
+    mx.eval(layer.parameters())
+    return layer, {row: values[row].astype(np.float64) for row in range(2)}
+
+
 def test_a_change_that_would_move_the_groups_grid_is_refused():
-    layer, full = make(3)
-    change = movable(layer, full, 2)
-    # The same rows, but with the group's largest value three times as large: the quantizer would now
-    # pick a coarser grid for the group, and every code in it would change.
-    stretched = {2: full[2].copy()}
-    top = GROUP + int(full[2][GROUP : 2 * GROUP].argmax())
-    assert top != change.column
-    stretched[2][top] *= 3
+    layer, full = crafted()
+    change = other_side(layer, full, 0, 1)
+    assert change == Reround(0, 1, -1)  # there is a level on the other side: only the grid check can refuse it
     before = stored(layer)
-    with pytest.raises(ValueError, match="would change more than the listed weights"):
-        reround(layer, stretched, [change])
+    with pytest.raises(GridWouldMove, match="would change more than the listed weights"):
+        reround(layer, full, [change])
     assert all(np.array_equal(before[k], v) for k, v in stored(layer).items())
+
+
+def test_a_random_control_skips_a_weight_that_would_move_its_grid():
+    layer, full = crafted()
+    only = [c for c in range(GROUP) if c not in (1, 5)]  # leave the group's largest value and one ordinary weight
+    for seed in range(6):
+        (found,) = random_rerounds(layer, full, [0], seed, exclude=only)
+        assert found.column == 5
 
 
 def test_full_precision_rows_that_did_not_make_the_layer_are_refused():
@@ -140,8 +158,16 @@ def test_full_precision_rows_that_did_not_make_the_layer_are_refused():
     change = movable(layer, full, 2)
     wrong = {2: full[2] * np.where(np.arange(192) % 2, 1.0, 0.6)}
     wrong[2][change.column] = full[2][change.column]
-    with pytest.raises(ValueError, match="would change more than the listed weights|would not be a rounding"):
-        reround(layer, wrong, [change])
+    before = stored(layer)
+    for attempt in (lambda: reround(layer, wrong, [change]), lambda: random_rerounds(layer, wrong, [2], seed=0)):
+        with pytest.raises(ValueError, match="was not made from these full-precision rows") as refused:
+            attempt()
+        # Said once and as what it is, not as a weight that cannot be moved: a random control must not
+        # work through every column and then report that none can be re-rounded.
+        assert not isinstance(refused.value, GridWouldMove)
+    with pytest.raises(ValueError, match="has shape"):
+        reround(layer, {2: full[2][:100]}, [change])
+    assert all(np.array_equal(before[k], v) for k, v in stored(layer).items())
 
 
 def test_a_full_precision_layer_is_refused():

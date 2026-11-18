@@ -11,6 +11,7 @@ docs/weight_edit/PROTOCOL.md. The modules here enforce the parts of them that co
     probe.py     split the difference between two next-token logits by component
     reround.py   move single weights of a quantized layer to their other neighbouring level
     verdict.py   the test's rule: does the edit beat the unedited model and the random controls
+    frozen.py    check that the models about to be scored are the ones the freeze record names
 
 Nothing in this package computes a gradient. tests/weight_edit/test_rules.py checks that.
 """

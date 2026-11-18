@@ -12,7 +12,19 @@ applied to a per-question difference. For two runs it gives exactly compare's nu
 from __future__ import annotations
 
 import random
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+
+
+def require_same_questions(ids: Mapping[str, Sequence[int]], reference: str) -> None:
+    """Raise ValueError unless every run answered the reference run's questions, in the same order.
+
+    The rule compares runs question by question, so a run in another order would be compared with the
+    wrong questions and nothing downstream would notice.
+    """
+    wanted = list(ids[reference])
+    for name, got in ids.items():
+        if list(got) != wanted:
+            raise ValueError(f"{name} does not cover the same questions in the same order as {reference}")
 
 
 def bootstrap_ci(diffs: Sequence[float], iters: int = 10_000, seed: int = 0) -> tuple[float, float]:

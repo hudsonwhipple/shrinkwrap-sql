@@ -76,16 +76,50 @@ def score(examples: Sequence[Example], texts: Sequence[str]) -> list[dict]:
 
 
 def failure_kind(row: dict) -> str:
-    """Which of FAILURE_KINDS a scored row is. A query that runs and returns the wrong rows is "wrong result"."""
+    """Which of FAILURE_KINDS a scored row is. A query that runs and returns the wrong rows is "wrong result".
+
+    Goes by the form of SQLite's message, not by a phrase anywhere in it: a syntax error that happens
+    to quote the words "no such column" is a syntax error.
+    """
     if row["match"]:
         return "right"
     error = row["pred_error"]
     if error is None:
         return "wrong result"
-    for kind in ("no such column", "no such table", "syntax error", "ambiguous column"):
-        if kind in error.lower():
-            return kind
+    # sqlexec reports "OperationalError: no such column: T1.age": drop the exception's name.
+    message = re.sub(r"^\w+: ", "", error, count=1).lower()
+    if message.startswith("no such column:"):
+        return "no such column"
+    if message.startswith("no such table:"):
+        return "no such table"
+    if message.endswith("syntax error"):
+        return "syntax error"
+    if message.startswith("ambiguous column name:"):
+        return "ambiguous column"
     return "other error"
+
+
+# An answer's opening, up to the letter of the alias on its first selected column: "SELECT T",
+# "SELECT DISTINCT t", "SELECT count(T". The lookahead holds the digit and the dot that follow.
+_ALIAS_START = re.compile(r"\s*(?:```\w*\s*)?select\s+(?:distinct\s+)?(?:\w+\(\s*)?(?:distinct\s+)?t(?=(\d)\.)", re.IGNORECASE)
+
+
+def first_alias(sql: str) -> str:
+    """The alias on the first selected column, as "T1", "T2" and so on, or "none" if it has no alias.
+
+    One definition for every count and every selection, so a trace samples the answers a report counts.
+    """
+    found = _ALIAS_START.match(sql)
+    return f"T{found.group(1)}" if found else "none"
+
+
+def alias_prefix(output: str) -> str | None:
+    """An answer's text up to and including the letter of its first alias, so that what comes next is the digit.
+
+    Works on the raw answer, code fence included. None if the first selected column has no alias.
+    """
+    found = _ALIAS_START.match(output)
+    return found.group(0) if found else None
 
 
 def _columns(db_path: str | Path) -> dict[str, list[str]]:
@@ -111,8 +145,7 @@ def missing_column(row: dict, db_path: str | Path) -> dict | None:
     """
     if failure_kind(row) != "no such column":
         return None
-    # failure_kind goes by the phrase alone, so the name still has to be found. DOTALL because SQLite
-    # repeats the name as the query wrote it, line breaks included.
+    # DOTALL because SQLite repeats the name as the query wrote it, line breaks included.
     found = re.search(r"no such column:\s*(\S.*)", row["pred_error"], re.DOTALL)
     if found is None:
         return None

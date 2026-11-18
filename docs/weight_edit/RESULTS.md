@@ -62,6 +62,11 @@ Both models read the same text on 32 practice questions: the prompt, then `SELEC
 is the alias digit. The table gives the mean of logit("1") − logit("2"), where a positive number
 means `T1`:
 
+The 32 were drawn from answers that begin exactly `SELECT T2.`, which is 84 of the 175 questions
+where the 3-bit model starts with `T2` and the full-precision model with `T1`. The other openings,
+mostly `SELECT DISTINCT T2.`, were not traced. The edit's result covers them: afterwards all 235
+aliased answers start with `T1`, whatever comes before the alias.
+
 | Final residual stream from | Read through the output rows of | logit("1") − logit("2") |
 |---|---|---|
 | Full precision | Full precision | +0.53 |
@@ -168,7 +173,7 @@ errors from 259 to 177. The behaviour carries over; the accuracy gain is again i
 
 - **Every token's logit carries a rounding offset.** The 3-bit model read 256 of the full-precision
   model's answers. At the first token where it would write something else, reading its own stream
-  through the full-precision rows gives the full-precision token back in 106 of 219 answers. The
+  through the full-precision rows gives the full-precision token back in 107 of 219 answers. The
   alias digit is 65 of those and an added `DISTINCT` is 15.
 - **`DISTINCT` is over-produced for the same reason.** Right after `SELECT`, the output rows add
   about +1.0 logit to ` DISTINCT` and ` count` and take 0.9 from ` T`. Answers starting
@@ -176,9 +181,9 @@ errors from 259 to 177. The behaviour carries over; the accuracy gain is again i
   that row was not added to the edit: on the 52 questions where it applies, the full-precision table
   gets 10 right against 7.
 - **The rest of the damage is in the body of the network and has no single cause.** With the edit's
-  rows in place, 166 of 220 first wrong tokens do not come from the output rows. They are a different
-  table, column or value (75), an alias where the reference has none (21), letter case (16), a
-  different aggregate (15) and smaller groups.
+  rows in place, 163 of 219 first wrong tokens do not come from the output rows. They are a different
+  table, column or value (72), an alias where the reference has none (21), letter case (15), a
+  different aggregate (14) and smaller groups.
 - **MLX quantizes the embedding table and this repo's quantizers do not.** `mlx_lm convert -q`
   rounds it like any other matrix. The from-scratch RTN and GPTQ in exercises 3 and 4 keep it at
   full precision, which is one reason their 3-bit numbers are not like for like with MLX's.
@@ -217,6 +222,13 @@ Limits:
   | The full-precision-table diagnostic | 548 |
 
 - **One candidate was tested and frozen.** No other edit was built or scored.
+- **The code was reviewed after the test, and ten things were fixed.** None changes the test or the
+  practice results. Two touch this page. The census under "What else the diagnosis showed" had
+  compared tokens, so the same text split into tokens differently counted as a difference; recounted
+  by text with `read_through_rows.py`, 106 of 219 became 107 and 166 of 220 became 163 of 219. And
+  the alias trace had sampled one opening only, which the section on the cause now says. The dev
+  test did not check the models against the hashes recorded at the freeze; checked afterwards, all
+  seven hashed models still match, and rebuilding the edit from its spec gives the same bytes.
 - **One disclosure.** Before the freeze, while locating files, a command printed one dev accuracy
   that is in the README but not in the protocol's table: the from-scratch RTN 3-bit model, 0.3346.
   No per-question row was read, and the decision to freeze had already been made and stated.
@@ -227,11 +239,18 @@ Limits:
 ## Rerun it
 
 ```bash
-python -m pytest tests/weight_edit                                   # the harness, in about a second
+python -m pytest tests/weight_edit                                   # the harness, in about two seconds
 python scripts/weight_edit/apply_reround.py --spec results/weight_edit/edits/alias_reround.json
-python scripts/weight_edit/dev_test.py                               # needs the freeze entry in the ledger
+python scripts/weight_edit/dev_test.py                               # prints the report of the test that was run
+python scripts/weight_edit/read_through_rows.py --traces results/weight_edit/traces/q3_reads_bf16 \
+    --rows models/weight_edit/alias_reround --reference models/Qwen3-1.7B-mine_r16-fused --name edited_rows
 ```
 
-Both scripts refuse to overwrite what is already there: move `models/weight_edit/` and
-`results/weight_edit/dev/` aside first. The practice and tracing scripts in `scripts/weight_edit/`
-spend from the ledger's budget and refuse a name that already has results.
+- `apply_reround.py` refuses to overwrite an edited model: move `models/weight_edit/` aside first.
+  A rebuild gives the same bytes, so its hash still matches the freeze record.
+- `dev_test.py` scores nothing while `results/weight_edit/dev/report.json` exists. Move that folder
+  aside to score again; it then checks every model's hash against the freeze record first.
+- `read_through_rows.py` reads the stored streams through a model's output rows and runs no model.
+  It needs the trace files, which are not in git.
+- The practice and tracing scripts spend from the ledger's budget and refuse a name that already has
+  results.
