@@ -58,6 +58,16 @@ class Ledger:
         self._append({"kind": "forward", "sequences": sequences, "model": model, "purpose": purpose, "total": total})
         return total
 
+    def require_room(self, sequences: int) -> None:
+        """Raise BudgetExceeded unless `sequences` more would fit.
+
+        For a script that records several passes: check their total here first, so a refusal leaves
+        none of them recorded.
+        """
+        total = self.spent + sequences
+        if total > self.cap:
+            raise BudgetExceeded(f"{sequences} more sequences would make {total}, over the budget of {self.cap}")
+
     def note(self, kind: str, **fields) -> None:
         """Record something that isn't a forward pass: a hypothesis, a candidate edit, a result, the freeze."""
         if kind == "forward":

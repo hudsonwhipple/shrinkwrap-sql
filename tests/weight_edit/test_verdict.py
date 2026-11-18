@@ -5,7 +5,7 @@ import random
 import pytest
 
 from shrinkwrap.compare import paired_bootstrap
-from shrinkwrap.weight_edit.verdict import bootstrap_ci, verdict
+from shrinkwrap.weight_edit.verdict import bootstrap_ci, require_same_questions, verdict
 
 
 def runs(n: int, right: float, seed: int) -> list[bool]:
@@ -55,3 +55,14 @@ def test_runs_over_different_questions_are_refused():
         verdict([True, False], [True, False], [[True]])
     with pytest.raises(ValueError, match="same questions"):
         verdict([True, False], [True, False], [])
+
+
+def test_runs_must_answer_the_same_questions_in_the_same_order():
+    ids = {"unedited": [3, 1, 2], "edit": [3, 1, 2], "control": (3, 1, 2)}
+    require_same_questions(ids, "unedited")
+    with pytest.raises(ValueError, match="control does not cover the same questions in the same order as unedited"):
+        require_same_questions({**ids, "control": [1, 3, 2]}, "unedited")
+    with pytest.raises(ValueError, match="edit does not cover"):
+        require_same_questions({**ids, "edit": [3, 1]}, "unedited")
+    with pytest.raises(ValueError, match="edit does not cover"):
+        require_same_questions({**ids, "edit": [3, 1, 9]}, "unedited")  # same count, another question

@@ -2,6 +2,8 @@
 
     logit_direction     the direction in the residual stream that decides between two next tokens
     dense_rows          a token's row of the output matrix, as the model computes with it
+    continues_text      whether a different next token would still spell the same answer
+    where_it_leaves     the positions where a model's next tokens change an answer's text
 
 The final logits are linear in the last residual stream once its norm is fixed:
 
@@ -48,3 +50,23 @@ def logit_direction(model: nn.Module, final_resid: np.ndarray, a: int, b: int) -
     unembed = inner.embed_tokens if model.args.tie_word_embeddings else model.lm_head
     u_a, u_b = dense_rows(unembed, [a, b])
     return (u_a - u_b) * gain / rms
+
+
+def continues_text(tokenizer, answer: Sequence[int], position: int, token: int) -> bool:
+    """Whether writing `token` at `position` spells what the answer goes on to say anyway.
+
+    An answer read back from its text is tokenized afresh, and that need not be the split the model
+    that wrote it used: "T1.FIRST" can be ".", "FIRST" or ".F", "IRST". A model that prefers the other
+    split writes the same characters, so that position is not one where it leaves the answer.
+    """
+    text = tokenizer.decode([int(token)])
+    return bool(text) and tokenizer.decode([int(t) for t in answer[position:]]).startswith(text)
+
+
+def where_it_leaves(tokenizer, answer: Sequence[int], would_write: Sequence[int]) -> tuple[list[int], list[int]]:
+    """Positions where the model's token changes the answer's text, and positions where it only splits it differently."""
+    leaves, splits = [], []
+    for i, (wanted, got) in enumerate(zip(answer, would_write, strict=True)):
+        if int(got) != int(wanted):
+            (splits if continues_text(tokenizer, answer, i, got) else leaves).append(i)
+    return leaves, splits

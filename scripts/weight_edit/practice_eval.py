@@ -12,6 +12,10 @@ the same N, and a larger N contains every smaller one.
 
 A name that already has results is refused before anything is spent: rerunning would pay for the
 same answers twice.
+
+The answers are written to <name>.answers.json as soon as the model has given them, before anything
+is scored. If scoring then fails, run the same command again: it scores the saved answers and spends
+nothing. The file is removed once the scored rows are written.
 """
 
 import argparse
@@ -57,6 +61,27 @@ def summarize(rows: list[dict]) -> dict:
     }
 
 
+def saved_or_new(saved: Path, model: str, examples, make) -> tuple[list[str], bool]:
+    """The model's answers to `examples`, and whether they came from `saved`.
+
+    If `saved` holds answers from an earlier run that paid for them, they are returned and `make` is
+    never called. Otherwise make() produces them and they are written to `saved` at once, so nothing
+    that happens afterwards can lose them. Exits if the saved answers are another model's or other
+    questions'.
+    """
+    ids = [e.idx for e in examples]
+    if saved.exists():
+        kept = json.loads(saved.read_text())
+        if kept["model"] != model or kept["idx"] != ids:
+            raise SystemExit(f"{saved} holds answers from {kept['model']} to {len(kept['idx'])} questions, not what this run asks for. "
+                             "Use the same --model and --limit, or move the file aside.")
+        return kept["answers"], True
+    texts = list(make())
+    saved.parent.mkdir(parents=True, exist_ok=True)
+    saved.write_text(json.dumps({"model": model, "idx": ids, "answers": texts}))
+    return texts, False
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True, help="a local MLX model directory")
@@ -74,11 +99,17 @@ def main() -> None:
     practice, ledger = PracticeSet.load(), Ledger()
     examples = fixed_subset(practice.examples, args.limit)
 
-    from mlx_lm import load
+    def answer() -> list[str]:
+        from mlx_lm import load
 
-    model, tokenizer = load(args.model)
-    texts = generate(model, tokenizer, examples, practice=practice, ledger=ledger, model_name=args.model,
-                     purpose=args.purpose, batch_size=args.batch_size, max_tokens=args.max_tokens)
+        model, tokenizer = load(args.model)
+        return generate(model, tokenizer, examples, practice=practice, ledger=ledger, model_name=args.model,
+                        purpose=args.purpose, batch_size=args.batch_size, max_tokens=args.max_tokens)
+
+    saved = OUT / f"{args.name}.answers.json"
+    texts, reused = saved_or_new(saved, args.model, examples, answer)
+    if reused:
+        print(f"Scoring the answers saved in {saved}; nothing was spent.", flush=True)
     rows = score(examples, texts)
     for example, row in zip(examples, rows):
         row["kind"] = failure_kind(row)
@@ -90,6 +121,7 @@ def main() -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(json.dumps(r) + "\n" for r in rows))
     out.with_suffix(".json").write_text(json.dumps(summary, indent=2))
+    saved.unlink()
     ledger.note("result", name=args.name, accuracy=summary["execution_accuracy"], n=summary["n"], kinds=summary["kinds"])
     print(json.dumps(summary, indent=2))
 

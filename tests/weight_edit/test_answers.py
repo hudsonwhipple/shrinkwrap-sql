@@ -3,7 +3,7 @@
 import pytest
 
 from shrinkwrap.spider import Example
-from shrinkwrap.weight_edit.answers import FAILURE_KINDS, failure_kind, generate, missing_column, score
+from shrinkwrap.weight_edit.answers import FAILURE_KINDS, alias_prefix, failure_kind, first_alias, generate, missing_column, score
 from shrinkwrap.weight_edit.ledger import BudgetExceeded, Ledger
 from shrinkwrap.weight_edit.practice import PracticeSet
 
@@ -78,14 +78,55 @@ def test_missing_column_reads_a_name_that_runs_over_two_lines(tiny_db):
 
 
 @pytest.mark.parametrize("error", [
-    'OperationalError: near "no such column": syntax error',  # mentions the phrase, names nothing
-    "OperationalError: no such column",  # no name after it
-    "OperationalError: no such column:   ",
+    "OperationalError: no such column:   ",  # the form, with no name after it
+    "OperationalError: no such column:",
 ])
-def test_missing_column_gives_none_when_the_error_does_not_name_a_column(tiny_db, error):
+def test_missing_column_gives_none_when_the_error_names_no_column(tiny_db, error):
     row = {"match": False, "pred_error": error}
-    assert failure_kind(row) == "no such column"  # the kind goes by the phrase alone
+    assert failure_kind(row) == "no such column"
     assert missing_column(row, tiny_db) is None
+
+
+@pytest.mark.parametrize("error, kind", [
+    ("OperationalError: no such column: T1.age", "no such column"),
+    ("no such column: age", "no such column"),  # with or without the exception's name in front
+    ("OperationalError: No Such Column: age", "no such column"),
+    # The phrase inside another message is not that failure.
+    ('OperationalError: near "no such column": syntax error', "syntax error"),
+    ('OperationalError: near "no such table": syntax error', "syntax error"),
+    ("OperationalError: no such table: no such column: x", "no such table"),
+    ("OperationalError: no such column", "other error"),  # not SQLite's form: nothing was named
+    ("OperationalError: ambiguous column name: name", "ambiguous column"),
+    ("OperationalError: incomplete input", "other error"),
+    ("timeout", "other error"),
+])
+def test_failure_kind_goes_by_the_form_of_the_message_not_by_a_phrase_in_it(tiny_db, error, kind):
+    row = {"match": False, "pred_error": error}
+    assert failure_kind(row) == kind
+    if kind != "no such column":
+        assert missing_column(row, tiny_db) is None
+
+
+# ---- the first alias ----
+
+
+@pytest.mark.parametrize("sql, alias, opening", [
+    ("SELECT T2.name FROM a AS T1 JOIN b AS T2", "T2", "SELECT T"),
+    ("SELECT DISTINCT T1.name FROM a AS T1", "T1", "SELECT DISTINCT T"),
+    ("select t2.name from a as t1", "T2", "select t"),
+    ("SELECT avg(T2.age) ,  T1.name FROM a AS T1", "T2", "SELECT avg(T"),
+    ("SELECT count(DISTINCT T3.id) FROM a AS T3", "T3", "SELECT count(DISTINCT T"),
+    ("SELECT name FROM singer", "none", None),
+    ("SELECT name ,  T2.age FROM a AS T2", "none", None),  # the first column has no alias
+    ("SELECT Total FROM invoices", "none", None),  # a column that starts with T is not an alias
+    ("SELECT T1 FROM a", "none", None),
+])
+def test_first_alias_and_the_opening_before_its_digit(sql, alias, opening):
+    assert first_alias(sql) == alias
+    assert alias_prefix(sql) == opening
+    # The raw answer carries a code fence; the alias is the same and the opening keeps the fence.
+    assert first_alias(fenced(sql)) == alias
+    assert alias_prefix(fenced(sql)) == (None if opening is None else "```sql\n" + opening)
 
 
 # ---- the two checks in generate ----

@@ -622,7 +622,7 @@ controls. Your part is to read it critically.
 
 **Check it before you trust it.**
 ```bash
-.venv/bin/python -m pytest tests/weight_edit        # 85 tests, about a second
+.venv/bin/python -m pytest tests/weight_edit        # about two seconds
 ```
 Look at the two weights yourself:
 ```python

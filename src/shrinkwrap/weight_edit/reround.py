@@ -28,6 +28,14 @@ import numpy as np
 from .edits import dense_weight, is_quantized, set_dense_weight
 
 
+class GridWouldMove(ValueError):
+    """Re-quantizing a group with the wanted weight changed would change something else the group stores.
+
+    It happens when the weight is the group's smallest or largest value: the quantizer fits the grid
+    to those two, so moving one of them moves every level.
+    """
+
+
 @dataclass(frozen=True)
 class Reround:
     row: int  # in the embedding, the token id
@@ -35,15 +43,20 @@ class Reround:
     step: int  # +1 or -1, in stored codes
 
 
-def stored_codes(layer: nn.Module, rows: Sequence[int]) -> np.ndarray:
-    """The integer codes the layer stores for the given rows, shape (len(rows), in), unpacked from its words.
+def unpack_codes(words: mx.array, bits: int) -> np.ndarray:
+    """The integer codes packed in rows of uint32 words, shape (rows, in).
 
     Each row is one stream of bits, lowest first: code i is bits [i * bits, (i + 1) * bits).
     """
-    words = np.array(layer.weight[mx.array(list(rows))]).astype("<u4")
+    words = np.array(words).astype("<u4")
     stream = np.unpackbits(words.view(np.uint8).reshape(len(words), -1), axis=1, bitorder="little")
-    place = 1 << np.arange(layer.bits)
-    return (stream.reshape(len(words), -1, layer.bits) * place).sum(axis=-1).astype(np.uint8)
+    place = 1 << np.arange(bits)
+    return (stream.reshape(len(words), -1, bits) * place).sum(axis=-1).astype(np.uint8)
+
+
+def stored_codes(layer: nn.Module, rows: Sequence[int]) -> np.ndarray:
+    """The integer codes the layer stores for the given rows, shape (len(rows), in)."""
+    return unpack_codes(layer.weight[mx.array(list(rows))], layer.bits)
 
 
 def _grid(layer: nn.Module, rows: Sequence[int]) -> tuple[np.ndarray, np.ndarray]:
@@ -71,13 +84,33 @@ def other_side(layer: nn.Module, full: Mapping[int, np.ndarray], row: int, colum
     return Reround(row, column, step)
 
 
-def _plan(layer: nn.Module, full: Mapping[int, np.ndarray], changes: Sequence[Reround]):
-    """Check a set of re-roundings without writing anything. Returns (rows, new dense rows, wanted codes, records)."""
+def require_made_from(layer: nn.Module, full: Mapping[int, np.ndarray], rows: Sequence[int]) -> None:
+    """Raise ValueError unless quantizing the rows in `full` gives exactly what the layer stores for them.
+
+    Everything here rests on `full` being the values the quantizer was given. Checked once and up
+    front, a wrong reference model is reported as that, and not as a weight that cannot be moved.
+    """
     if not is_quantized(layer):
         raise ValueError("re-rounding is for quantized layers")
+    width = int(layer.scales.shape[1]) * layer.group_size
+    for row in rows:
+        if np.shape(full[row]) != (width,):
+            raise ValueError(f"row {row} at full precision has shape {np.shape(full[row])}, the layer's rows have {width} weights")
+    dense = mx.array(np.stack([np.asarray(full[row], dtype=np.float64) for row in rows]))
+    codes, scales, biases = mx.quantize(dense.astype(layer.scales.dtype), group_size=layer.group_size, bits=layer.bits)
+    pick = mx.array(list(rows))
+    same = (mx.array_equal(codes, layer.weight[pick]) and mx.array_equal(scales, layer.scales[pick])
+            and mx.array_equal(biases, layer.biases[pick]))
+    if not bool(same):
+        raise ValueError("the layer was not made from these full-precision rows: quantizing them gives different codes, scales or biases")
+
+
+def _plan(layer: nn.Module, full: Mapping[int, np.ndarray], changes: Sequence[Reround]):
+    """Check a set of re-roundings without writing anything. Returns (rows, new dense rows, wanted codes, records)."""
     if len({(c.row, c.column) for c in changes}) != len(changes):
         raise ValueError("each weight can be re-rounded once")
     rows = sorted({c.row for c in changes})
+    require_made_from(layer, full, rows)
     at = {row: i for i, row in enumerate(rows)}
     group, bits = layer.group_size, layer.bits
     codes = stored_codes(layer, rows)
@@ -113,14 +146,14 @@ def _plan(layer: nn.Module, full: Mapping[int, np.ndarray], changes: Sequence[Re
     # Dry run: what the model's quantizer makes of these rows. In the groups it rewrites, the scale and
     # bias must come out as they were and only the listed codes may differ.
     q_codes, q_scales, q_biases = mx.quantize(mx.array(new).astype(layer.scales.dtype), group_size=group, bits=bits)
-    got = stored_codes(type("Packed", (), {"weight": q_codes, "bits": bits})(), range(len(rows)))
+    got = unpack_codes(q_codes, bits)
     pick = mx.array(rows)
     same_grid = (np.array(q_scales.astype(mx.float32)) == np.array(layer.scales[pick].astype(mx.float32))) & (
         np.array(q_biases.astype(mx.float32)) == np.array(layer.biases[pick].astype(mx.float32)))
     in_touched = np.repeat(touched, group, axis=1)
     if not same_grid[touched].all() or not np.array_equal(got[in_touched], wanted[in_touched]):
-        raise ValueError("re-quantizing these groups would change more than the listed weights: one of them holds its "
-                         "group's smallest or largest value, or the layer was not made from these full-precision rows")
+        raise GridWouldMove("re-quantizing these groups would change more than the listed weights: one of them holds its "
+                            "group's smallest or largest value")
     return rows, new, wanted, records
 
 
@@ -130,9 +163,10 @@ def reround(layer: nn.Module, full: Mapping[int, np.ndarray], changes: Sequence[
     `full[row]` is the row at full precision, for every row named in `changes`: the values the
     quantizer was given when it made the layer.
 
-    Returns one record per change. Raises ValueError, leaving the layer untouched, if a change is not
-    a re-rounding (the full-precision value is not between the old level and the new one), or if
-    making it would change anything else the layer stores.
+    Returns one record per change. Raises ValueError, leaving the layer untouched, if the layer was
+    not made from `full`, if a change is not a re-rounding (the full-precision value is not between
+    the old level and the new one), or if making it would change anything else the layer stores
+    (GridWouldMove, a ValueError).
     """
     rows, new, wanted, records = _plan(layer, full, changes)
     changed = set_dense_weight(layer, mx.array(new), rows)
@@ -146,9 +180,12 @@ def random_rerounds(layer: nn.Module, full: Mapping[int, np.ndarray], rows: Sequ
     """A control of the same form as an edit that re-rounds one column in each of `rows`: a random column.
 
     The seed decides the column. Columns in `exclude` are never drawn, and a column is skipped if
-    some row has no level on the other side there or the re-rounding would be refused.
+    some row has no level on the other side there or moving the weight would move its group's grid.
+    Any other problem is raised: it would be the same for every column.
     """
-    columns = [c for c in range(int(dense_weight(layer, rows[:1]).shape[1])) if c not in set(exclude)]
+    require_made_from(layer, full, rows)
+    excluded = set(exclude)
+    columns = [c for c in range(int(layer.scales.shape[1]) * layer.group_size) if c not in excluded]
     random.Random(seed).shuffle(columns)
     for column in columns:
         found = [other_side(layer, full, row, column) for row in rows]
@@ -156,7 +193,7 @@ def random_rerounds(layer: nn.Module, full: Mapping[int, np.ndarray], rows: Sequ
             continue
         try:
             _plan(layer, full, found)
-        except ValueError:
+        except GridWouldMove:
             continue
         return found
     raise ValueError("no column can be re-rounded in every one of these rows")

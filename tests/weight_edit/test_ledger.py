@@ -54,3 +54,13 @@ def test_every_line_is_one_json_object(tmp_path):
     ledger.note("edit", layers=["model.layers.3.mlp.down_proj"])
     lines = ledger.path.read_text().splitlines()
     assert len(lines) == 2 and all(isinstance(json.loads(line), dict) for line in lines)
+
+
+def test_require_room_refuses_a_total_that_would_not_fit_and_records_nothing(tmp_path):
+    ledger = Ledger(tmp_path / "ledger.jsonl", cap=100)
+    ledger.spend(40, model="m", purpose="first")
+    ledger.require_room(60)  # exactly fits
+    with pytest.raises(BudgetExceeded, match="over the budget of 100"):
+        ledger.require_room(61)
+    # Asking is free: only the one real pass is on record.
+    assert ledger.spent == 40 and len(ledger.entries()) == 1
